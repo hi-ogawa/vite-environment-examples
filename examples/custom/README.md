@@ -3,6 +3,10 @@
 minimal test cases
 
 ```sh
-# optimizeDeps not working?
-DEBUG=vite:deps,vite:resolve-details pnpm -C examples/custom tsx src/optimize-deps/runner.ts
+# ssrLoadModule
+npx tsx examples/custom/src/optimize-deps/run-ssr.ts
+
+# custom environment
+# (workaround optimizeDeps by custom plugin)
+npx tsx examples/custom/src/optimize-deps/run.ts
 ```
