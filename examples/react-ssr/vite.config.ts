@@ -6,8 +6,12 @@ import {
   createServerModuleRunner,
   Connect,
 } from "vite";
-import { tinyassert } from "@hiogawa/utils";
+import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { __global } from "./src/global";
+import react from "@vitejs/plugin-react";
+import type { ModuleRunner } from "vite/module-runner";
+
+const debug = createDebug("app");
 
 // [feedback]
 // - cac cli error?
@@ -17,6 +21,7 @@ export default defineConfig((env) => ({
   clearScreen: false,
   appType: "custom",
   plugins: [
+    react(),
     vitePluginSsrMiddleware({
       entry: "/src/adapters/node",
       preview: "./dist/server/index.js",
@@ -29,7 +34,7 @@ export default defineConfig((env) => ({
           "process.env.NODE_ENV": `"production"`,
         }
       : {},
-  // [feedback] array or record?
+  // [feedback] (doc) array or record?
   environments: {
     client: {
       // [feedback] not working? (see runBuildTasks below)
@@ -89,15 +94,31 @@ export function vitePluginSsrMiddleware({
   entry: string;
   preview?: string;
 }): PluginOption {
+  let runner: ModuleRunner;
+
   const plugin: Plugin = {
     name: vitePluginSsrMiddleware.name,
+
+    // [feedback] (doc) `ctx.environment` instead of `this.environment`
+    hotUpdate(ctx) {
+      if (ctx.environment.name === "server") {
+        // [feedback] can we access runner side `moduleCache`?
+        //            probably not since runner is not in the main process?
+        const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
+        const invalidated = runner.moduleCache.invalidateDepTree(ids);
+        debug("[handleUpdate]", { ids, invalidated: [...invalidated] });
+        return [];
+      }
+      return ctx.modules;
+    },
 
     configureServer(server) {
       __global.server = server;
 
       const serverEnv = server.environments["server"];
       tinyassert(serverEnv);
-      const runner = createServerModuleRunner(serverEnv);
+      runner = createServerModuleRunner(serverEnv);
+
       const handler: Connect.NextHandleFunction = async (req, res, next) => {
         try {
           const mod = await runner.import(entry);
