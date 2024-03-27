@@ -42,8 +42,8 @@ function vitePluginReactServer(): PluginOption {
     config(config, _env) {
       tinyassert(config.environments);
       config.environments["react-server"] = {
-        // TODO: noExternal?
-        // TODO: optimizeDeps not kicking in?
+        // [feedback] noExternal?
+        // [feedback] optimizeDeps not kicking in for custom environment?
         resolve: {
           mainFields: [],
           conditions: ["react-server"],
@@ -70,13 +70,15 @@ function vitePluginReactServer(): PluginOption {
         reactServerEnv.config,
         reactServerEnv.config.dev?.optimizeDeps,
       );
-      debug(
-        "[transformRequest]",
-        await reactServerEnv.transformRequest("/src/entry-react-server"),
-      );
       const reactServerRunner = createServerModuleRunner(reactServerEnv);
       __global.server = server;
       __global.reactServerRunner = reactServerRunner;
+      return async () => {
+        debug(
+          "[transformRequest]",
+          await reactServerEnv.transformRequest("/src/entry-react-server"),
+        );
+      };
     },
   };
 
