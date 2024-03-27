@@ -73,7 +73,7 @@ export default defineConfig((env) => ({
     runBuildTasks: async (_builder, buildTasks) => {
       for (const task of buildTasks) {
         // [feedback] task config empty?
-        // console.log("[task.environment.config]", task.environment.config);
+        debug("[task.environment.config]", task.environment.config);
         Object.assign(
           task.config.build,
           // for now, we can grab the same config by this
