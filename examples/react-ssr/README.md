@@ -1,3 +1,7 @@
 # react-ssr
 
-todo
+## todo
+
+- [ ] dev
+- [ ] build
+- [ ] dev hmr
