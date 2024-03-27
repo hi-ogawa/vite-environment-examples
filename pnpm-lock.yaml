@@ -42,6 +42,22 @@ importers:
         specifier: file:/home/hiroshi/code/personal/vite-environment-examples/misc/vite-5.2.6-patch-import-analysis.tgz
         version: file:misc/vite-5.2.6-patch-import-analysis.tgz(@types/node@20.11.30)
 
+  examples/custom:
+    dependencies:
+      react:
+        specifier: 18.3.0-canary-6c3b8dbfe-20240226
+        version: 18.3.0-canary-6c3b8dbfe-20240226
+      react-dom:
+        specifier: 18.3.0-canary-6c3b8dbfe-20240226
+        version: 18.3.0-canary-6c3b8dbfe-20240226(react@18.3.0-canary-6c3b8dbfe-20240226)
+    devDependencies:
+      '@types/react':
+        specifier: 18.2.72
+        version: 18.2.72
+      '@types/react-dom':
+        specifier: 18.2.22
+        version: 18.2.22
+
   examples/react-server:
     dependencies:
       react:
