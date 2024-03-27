@@ -3,9 +3,6 @@ import { __global } from "./global";
 import reactDomServer from "react-dom/server.edge";
 
 export async function handler(request: Request) {
-  if (0) {
-    return new Response("hello?", { headers: { "content-type": "text/html" } });
-  }
   const reactServer = await importReactServer();
   const rscStream = await reactServer.handler({ request });
   const htmlStream = await renderHtml(rscStream);
@@ -13,8 +10,7 @@ export async function handler(request: Request) {
 }
 
 async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
-  // TODO
-  // initDomWebpackSsr
+  // TODO: setup __webpack_require__
 
   const { default: reactServerDomClient } = await import(
     "react-server-dom-webpack/client.edge"
@@ -33,20 +29,7 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
 
   const ssrStream = await reactDomServer.renderToReadableStream(<Root />);
 
-  // TODO: for now just stringify
-  let ssrHtml = "";
-  ssrStream.pipeThrough(new TextDecoderStream()).pipeTo(
-    new WritableStream({
-      write(chunk) {
-        ssrHtml += chunk;
-      },
-    }),
-  );
-
-  let html = await importHtmlTemplate();
-  html = html.replace(/<body>/, `<body><div id="root">${ssrHtml}</div>`);
-
-  return html;
+  return ssrStream.pipeThrough(injectToHtml(await importHtmlTemplate()));
 }
 
 async function importReactServer() {
@@ -69,4 +52,16 @@ async function importHtmlTemplate() {
     const mod = await import("/dist/client/index.html?raw");
     return mod.default;
   }
+}
+
+function injectToHtml(html: string) {
+  const [pre, post] = html.split("<!-- SSR -->");
+  return new TransformStream<Uint8Array, Uint8Array>({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode(pre));
+    },
+    flush(controller) {
+      controller.enqueue(new TextEncoder().encode(post));
+    },
+  });
 }

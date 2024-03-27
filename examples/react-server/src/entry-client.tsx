@@ -1,5 +1,5 @@
 async function main() {
-  // TODO
+  // TODO: setup __webpack_require__
 }
 
 main();
