@@ -103,6 +103,7 @@ export function vitePluginSsrMiddleware({
     hotUpdate(ctx) {
       if (ctx.environment.name === "server") {
         // [feedback] can we access runner side `moduleCache`?
+        //            probably not since runner is not in the main process?
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
         const invalidated = runner.moduleCache.invalidateDepTree(ids);
         debug("[handleUpdate]", { ids, invalidated: [...invalidated] });
