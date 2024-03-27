@@ -31,11 +31,22 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
     return React.use(rscPromise);
   }
 
-  const ssrStream = reactDomServer.renderToReadableStream(<Root />);
+  const ssrStream = await reactDomServer.renderToReadableStream(<Root />);
 
-  importHtmlTemplate();
+  // TODO: for now stringify
+  let ssrHtml = "";
+  ssrStream.pipeThrough(new TextDecoderStream()).pipeTo(
+    new WritableStream({
+      write(chunk) {
+        ssrHtml += chunk;
+      },
+    }),
+  );
 
-  return ssrStream;
+  let html = await importHtmlTemplate();
+  html = html.replace(/<body>/, `<body><div id="root">${ssrHtml}</div>`);
+
+  return html;
 }
 
 async function importReactServer() {
