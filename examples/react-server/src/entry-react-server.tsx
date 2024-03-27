@@ -1,3 +1,4 @@
+import React from "react";
 import reactServerDomServer from "react-server-dom-webpack/server.edge";
 import { Root } from "./routes";
 

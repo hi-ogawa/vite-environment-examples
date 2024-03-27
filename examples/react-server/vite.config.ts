@@ -9,8 +9,10 @@ import { createDebug, tinyassert } from "@hiogawa/utils";
 import { __global } from "./src/global";
 // import react from "@vitejs/plugin-react";
 import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
+import { vitePluginEnvironmentOptimizeDeps } from "../custom/src/optimize-deps/vite-plugin-environment-optimize-deps"
 
 const debug = createDebug("app");
+debug;
 
 export default defineConfig((_env) => ({
   clearScreen: false,
@@ -22,10 +24,10 @@ export default defineConfig((_env) => ({
       entry: "/src/adapters/node",
     }),
     vitePluginReactServer(),
+    vitePluginEnvironmentOptimizeDeps({
+      name: "react-server",
+    })
   ],
-  optimizeDeps: {
-    force: true,
-  },
   environments: {
     client: {},
     server: {
@@ -42,10 +44,7 @@ function vitePluginReactServer(): PluginOption {
     config(config, _env) {
       tinyassert(config.environments);
       config.environments["react-server"] = {
-        // [feedback] noExternal?
-        // [feedback] optimizeDeps not kicking in for custom environment?
         resolve: {
-          mainFields: [],
           conditions: ["react-server"],
         },
         dev: {
@@ -65,20 +64,9 @@ function vitePluginReactServer(): PluginOption {
     async configureServer(server) {
       const reactServerEnv = server.environments["react-server"];
       tinyassert(reactServerEnv);
-      debug(
-        "[reactServerEnv]",
-        reactServerEnv.config,
-        reactServerEnv.config.dev?.optimizeDeps,
-      );
       const reactServerRunner = createServerModuleRunner(reactServerEnv);
       __global.server = server;
       __global.reactServerRunner = reactServerRunner;
-      return async () => {
-        debug(
-          "[transformRequest]",
-          await reactServerEnv.transformRequest("/src/entry-react-server"),
-        );
-      };
     },
   };
 
