@@ -7,6 +7,7 @@ import {
   Connect,
 } from "vite";
 import { tinyassert } from "@hiogawa/utils";
+import { __global } from "./src/global";
 
 export default defineConfig(() => ({
   clearScreen: false,
@@ -36,6 +37,8 @@ export function vitePluginSsrMiddleware({
   const plugin: Plugin = {
     name: vitePluginSsrMiddleware.name,
     configureServer(server) {
+      __global.server = server;
+
       const node = server.environments["node"];
       tinyassert(node);
       const runner = createServerModuleRunner(node);
