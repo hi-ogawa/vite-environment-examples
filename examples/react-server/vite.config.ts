@@ -11,6 +11,8 @@ import { __global } from "./src/global";
 import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
 import { vitePluginEnvironmentOptimizeDeps } from "./vite-plugin-environment-optimize-deps";
 
+// TODO: build
+
 const debug = createDebug("app");
 debug;
 

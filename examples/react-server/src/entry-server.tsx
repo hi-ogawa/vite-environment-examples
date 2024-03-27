@@ -16,7 +16,9 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
     "react-server-dom-webpack/client.edge"
   );
 
-  const rscPromise = reactServerDomClient.createFromReadableStream(rscStream, {
+  const [rscStream1, rscStream2] = rscStream.tee();
+
+  const rscPromise = reactServerDomClient.createFromReadableStream(rscStream1, {
     ssrManifest: {
       moduleMap: {},
       moduleLoading: null,
@@ -29,7 +31,10 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
 
   const ssrStream = await reactDomServer.renderToReadableStream(<Root />);
 
-  return ssrStream.pipeThrough(injectToHtml(await importHtmlTemplate()));
+  return ssrStream
+    .pipeThrough(new TextDecoderStream())
+    .pipeThrough(injectSsr(await importHtmlTemplate()))
+    .pipeThrough(injectRscStreamScript(rscStream2));
 }
 
 async function importReactServer() {
@@ -54,14 +59,42 @@ async function importHtmlTemplate() {
   }
 }
 
-function injectToHtml(html: string) {
+function injectSsr(html: string) {
   const [pre, post] = html.split("<!-- SSR -->");
-  return new TransformStream<Uint8Array, Uint8Array>({
+  return new TransformStream<string, string>({
     start(controller) {
-      controller.enqueue(new TextEncoder().encode(pre));
+      controller.enqueue(pre);
     },
     flush(controller) {
-      controller.enqueue(new TextEncoder().encode(post));
+      controller.enqueue(post);
+    },
+  });
+}
+
+function injectRscStreamScript(rscStream: ReadableStream<Uint8Array>) {
+  const search = "</body>";
+  return new TransformStream<string, string>({
+    async transform(chunk, controller) {
+      if (chunk.includes(search)) {
+        const [pre, post] = chunk.split(search);
+        controller.enqueue(pre);
+        controller.enqueue(`<script>globalThis.__rscChunks ||= []</script>`);
+
+        // TODO: better encoding
+        const chunks = rscStream.pipeThrough(
+          new TextDecoderStream(),
+        ) as any as AsyncIterable<string>;
+        for await (const chunk of chunks) {
+          controller.enqueue(
+            `<script>__rscChunks.push(${JSON.stringify(chunk)})</script>`,
+          );
+        }
+        controller.enqueue(`<script>__rscChunks.push("__rscClose")</script>`);
+
+        controller.enqueue(search + post);
+      } else {
+        controller.enqueue(chunk);
+      }
     },
   });
 }
