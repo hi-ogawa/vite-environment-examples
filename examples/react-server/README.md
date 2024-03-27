@@ -1,7 +1,7 @@
 # react-server
 
-## todo
+todo
 
-- basic ssr
-- build pipeline
-- basic react-server
+## references
+
+- https://github.com/hi-ogawa/vite-plugins/tree/main/packages/react-server
