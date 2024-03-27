@@ -13,6 +13,8 @@ import { __global } from "./src/global";
 // - cac cli error?
 //   vite build --environment=client
 
+process.env["SERVER_ENTRY"]
+
 export default defineConfig((env) => ({
   clearScreen: false,
   appType: "custom",
@@ -51,7 +53,7 @@ export default defineConfig((env) => ({
         outDir: "dist/server",
         rollupOptions: {
           input: {
-            index: "/src/adapters/node",
+            index: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
           },
           external: (source) => {
             return source[0] !== "/" && source[0] !== ".";
