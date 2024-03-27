@@ -8,6 +8,7 @@ import {
 } from "vite";
 import { tinyassert } from "@hiogawa/utils";
 import { __global } from "./src/global";
+import react from "@vitejs/plugin-react";
 
 // [feedback]
 // - cac cli error?
@@ -17,6 +18,7 @@ export default defineConfig((env) => ({
   clearScreen: false,
   appType: "custom",
   plugins: [
+    react(),
     vitePluginSsrMiddleware({
       entry: "/src/adapters/node",
       preview: "./dist/server/index.js",
@@ -95,11 +97,13 @@ export function vitePluginSsrMiddleware({
     configureServer(server) {
       __global.server = server;
 
-      const serverEnv = server.environments["ssr"];
+      const serverEnv = server.environments["server"];
       tinyassert(serverEnv);
-      const runner = createServerModuleRunner(serverEnv);
+      const runner = createServerModuleRunner(serverEnv, { hmr: false }); // still send
       const handler: Connect.NextHandleFunction = async (req, res, next) => {
         try {
+          // console.log(runner.moduleCache.invalidateSubDepTree([entry]));
+          runner.moduleCache.clear();
           const mod = await runner.import(entry);
           await mod["default"](req, res, next);
         } catch (e) {

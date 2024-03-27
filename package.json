@@ -13,6 +13,7 @@
     "@hiogawa/utils": "1.6.4-pre.1",
     "@tsconfig/strictest": "^2.0.4",
     "@types/node": "^20.11.30",
+    "@vitejs/plugin-react": "^4.2.1",
     "esbuild": "^0.20.2",
     "prettier": "^3.2.5",
     "typescript": "^5.4.3",
