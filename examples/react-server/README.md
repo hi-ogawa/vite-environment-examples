@@ -6,14 +6,15 @@ pnpm dev
 
 ## todo
 
-- [ ] custom react-server environment
-- [ ] rsc stream
-- [ ] rsc ssr
-  - [ ] dev
+- [x] custom react-server environment
+  - with a patch for noExternal and optimizeDeps
+- [x] rsc stream
+- [x] rsc ssr
+  - [x] dev
   - [ ] build
 - [ ] rsc csr
 - [ ] client reference
-- [ ] try it on `@hiogawa/react-server`
+- [ ] integrate to `@hiogawa/react-server`
 
 ## references
 
