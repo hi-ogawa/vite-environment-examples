@@ -53,12 +53,12 @@ export function vitePluginEnvironmentOptimizeDeps({
       if (this.environment?.name === name) {
         const entry = metadata.optimized[source];
         if (entry) {
-          return path.join(cacheDir, "deps", entry.file)
+          return path.join(cacheDir, "deps", entry.file);
         }
       }
       return;
     },
   };
 
-  return [plugin]
+  return [plugin];
 }

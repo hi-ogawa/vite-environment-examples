@@ -1,7 +1,3 @@
-// TODO: jsxDEV named export in pre-bundle?
-import React from "react";
-
-// @ts-ignore
 import reactServerDomServer from "react-server-dom-webpack/server.edge";
 
 export default async function handler() {
@@ -13,8 +9,7 @@ export default async function handler() {
     </html>
   );
 
-  const stream: ReadableStream<Uint8Array> =
-    reactServerDomServer.renderToReadableStream(root, {});
+  const stream = reactServerDomServer.renderToReadableStream(root, {});
 
   await stream.pipeThrough(new TextDecoderStream()).pipeTo(
     new WritableStream({

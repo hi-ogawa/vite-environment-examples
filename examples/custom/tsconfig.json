@@ -10,6 +10,6 @@
     "target": "ESNext",
     "lib": ["ESNext", "DOM"],
     "types": ["vite/client"],
-    "jsx": "react"
+    "jsx": "react-jsx"
   }
 }

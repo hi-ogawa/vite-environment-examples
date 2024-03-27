@@ -1,7 +1,5 @@
 import { fileURLToPath } from "url";
-import {
-  createServer,
-} from "vite";
+import { createServer } from "vite";
 
 // npx tsx examples/custom/src/optimize-deps/runner-ssr.ts
 
