@@ -2,6 +2,6 @@
 
 ## todo
 
-- [ ] dev
-- [ ] build
+- [x] basic dev
+- [x] basic build / preview
 - [ ] dev hmr
