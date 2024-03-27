@@ -30,15 +30,6 @@ importers:
         specifier: https://github.com/hi-ogawa/vite-environment-examples/raw/f408973ccfe06c67d7aef36dca863f143b717a0e/misc/vite-5.2.3-2024-03-27.tgz
         version: '@github.com/hi-ogawa/vite-environment-examples/raw/f408973ccfe06c67d7aef36dca863f143b717a0e/misc/vite-5.2.3-2024-03-27.tgz(@types/node@20.11.17)'
 
-  examples/react-server:
-    devDependencies:
-      '@hattip/adapter-node':
-        specifier: ^0.0.42
-        version: 0.0.42
-      '@vitejs/plugin-react':
-        specifier: ^4.2.1
-        version: 4.2.1(vite@5.2.3)
-
   examples/react-ssr:
     devDependencies:
       '@hattip/adapter-node':
