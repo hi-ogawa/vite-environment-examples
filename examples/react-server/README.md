@@ -1,6 +1,8 @@
 # react-server
 
-todo
+## todo
+
+- custom react-server environment
 
 ## references
 
