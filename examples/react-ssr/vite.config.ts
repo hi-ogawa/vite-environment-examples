@@ -13,8 +13,6 @@ import { __global } from "./src/global";
 // - cac cli error?
 //   vite build --environment=client
 
-process.env["SERVER_ENTRY"]
-
 export default defineConfig((env) => ({
   clearScreen: false,
   appType: "custom",
