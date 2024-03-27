@@ -52,10 +52,6 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
 async function importReactServer() {
   let mod: typeof import("./entry-react-server");
   if (import.meta.env.DEV) {
-    // TODO: module graph missing and it leads to throwOutdatedRequest?
-    // https://github.com/vitejs/vite/blob/36463d21b72a6b7f6f261999df1017008f4f805a/packages/vite/src/node/plugins/importAnalysis.ts#L248-L257
-    await __global.reactServerRunner.import("/node_modules/.vite/.env-deps/react-server/deps/chunk-TLGN5FSQ.js");
-    await __global.reactServerRunner.import("react");
     mod = (await __global.reactServerRunner.import(
       "/src/entry-react-server",
     )) as any;

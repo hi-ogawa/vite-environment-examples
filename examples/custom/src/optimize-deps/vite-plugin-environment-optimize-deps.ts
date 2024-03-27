@@ -34,7 +34,8 @@ export function vitePluginEnvironmentOptimizeDeps({
     async buildStart(_options) {
       const environment = config.environments[name];
       tinyassert(environment);
-      cacheDir = path.join(config.cacheDir, ".env-deps", name);
+      // put outside of node_modules to make it look like local source
+      cacheDir = path.join(config.root, "dist", ".env-deps", name);
       const tmpConfig = await resolveConfig(
         {
           cacheDir,
