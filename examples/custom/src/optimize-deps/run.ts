@@ -41,6 +41,7 @@ await server.pluginContainer.buildStart({})
 
 const environment = server.environments["custom"];
 tinyassert(environment);
+// console.log(await environment.transformRequest("/entry"));
 
 const runner = createServerModuleRunner(environment);
 const mod = await runner.import("/entry");

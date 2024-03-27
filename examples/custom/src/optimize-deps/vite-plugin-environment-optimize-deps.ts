@@ -44,11 +44,8 @@ export function vitePluginEnvironmentOptimizeDeps({
           optimizeDeps: environment.dev.optimizeDeps,
         },
         "serve",
-        "development",
-        "development",
       );
       await optimizeDeps(tmpConfig, force, true);
-
       const metadataFile = path.join(cacheDir, "deps", "_metadata.json");
       metadata = JSON.parse(await fs.promises.readFile(metadataFile, "utf-8"));
     },

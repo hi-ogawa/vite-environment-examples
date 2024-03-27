@@ -1,4 +1,4 @@
-// TODO: missing jsxDev in pre-bundle?
+// TODO: jsxDEV named export in pre-bundle?
 import React from "react";
 
 // @ts-ignore
