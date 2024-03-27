@@ -95,7 +95,7 @@ export function vitePluginSsrMiddleware({
     configureServer(server) {
       __global.server = server;
 
-      const serverEnv = server.environments["ssr"];
+      const serverEnv = server.environments["server"];
       tinyassert(serverEnv);
       const runner = createServerModuleRunner(serverEnv);
       const handler: Connect.NextHandleFunction = async (req, res, next) => {
