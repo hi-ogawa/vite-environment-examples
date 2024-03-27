@@ -11,6 +11,9 @@ importers:
 
   .:
     devDependencies:
+      '@hattip/adapter-node':
+        specifier: ^0.0.42
+        version: 0.0.42
       '@hiogawa/utils':
         specifier: 1.6.4-pre.1
         version: 1.6.4-pre.1
@@ -20,6 +23,9 @@ importers:
       '@types/node':
         specifier: ^20.11.17
         version: 20.11.17
+      '@vitejs/plugin-react':
+        specifier: ^4.2.1
+        version: 4.2.1(vite@5.2.3)
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -30,14 +36,7 @@ importers:
         specifier: https://github.com/hi-ogawa/vite-environment-examples/raw/f408973ccfe06c67d7aef36dca863f143b717a0e/misc/vite-5.2.3-2024-03-27.tgz
         version: '@github.com/hi-ogawa/vite-environment-examples/raw/f408973ccfe06c67d7aef36dca863f143b717a0e/misc/vite-5.2.3-2024-03-27.tgz(@types/node@20.11.17)'
 
-  examples/react-server:
-    devDependencies:
-      '@hattip/adapter-node':
-        specifier: ^0.0.42
-        version: 0.0.42
-      '@vitejs/plugin-react':
-        specifier: ^4.2.1
-        version: 4.2.1(vite@5.2.3)
+  examples/react-server: {}
 
   examples/react-ssr:
     dependencies:
@@ -48,9 +47,6 @@ importers:
         specifier: 18.3.0-canary-6c3b8dbfe-20240226
         version: 18.3.0-canary-6c3b8dbfe-20240226(react@18.3.0-canary-6c3b8dbfe-20240226)
     devDependencies:
-      '@hattip/adapter-node':
-        specifier: ^0.0.42
-        version: 0.0.42
       '@types/react':
         specifier: 18.2.66
         version: 18.2.66
