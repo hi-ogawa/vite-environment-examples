@@ -9,13 +9,13 @@
     "lint-check": "prettier -c --cache ."
   },
   "devDependencies": {
-    "@hattip/adapter-node": "^0.0.42",
+    "@hattip/adapter-node": "^0.0.44",
     "@hiogawa/utils": "1.6.4-pre.1",
-    "@tsconfig/strictest": "^2.0.3",
-    "@types/node": "^20.11.17",
+    "@tsconfig/strictest": "^2.0.4",
+    "@types/node": "^20.11.30",
     "@vitejs/plugin-react": "^4.2.1",
     "prettier": "^3.2.5",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.3",
     "vite": "https://github.com/hi-ogawa/vite-environment-examples/raw/f408973ccfe06c67d7aef36dca863f143b717a0e/misc/vite-5.2.3-2024-03-27.tgz"
   },
   "packageManager": "pnpm@8.15.5+sha256.4b4efa12490e5055d59b9b9fc9438b7d581a6b7af3b5675eb5c5f447cee1a589",
