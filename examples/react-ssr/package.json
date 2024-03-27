@@ -3,11 +3,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "build": "vite build --all",
+    "preview": "vite preview",
+    "vc-build": "SERVER_ENTRY=/src/adapters/vercel-edge.ts pnpm build && bash misc/vercel-edge/build.sh",
+    "vc-release": "vercel deploy --prebuilt misc/vercel-edge --prod"
+  },
+  "dependencies": {
+    "react": "18.3.0-canary-6c3b8dbfe-20240226",
+    "react-dom": "18.3.0-canary-6c3b8dbfe-20240226"
   },
   "devDependencies": {
-    "@hattip/adapter-node": "^0.0.42",
-    "@vitejs/plugin-react": "^4.2.1"
+    "@types/react": "18.2.72",
+    "@types/react-dom": "18.2.22"
   },
   "volta": {
     "extends": "../../package.json"
