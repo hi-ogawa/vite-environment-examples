@@ -26,6 +26,12 @@ export default defineConfig((env) => ({
       entry: "/src/adapters/node",
       preview: "./dist/server/index.js",
     }),
+    {
+      name: "global-server",
+      configureServer(server) {
+        __global.server = server;
+      },
+    },
   ],
   // [feedback] no automatic process.env.NODE_ENV replacement applied for build?
   define:
@@ -113,8 +119,6 @@ export function vitePluginSsrMiddleware({
     },
 
     configureServer(server) {
-      __global.server = server;
-
       const serverEnv = server.environments["server"];
       tinyassert(serverEnv);
       runner = createServerModuleRunner(serverEnv);

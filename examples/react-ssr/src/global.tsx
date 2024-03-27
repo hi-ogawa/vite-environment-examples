@@ -4,5 +4,4 @@ import type { ViteDevServer } from "vite";
 
 export const __global: {
   server: ViteDevServer;
-  reactServer: ViteDevServer;
 } = ((globalThis as any).__VITE_REACT_SSR_GLOBAL ??= {});
