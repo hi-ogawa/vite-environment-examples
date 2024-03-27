@@ -4,12 +4,10 @@ import {
   type PluginOption,
   type Plugin,
   createServerModuleRunner,
-  Connect,
 } from "vite";
-import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
+import { createDebug, tinyassert } from "@hiogawa/utils";
 import { __global } from "./src/global";
 import react from "@vitejs/plugin-react";
-import type { ModuleRunner } from "vite/module-runner";
 import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
 
 const debug = createDebug("app");
@@ -25,23 +23,14 @@ export default defineConfig((_env) => ({
     }),
     vitePluginReactServer(),
   ],
+  optimizeDeps: {
+    force: true,
+  },
   environments: {
-    client: {
-      build: {
-        minify: false,
-        sourcemap: true,
-        outDir: "dist/client",
-      },
-    },
+    client: {},
     server: {
       dev: {
         createEnvironment: (server) => createNodeEnvironment(server, "server"),
-      },
-    },
-    reactServer: {
-      dev: {
-        createEnvironment: (server) =>
-          createNodeEnvironment(server, "reactServer"),
       },
     },
   },
@@ -50,10 +39,35 @@ export default defineConfig((_env) => ({
 function vitePluginReactServer(): PluginOption {
   const plugin: Plugin = {
     name: vitePluginReactServer.name,
-    configureServer(server) {
-      __global.server = server;
+    config(config, _env) {
+      tinyassert(config.environments);
+      config.environments["react-server"] = {
+        // TODO: noExternal? optimizeDeps not kicking in?
+        resolve: {
+          conditions: ["react-server"],
+        },
+        dev: {
+          createEnvironment: (server) =>
+            createNodeEnvironment(server, "react-server"),
+          optimizeDeps: {
+            include: [
+              "react",
+              "react/jsx-runtime",
+              "react/jsx-dev-runtime",
+              "react-server-dom-webpack/server.edge",
+            ],
+          },
+        },
+      };
     },
-  }
+    configureServer(server) {
+      const serverEnv = server.environments["server"];
+      tinyassert(serverEnv);
+      const reactServerRunner = createServerModuleRunner(serverEnv);
+      __global.server = server;
+      __global.reactServerRunner = reactServerRunner;
+    },
+  };
 
   return [plugin];
 }

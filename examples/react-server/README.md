@@ -2,7 +2,14 @@
 
 ## todo
 
-- custom react-server environment
+- [ ] custom react-server environment
+- [ ] rsc stream
+- [ ] rsc ssr
+  - [ ] dev
+  - [ ] build
+- [ ] rsc csr
+- [ ] client reference
+- [ ] try it on `@hiogawa/react-server`
 
 ## references
 

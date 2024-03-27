@@ -1,15 +1,56 @@
-import ReactDomServer from "react-dom/server.edge";
-import { Root } from "./routes";
+import React from "react";
 import { __global } from "./global";
+import reactDomServer from "react-dom/server.edge";
 
-export async function handler(_req: Request) {
-  const ssrHtml = ReactDomServer.renderToString(<Root />);
-  let html = await importHtml();
-  html = html.replace(/<body>/, `<body><div id="root">${ssrHtml}</div>`);
-  return new Response(html, { headers: { "content-type": "text/html" } });
+export async function handler(request: Request) {
+  if (0) {
+    return new Response("hello?", { headers: { "content-type": "text/html" } });
+  }
+  const reactServer = await importReactServer();
+  const rscStream = await reactServer.handler({ request });
+  const htmlStream = await renderHtml(rscStream);
+  return new Response(htmlStream, { headers: { "content-type": "text/html" } });
 }
 
-async function importHtml() {
+async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
+  // TODO
+  // initDomWebpackSsr
+
+  const { default: reactServerDomClient } = await import(
+    "react-server-dom-webpack/client.edge"
+  );
+
+  const rscPromise = reactServerDomClient.createFromReadableStream(rscStream, {
+    ssrManifest: {
+      moduleMap: {},
+      moduleLoading: null,
+    },
+  });
+
+  function Root() {
+    return React.use(rscPromise);
+  }
+
+  const ssrStream = reactDomServer.renderToReadableStream(<Root />);
+
+  importHtmlTemplate();
+
+  return ssrStream;
+}
+
+async function importReactServer() {
+  let mod: typeof import("./entry-react-server");
+  if (import.meta.env.DEV) {
+    mod = (await __global.reactServerRunner.import(
+      "/src/entry-react-server",
+    )) as any;
+  } else {
+    mod = import("/dist/react-server/index.js" as string) as any;
+  }
+  return mod;
+}
+
+async function importHtmlTemplate() {
   if (import.meta.env.DEV) {
     const mod = await import("/index.html?raw");
     return __global.server.transformIndexHtml("/", mod.default);
