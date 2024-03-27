@@ -105,7 +105,7 @@ export function vitePluginSsrMiddleware({
         // [feedback] can we access runner side `moduleCache`?
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
         const invalidated = runner.moduleCache.invalidateDepTree(ids);
-        debug("[handleUpdate]", { ids, invalidated });
+        debug("[handleUpdate]", { ids, invalidated: [...invalidated] });
         return [];
       }
       return ctx.modules;
