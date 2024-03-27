@@ -1,6 +1,7 @@
 import { tinyassert } from "@hiogawa/utils";
 import React from "react";
 import reactDomClient from "react-dom/client";
+import { readRscStreamScript } from "./utils/rsc-stream-script";
 
 async function main() {
   if (window.location.search.includes("__noCsr")) {
@@ -36,31 +37,6 @@ async function main() {
       reactDomClient.hydrateRoot(rootEl, reactRootEl);
     });
   }
-}
-
-function readRscStreamScript() {
-  return new ReadableStream<string>({
-    start(controller) {
-      function handleChunk(chunk: string) {
-        if (chunk === "__rscClose") {
-          controller.close();
-          return;
-        }
-        controller.enqueue(chunk);
-      }
-
-      const rscChunks: string[] = ((globalThis as any).__rscChunks ||= []);
-      for (const chunk of rscChunks) {
-        handleChunk(chunk);
-      }
-
-      const oldPush = rscChunks.push;
-      rscChunks.push = function (chunk) {
-        handleChunk(chunk);
-        return oldPush.apply(this, [chunk]);
-      };
-    },
-  }).pipeThrough(new TextEncoderStream());
 }
 
 main();

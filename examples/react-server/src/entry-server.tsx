@@ -1,6 +1,7 @@
 import React from "react";
 import { __global } from "./global";
 import reactDomServer from "react-dom/server.edge";
+import { injectRscStreamScript } from "./utils/rsc-stream-script";
 
 export async function handler(request: Request) {
   const reactServer = await importReactServer();
@@ -67,34 +68,6 @@ function injectSsr(html: string) {
     },
     flush(controller) {
       controller.enqueue(post);
-    },
-  });
-}
-
-function injectRscStreamScript(rscStream: ReadableStream<Uint8Array>) {
-  const search = "</body>";
-  return new TransformStream<string, string>({
-    async transform(chunk, controller) {
-      if (chunk.includes(search)) {
-        const [pre, post] = chunk.split(search);
-        controller.enqueue(pre);
-        controller.enqueue(`<script>globalThis.__rscChunks ||= []</script>`);
-
-        // TODO: better encoding
-        const chunks = rscStream.pipeThrough(
-          new TextDecoderStream(),
-        ) as any as AsyncIterable<string>;
-        for await (const chunk of chunks) {
-          controller.enqueue(
-            `<script>__rscChunks.push(${JSON.stringify(chunk)})</script>`,
-          );
-        }
-        controller.enqueue(`<script>__rscChunks.push("__rscClose")</script>`);
-
-        controller.enqueue(search + post);
-      } else {
-        controller.enqueue(chunk);
-      }
     },
   });
 }

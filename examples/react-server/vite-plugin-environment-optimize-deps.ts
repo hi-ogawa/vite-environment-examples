@@ -43,6 +43,7 @@ export function vitePluginEnvironmentOptimizeDeps({
           cacheDir,
           root: config.root,
           configFile: false,
+          clearScreen: false,
           resolve: environment.resolve,
           optimizeDeps: environment.dev.optimizeDeps,
         },
