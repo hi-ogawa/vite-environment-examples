@@ -1,5 +1,5 @@
 async function main() {
-  throw "todo";
+  // TODO
 }
 
 main();

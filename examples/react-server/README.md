@@ -1,5 +1,9 @@
 # react-server
 
+```sh
+pnpm dev
+```
+
 ## todo
 
 - [ ] custom react-server environment

@@ -1,6 +1,10 @@
 {
   "extends": "@tsconfig/strictest/tsconfig.json",
-  "include": ["src", "vite.config.ts"],
+  "include": [
+    "src",
+    "vite.config.ts",
+    "vite-plugin-environment-optimize-deps.ts"
+  ],
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "verbatimModuleSyntax": true,

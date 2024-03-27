@@ -9,7 +9,7 @@ import { createDebug, tinyassert } from "@hiogawa/utils";
 import { __global } from "./src/global";
 // import react from "@vitejs/plugin-react";
 import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
-import { vitePluginEnvironmentOptimizeDeps } from "../custom/src/optimize-deps/vite-plugin-environment-optimize-deps"
+import { vitePluginEnvironmentOptimizeDeps } from "./vite-plugin-environment-optimize-deps";
 
 const debug = createDebug("app");
 debug;
@@ -26,7 +26,7 @@ export default defineConfig((_env) => ({
     vitePluginReactServer(),
     vitePluginEnvironmentOptimizeDeps({
       name: "react-server",
-    })
+    }),
   ],
   environments: {
     client: {},

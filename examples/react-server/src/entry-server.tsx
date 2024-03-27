@@ -33,7 +33,7 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
 
   const ssrStream = await reactDomServer.renderToReadableStream(<Root />);
 
-  // TODO: for now stringify
+  // TODO: for now just stringify
   let ssrHtml = "";
   ssrStream.pipeThrough(new TextDecoderStream()).pipeTo(
     new WritableStream({
