@@ -1,6 +1,6 @@
 import { ClientComponent } from "./_client";
 
-export function Root() {
+export default function Page() {
   return (
     <div>
       <h4>Hello react server</h4>
