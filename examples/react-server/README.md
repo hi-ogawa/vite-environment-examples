@@ -1,12 +1,14 @@
 # react-server
 
+https://vite-environment-examples-react-server.hiro18181.workers.dev/
+
 ```sh
 pnpm dev
 pnpm build
 pnpm preview
 
-pnpm vc-build
-pnpm vc-release
+pnpm cf-build
+pnpm cf-release
 ```
 
 ## todo
@@ -16,7 +18,7 @@ pnpm vc-release
 - [x] rsc stream
 - [x] rsc ssr
   - [x] dev
-  - [ ] build
+  - [x] build
 - [ ] rsc csr
 - [ ] client reference
 - [ ] integrate to `@hiogawa/react-server`

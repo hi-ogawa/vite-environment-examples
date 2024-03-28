@@ -35,7 +35,8 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
   return ssrStream
     .pipeThrough(new TextDecoderStream())
     .pipeThrough(injectSsr(await importHtmlTemplate()))
-    .pipeThrough(injectRscStreamScript(rscStream2));
+    .pipeThrough(injectRscStreamScript(rscStream2))
+    .pipeThrough(new TextEncoderStream());
 }
 
 async function importReactServer() {
