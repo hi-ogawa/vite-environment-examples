@@ -2,6 +2,8 @@ import React from "react";
 import { __global } from "./global";
 import reactDomServer from "react-dom/server.edge";
 import { injectRscStreamScript } from "./utils/rsc-stream-script";
+import { initializeWebpackBrowser } from "./features/use-client/browser";
+import { createModuleMap } from "./features/use-client/server";
 
 export async function handler(request: Request) {
   const reactServer = await importReactServer();
@@ -11,8 +13,7 @@ export async function handler(request: Request) {
 }
 
 async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
-  // TODO: setup __webpack_require__
-
+  initializeWebpackBrowser();
   const { default: reactServerDomClient } = await import(
     "react-server-dom-webpack/client.edge"
   );
@@ -21,7 +22,7 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
 
   const rscPromise = reactServerDomClient.createFromReadableStream(rscStream1, {
     ssrManifest: {
-      moduleMap: {},
+      moduleMap: createModuleMap(),
       moduleLoading: null,
     },
   });

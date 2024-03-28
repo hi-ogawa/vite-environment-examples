@@ -4,6 +4,7 @@ import {
   type PluginOption,
   type Plugin,
   createServerModuleRunner,
+  parseAstAsync,
 } from "vite";
 import { createDebug, tinyassert } from "@hiogawa/utils";
 import { __global } from "./src/global";
@@ -173,5 +174,80 @@ function vitePluginReactServer(): PluginOption {
     },
   };
 
-  return [plugin];
+  return [plugin, vitePluginUseClient()];
+}
+
+function vitePluginUseClient(): PluginOption {
+  // react-server
+  const transformPlugin: Plugin = {
+    name: vitePluginUseClient.name + ":transform",
+    async transform(code, id, _options) {
+      if (this.environment?.name === "react-server") {
+        if (/^("use client")|('use client')/.test(code)) {
+          const ast = await parseAstAsync(code);
+          const exportNames = new Set<string>();
+          for (const node of ast.body) {
+            // named exports
+            if (node.type === "ExportNamedDeclaration") {
+              if (node.declaration) {
+                if (
+                  node.declaration.type === "FunctionDeclaration" ||
+                  node.declaration.type === "ClassDeclaration"
+                ) {
+                  /**
+                   * export function foo() {}
+                   */
+                  exportNames.add(node.declaration.id.name);
+                } else if (node.declaration.type === "VariableDeclaration") {
+                  /**
+                   * export const foo = 1, bar = 2
+                   */
+                  for (const decl of node.declaration.declarations) {
+                    if (decl.id.type === "Identifier") {
+                      exportNames.add(decl.id.name);
+                    }
+                  }
+                }
+              }
+            }
+          }
+          let result = `import { createClientReference } from "/src/features/use-client/react-server";\n`;
+          for (const name of exportNames) {
+            result += `export const ${name} = createClientReference("${id}", "${name}");\n`;
+          }
+          debug(`[${vitePluginUseClient.name}:transform]`, {
+            id,
+            exportNames,
+            result,
+          });
+          return result;
+        }
+      }
+      return;
+    },
+  };
+
+  return [
+    transformPlugin,
+    createVirtualPlugin("client-reference", function () {
+      tinyassert(this.environment?.name !== "react-server");
+      tinyassert(!this.meta.watchMode);
+      return "todo";
+    }),
+  ];
+}
+
+function createVirtualPlugin(name: string, load: Plugin["load"]) {
+  name = "virtual:" + name;
+  return {
+    name: `virtual-${name}`,
+    resolveId(source, _importer, _options) {
+      return source === name ? "\0" + name : undefined;
+    },
+    load(id, options) {
+      if (id === "\0" + name) {
+        return (load as any).apply(this, [id, options]);
+      }
+    },
+  } satisfies Plugin;
 }

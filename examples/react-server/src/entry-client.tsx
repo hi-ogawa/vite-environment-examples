@@ -2,15 +2,14 @@ import { tinyassert } from "@hiogawa/utils";
 import React from "react";
 import reactDomClient from "react-dom/client";
 import { readRscStreamScript } from "./utils/rsc-stream-script";
+import { initializeWebpackServer } from "./features/use-client/server";
 
 async function main() {
   if (window.location.search.includes("__noCsr")) {
     return;
   }
 
-  // TODO: setup __webpack_require__
-  Object.assign(globalThis, { __webpack_require__: () => {} });
-
+  initializeWebpackServer();
   const { default: reactServerDomClient } = await import(
     "react-server-dom-webpack/client.browser"
   );
