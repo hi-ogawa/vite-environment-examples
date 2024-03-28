@@ -31,7 +31,7 @@ export function createBundlerConfig(): BundlerConfig {
     {
       get(_target, $$id, _receiver) {
         tinyassert(typeof $$id === "string");
-        let [id, name] = $$id.split("::");
+        let [id, name] = $$id.split(REFERENCE_SEP);
         tinyassert(id);
         tinyassert(name);
         return { id, name, chunks: [] } satisfies ImportManifestEntry;
