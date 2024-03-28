@@ -8,7 +8,7 @@ import {
 } from "vite";
 import { createDebug, tinyassert } from "@hiogawa/utils";
 import { __global } from "./src/global";
-// import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react";
 import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
 import { vitePluginEnvironmentOptimizeDeps } from "./vite-plugin-environment-optimize-deps";
 
@@ -18,8 +18,7 @@ export default defineConfig((env) => ({
   clearScreen: false,
   appType: "custom",
   plugins: [
-    // TODO: only for client
-    // react(),
+    false && react(),
     vitePluginSsrMiddleware({
       entry: "/src/adapters/node",
       preview: new URL("./dist/server/index.js", import.meta.url).toString(),

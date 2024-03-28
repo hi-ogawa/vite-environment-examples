@@ -47,7 +47,11 @@ export function vitePluginEnvironmentOptimizeDeps({
           configFile: false,
           clearScreen: false,
           resolve: environment.resolve,
-          optimizeDeps: environment.dev.optimizeDeps,
+          optimizeDeps: {
+            ...environment.dev.optimizeDeps,
+            entries: [],
+            noDiscovery: true,
+          },
         },
         "serve",
       );
