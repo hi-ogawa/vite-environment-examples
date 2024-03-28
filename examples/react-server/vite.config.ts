@@ -6,7 +6,7 @@ import {
   createServerModuleRunner,
   parseAstAsync,
 } from "vite";
-import { createDebug, tinyassert } from "@hiogawa/utils";
+import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { __global } from "./src/global";
 import react from "@vitejs/plugin-react";
 import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
@@ -190,6 +190,20 @@ function vitePluginReactServer(): PluginOption {
       const reactServerRunner = createServerModuleRunner(reactServerEnv);
       __global.server = server;
       __global.reactServerRunner = reactServerRunner;
+    },
+    // same as vitePluginSsrMiddleware
+    hotUpdate(ctx) {
+      if (ctx.environment.name === "react-server") {
+        const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
+        const invalidated =
+          __global.reactServerRunner.moduleCache.invalidateDepTree(ids);
+        debug("[react-server:hotUpdate]", {
+          ids,
+          invalidated: [...invalidated],
+        });
+        return [];
+      }
+      return;
     },
   };
 
