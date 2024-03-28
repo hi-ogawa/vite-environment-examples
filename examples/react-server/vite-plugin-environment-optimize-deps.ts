@@ -1,4 +1,4 @@
-import { tinyassert } from "@hiogawa/utils";
+import { createDebug, tinyassert } from "@hiogawa/utils";
 import {
   type Plugin,
   type PluginOption,
@@ -9,6 +9,8 @@ import {
 import { optimizeDeps } from "vite";
 import path from "node:path";
 import fs from "node:fs";
+
+const debug = createDebug("env-deps");
 
 // temporary workaround for missing optimizeDeps.
 // this also requires patch vite-5.2.6-patch-import-analysis.tgz
@@ -54,8 +56,12 @@ export function vitePluginEnvironmentOptimizeDeps({
       metadata = JSON.parse(await fs.promises.readFile(metadataFile, "utf-8"));
     },
     resolveId(source, _importer, _options) {
+      // [feedback] no environment during build?
+      debug("[this.environment?.name]", [this.environment?.name]);
+
       if (this.environment?.name === name) {
         const entry = metadata.optimized[source];
+        debug("[resolveId]", { source, entry });
         if (entry) {
           return path.join(depsDir, entry.file);
         }

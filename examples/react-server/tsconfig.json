@@ -6,6 +6,7 @@
     "vite-plugin-environment-optimize-deps.ts"
   ],
   "compilerOptions": {
+    "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false,
     "verbatimModuleSyntax": true,
     "noEmit": true,
