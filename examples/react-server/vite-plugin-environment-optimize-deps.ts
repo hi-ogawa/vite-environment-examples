@@ -76,3 +76,25 @@ export function vitePluginEnvironmentOptimizeDeps({
 
   return [plugin];
 }
+
+export function vitePluginFixJsxDEV(): Plugin {
+  return {
+    name: vitePluginFixJsxDEV.name,
+    apply: "serve",
+    transform(code, _id, _options) {
+      // import { jsxDEV } from "..."
+      //   ⇓
+      // import __jsxRuntime from "..."; const { jsxDEV } = __jsxRuntime;
+      if (code.startsWith("import { jsxDEV }")) {
+        const lines = code.split("\n");
+        lines[0] = [
+          "import __jsxRuntime",
+          lines[0]!.slice("import { jsxDEV }".length),
+          "const { jsxDEV } = __jsxRuntime",
+        ].join("");
+        return lines.join("\n");
+      }
+      return;
+    },
+  };
+}
