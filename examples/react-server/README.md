@@ -8,6 +8,7 @@ pnpm build
 pnpm preview
 
 pnpm cf-build
+pnpm cf-preview
 pnpm cf-release
 ```
 

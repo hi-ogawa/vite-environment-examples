@@ -6,8 +6,6 @@
     "dev": "vite",
     "build": "vite build --all",
     "preview": "vite preview",
-    "vc-build": "SERVER_ENTRY=/src/adapters/vercel-edge.ts pnpm build && bash misc/vercel-edge/build.sh",
-    "vc-release": "vercel deploy --prebuilt misc/vercel-edge --prod",
     "cf-build": "SERVER_ENTRY=/src/adapters/cloudflare-workers.ts pnpm build && bash misc/cloudflare-workers/build.sh",
     "cf-preview": "cd misc/cloudflare-workers && wrangler dev",
     "cf-release": "cd misc/cloudflare-workers && wrangler deploy"
