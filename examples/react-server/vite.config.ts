@@ -78,10 +78,11 @@ export default defineConfig((env) => ({
           task.config.build,
           task.config.environments[task.environment.name]?.build,
         );
-        // [feedback] resolve not working?
+        // [feedback] resolve also not working?
         debug("[build:config.resolve]", [
           task.environment.name,
           task.config.resolve,
+          task.config.environments[task.environment.name]?.resolve,
         ]);
         Object.assign(
           task.config.resolve,
@@ -114,9 +115,6 @@ function vitePluginReactServer(): PluginOption {
         // [feedback] not working during build?
         resolve: {
           conditions: ["react-server"],
-          alias: {
-            react: "",
-          },
         },
         dev: {
           createEnvironment: (server) =>
@@ -131,6 +129,19 @@ function vitePluginReactServer(): PluginOption {
           },
         },
         build: {
+          createEnvironment(builder, name) {
+            return {
+              name,
+              mode: "build",
+              builder,
+              config: {
+                // [feedback] workarund for environment.(name).resolve
+                resolve: {
+                  conditions: ["react-server"],
+                },
+              },
+            };
+          },
           outDir: "dist/react-server",
           minify: false,
           sourcemap: true,
