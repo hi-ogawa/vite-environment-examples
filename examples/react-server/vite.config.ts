@@ -109,12 +109,28 @@ export default defineConfig((env) => ({
       const tasks = Object.fromEntries(
         buildTasks.map((t) => [t.environment.name, t]),
       );
+
+      manager.buildType = "react-server";
       await tasks["react-server"].run();
+
+      manager.buildType = "client";
       await tasks["client"].run();
+
+      manager.buildType = "server";
       await tasks["server"].run();
     },
   },
 }));
+
+// singleton to pass data through environment build
+class ReactServerManager {
+  buildType?: "react-server" | "client" | "server";
+  public clientReferences = new Set<string>();
+}
+
+const manager: ReactServerManager = ((
+  globalThis as any
+).__VITE_REACT_SERVER_MANAGER ??= new ReactServerManager());
 
 function vitePluginReactServer(): PluginOption {
   const plugin: Plugin = {
@@ -178,12 +194,16 @@ function vitePluginReactServer(): PluginOption {
 }
 
 function vitePluginUseClient(): PluginOption {
-  // react-server
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
-      if (this.environment?.name === "react-server") {
+      // [feedback] this.environment is undefined during build?
+      if (
+        this.environment?.name === "react-server" ||
+        manager.buildType === "react-server"
+      ) {
         if (/^("use client")|('use client')/.test(code)) {
+          manager.clientReferences.add(id);
           const ast = await parseAstAsync(code);
           const exportNames = new Set<string>();
           for (const node of ast.body) {
@@ -232,7 +252,12 @@ function vitePluginUseClient(): PluginOption {
     createVirtualPlugin("client-reference", function () {
       tinyassert(this.environment?.name !== "react-server");
       tinyassert(!this.meta.watchMode);
-      return "todo";
+      let result = `export default {\n`;
+      for (let id of manager.clientReferences) {
+        result += `"${id}": () => import("${id}"),\n`;
+      }
+      result += "};\n";
+      return result;
     }),
   ];
 }
