@@ -50,18 +50,27 @@ export default defineConfig((env) => ({
         createEnvironment: (server) => createNodeEnvironment(server, "server"),
       },
       build: {
-        outDir: "dist/server",
-        minify: false,
-        sourcemap: true,
-        ssr: true, // [feedback] what does this affect?
-        modulePreload: false, // [feedback] how to remove __vitePreload?
-        rollupOptions: {
-          input: {
-            index: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
-          },
-          external: (source) => {
-            return source[0] !== "/" && source[0] !== ".";
-          },
+        createEnvironment(builder, name) {
+          return {
+            name,
+            mode: "build",
+            builder,
+            config: {
+              build: {
+                outDir: "dist/server",
+                sourcemap: true,
+                // [feedback]
+                // still a convenient flag to switch into SSR like build?
+                // e.g. minify: false, modulePreload: false
+                ssr: true,
+                rollupOptions: {
+                  input: {
+                    index: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
+                  },
+                },
+              },
+            },
+          };
         },
       },
     },
@@ -135,21 +144,22 @@ function vitePluginReactServer(): PluginOption {
               mode: "build",
               builder,
               config: {
-                // [feedback] workarund for environment.(name).resolve
+                // [feedback] workaround for environment.(name).build
                 resolve: {
                   conditions: ["react-server"],
                 },
+                build: {
+                  outDir: "dist/react-server",
+                  sourcemap: true,
+                  minify: false,
+                  rollupOptions: {
+                    input: {
+                      index: "/src/entry-react-server",
+                    },
+                  },
+                },
               },
             };
-          },
-          outDir: "dist/react-server",
-          minify: false,
-          sourcemap: true,
-          ssr: true,
-          rollupOptions: {
-            input: {
-              index: "/src/entry-react-server",
-            },
           },
         },
       };
