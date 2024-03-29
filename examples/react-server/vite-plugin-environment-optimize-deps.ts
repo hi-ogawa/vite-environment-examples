@@ -60,9 +60,6 @@ export function vitePluginEnvironmentOptimizeDeps({
       metadata = JSON.parse(await fs.promises.readFile(metadataFile, "utf-8"));
     },
     resolveId(source, _importer, _options) {
-      // [feedback] no environment during build?
-      debug("[this.environment?.name]", [this.environment?.name]);
-
       if (this.environment?.name === name) {
         const entry = metadata.optimized[source];
         debug("[resolveId]", { source, entry });
