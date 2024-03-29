@@ -28,13 +28,6 @@ export default defineConfig((env) => ({
       },
     },
   ],
-  // [feedback] no automatic process.env.NODE_ENV replacement applied for build?
-  define:
-    env.command === "build"
-      ? {
-          "process.env.NODE_ENV": `"production"`,
-        }
-      : {},
   environments: {
     client: {
       build: {
@@ -64,10 +57,9 @@ export default defineConfig((env) => ({
   build: env.isPreview ? { outDir: "dist/client" } : {},
 
   builder: {
-    runBuildTasks: async (_builder, buildTasks) => {
-      for (const task of buildTasks) {
-        await task.run();
-      }
+    async buildEnvironments(builder, build) {
+      await build(builder.environments["client"]!);
+      await build(builder.environments["ssr"]!);
     },
   },
 }));
