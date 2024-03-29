@@ -3,7 +3,9 @@
   "include": [
     "src",
     "vite.config.ts",
-    "vite-plugin-environment-optimize-deps.ts"
+    "vite-plugin-environment-optimize-deps.ts",
+    "e2e",
+    "playwright.config.ts"
   ],
   "compilerOptions": {
     "noUncheckedIndexedAccess": false,
