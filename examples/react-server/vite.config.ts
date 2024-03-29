@@ -31,6 +31,7 @@ export default defineConfig((env) => ({
       name: "react-server",
     }),
     vitePluginFixJsxDEV(),
+    vitePluginSilenceUseClientBuildWarning(),
   ],
 
   environments: {
@@ -212,4 +213,37 @@ function createVirtualPlugin(name: string, load: Plugin["load"]) {
       }
     },
   } satisfies Plugin;
+}
+
+function vitePluginSilenceUseClientBuildWarning(): Plugin {
+  return {
+    name: vitePluginSilenceUseClientBuildWarning.name,
+    apply: "build",
+    enforce: "post",
+    config: (config, _env) => ({
+      build: {
+        rollupOptions: {
+          onwarn(warning, defaultHandler) {
+            if (
+              warning.code === "SOURCEMAP_ERROR" &&
+              warning.message.includes("(1:0)")
+            ) {
+              return;
+            }
+            if (
+              warning.code === "MODULE_LEVEL_DIRECTIVE" &&
+              warning.message.includes(`"use client"`)
+            ) {
+              return;
+            }
+            if (config.build?.rollupOptions?.onwarn) {
+              config.build.rollupOptions.onwarn(warning, defaultHandler);
+            } else {
+              defaultHandler(warning);
+            }
+          },
+        },
+      },
+    }),
+  };
 }
