@@ -1,0 +1,22 @@
+name: ci
+"on":
+  - push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: corepack enable
+      - run: pnpm i
+      - run: pnpm lint-check
+      - run: pnpm tsc
+      - run: npx playwright install chromium
+      - run: pnpm -C examples/react-ssr test-e2e
+      - run: pnpm -C examples/react-ssr build
+      - run: pnpm -C examples/react-ssr test-e2e-preview
+      - run: pnpm -C examples/react-server test-e2e
+      - run: pnpm -C examples/react-server build
+      - run: pnpm -C examples/react-server test-e2e-preview

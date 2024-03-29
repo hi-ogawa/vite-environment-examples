@@ -3,7 +3,7 @@ import { fileURLToPath } from "url";
 import {
   createServer,
   createServerModuleRunner,
-  createNodeEnvironment,
+  createNodeDevEnvironment,
 } from "vite";
 
 const server = await createServer({
@@ -13,7 +13,7 @@ const server = await createServer({
   environments: {
     custom: {
       dev: {
-        createEnvironment: (server) => createNodeEnvironment(server, "custom"),
+        createEnvironment: createNodeDevEnvironment,
         optimizeDeps: {
           include: ["react", "react-dom"],
         },

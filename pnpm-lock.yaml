@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  vite: file:./misc/vite-5.2.6-patch-2.tgz
+  vite: https://github.com/hi-ogawa/vite-environment-examples/raw/main/misc/vite-5.2.6-patch-2.tgz
 
 importers:
 
@@ -17,6 +17,9 @@ importers:
       '@hiogawa/utils':
         specifier: 1.6.4-pre.1
         version: 1.6.4-pre.1
+      '@playwright/test':
+        specifier: ^1.42.1
+        version: 1.42.1
       '@tsconfig/strictest':
         specifier: ^2.0.4
         version: 2.0.4
@@ -39,8 +42,8 @@ importers:
         specifier: ^5.4.3
         version: 5.4.3
       vite:
-        specifier: file:/home/hiroshi/code/personal/vite-environment-examples/misc/vite-5.2.6-patch-2.tgz
-        version: file:misc/vite-5.2.6-patch-2.tgz(@types/node@20.11.30)
+        specifier: https://github.com/hi-ogawa/vite-environment-examples/raw/main/misc/vite-5.2.6-patch-2.tgz
+        version: '@github.com/hi-ogawa/vite-environment-examples/raw/main/misc/vite-5.2.6-patch-2.tgz(@types/node@20.11.30)'
 
   examples/custom:
     dependencies:
@@ -786,6 +789,14 @@ packages:
     resolution: {integrity: sha512-gbkePEBupNydxCelHCESvFSFM8XPh1Zs/OAVRW/rKpEqPAl5PbOM90Si8mv9bvnR53uPD2s/FiRxdvSejpRJew==}
     dev: true
 
+  /@playwright/test@1.42.1:
+    resolution: {integrity: sha512-Gq9rmS54mjBL/7/MvBaNOBwbfnh7beHvS6oS4srqXFcQHpQCV1+c8JXWE8VLPyRDhgS3H8x8A7hztqI9VnwrAQ==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dependencies:
+      playwright: 1.42.1
+    dev: true
+
   /@rollup/rollup-android-arm-eabi@4.13.0:
     resolution: {integrity: sha512-5ZYPOuaAqEH/W3gYsRkxQATBW3Ii1MfaT4EQstTnLKViLi2gLSQmlmtTpGucNP3sXEpOiI5tdGhjdE111ekyEg==}
     cpu: [arm]
@@ -970,14 +981,14 @@ packages:
     resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: file:/home/hiroshi/code/personal/vite-environment-examples/misc/vite-5.2.6-patch-2.tgz
+      vite: https://github.com/hi-ogawa/vite-environment-examples/raw/main/misc/vite-5.2.6-patch-2.tgz
     dependencies:
       '@babel/core': 7.24.3
       '@babel/plugin-transform-react-jsx-self': 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.24.3)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: file:misc/vite-5.2.6-patch-2.tgz(@types/node@20.11.30)
+      vite: '@github.com/hi-ogawa/vite-environment-examples/raw/main/misc/vite-5.2.6-patch-2.tgz(@types/node@20.11.30)'
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -1375,6 +1386,14 @@ packages:
       fast-decode-uri-component: 1.0.1
     dev: true
 
+  /fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
   /fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -1504,6 +1523,22 @@ packages:
 
   /picocolors@1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
+
+  /playwright-core@1.42.1:
+    resolution: {integrity: sha512-mxz6zclokgrke9p1vtdy/COWBH+eOZgYUVVU34C73M+4j4HLlQJHtfcqiqqxpP0o8HhMkflvfbquLX5dg6wlfA==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dev: true
+
+  /playwright@1.42.1:
+    resolution: {integrity: sha512-PgwB03s2DZBcNRoW+1w9E+VkLBxweib6KTXM0M3tkiT4jVxKSi6PmVJ591J+0u10LUrgxB7dLRbiJqO5s2QPMg==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dependencies:
+      playwright-core: 1.42.1
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
 
   /postcss@8.4.38:
     resolution: {integrity: sha512-Wglpdk03BSfXkHoQa3b/oulrotAkwrlLDRSOb9D0bN86FdRyE9lppSp33aHNPgBa0JKCoB+drFLZkQoRRYae5A==}
@@ -1809,9 +1844,9 @@ packages:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
     dev: true
 
-  file:misc/vite-5.2.6-patch-2.tgz(@types/node@20.11.30):
-    resolution: {integrity: sha512-XPzZg0OYZpbJeZ3JWO2GAQYtAKfTtSu9CqSBVmwe2XPUdVqB9rYmwEnnuyrxpurGbRWUBMUKnh2BxTpxSgYzYQ==, tarball: file:misc/vite-5.2.6-patch-2.tgz}
-    id: file:misc/vite-5.2.6-patch-2.tgz
+  '@github.com/hi-ogawa/vite-environment-examples/raw/main/misc/vite-5.2.6-patch-2.tgz(@types/node@20.11.30)':
+    resolution: {tarball: https://github.com/hi-ogawa/vite-environment-examples/raw/main/misc/vite-5.2.6-patch-2.tgz}
+    id: '@github.com/hi-ogawa/vite-environment-examples/raw/main/misc/vite-5.2.6-patch-2.tgz'
     name: vite
     version: 5.2.6
     engines: {node: ^18.0.0 || >=20.0.0}
