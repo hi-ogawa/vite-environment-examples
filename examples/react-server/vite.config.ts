@@ -33,14 +33,6 @@ export default defineConfig((env) => ({
     vitePluginFixJsxDEV(),
   ],
 
-  // [feedback] same as react-ssr
-  define:
-    env.command === "build"
-      ? {
-          "process.env.NODE_ENV": `"production"`,
-        }
-      : {},
-
   environments: {
     client: {
       build: {
@@ -49,7 +41,7 @@ export default defineConfig((env) => ({
         sourcemap: true,
       },
     },
-    server: {
+    ssr: {
       build: {
         outDir: "dist/server",
         sourcemap: true,
@@ -67,25 +59,15 @@ export default defineConfig((env) => ({
   build: env.isPreview ? { outDir: "dist/client" } : {},
 
   builder: {
-    runBuildTasks: async (_builder, buildTasks) => {
-      debug(
-        "[build]",
-        buildTasks.map((t) => t.environment.name),
-      );
-
-      // [feedback] `buildTasks` should be object?
-      const tasks = Object.fromEntries(
-        buildTasks.map((t) => [t.environment.name, t]),
-      );
-
+    async buildEnvironments(builder, build) {
       manager.buildType = "react-server";
-      await tasks["react-server"].run();
+      await build(builder.environments["react-server"]!);
 
       manager.buildType = "client";
-      await tasks["client"].run();
+      await build(builder.environments["client"]!);
 
       manager.buildType = "server";
-      await tasks["server"].run();
+      await build(builder.environments["ssr"]!);
     },
   },
 }));

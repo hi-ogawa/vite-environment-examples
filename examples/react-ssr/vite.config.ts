@@ -39,10 +39,7 @@ export default defineConfig((env) => ({
     ssr: {
       build: {
         outDir: "dist/server",
-        // [feedback]
-        // is this still meant to be used?
-        // for example, `ssr: true` seems to make `minify: false` automatically
-        // and also externalization.
+        // [feedback] should this be automatically set?
         ssr: true,
         rollupOptions: {
           input: {
@@ -80,11 +77,8 @@ export function vitePluginSsrMiddleware({
     name: vitePluginSsrMiddleware.name,
 
     // [feedback] "server" environment full-reload still triggers "client" full-reload?
-    // [feedback] (doc) `ctx.environment` instead of `this.environment`
     hotUpdate(ctx) {
       if (ctx.environment.name === "ssr") {
-        // [feedback] can we access runner side `moduleCache`?
-        //            probably not since runner is not in the main process?
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
         const invalidated = runner.moduleCache.invalidateDepTree(ids);
         debug("[handleUpdate]", { ids, invalidated: [...invalidated] });
