@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  vite: file:./misc/vite-5.2.6-patch-import-analysis.tgz
+  vite: file:./misc/vite-5.2.6-patch-2.tgz
 
 importers:
 
@@ -39,8 +39,8 @@ importers:
         specifier: ^5.4.3
         version: 5.4.3
       vite:
-        specifier: file:/home/hiroshi/code/personal/vite-environment-examples/misc/vite-5.2.6-patch-import-analysis.tgz
-        version: file:misc/vite-5.2.6-patch-import-analysis.tgz(@types/node@20.11.30)
+        specifier: file:/home/hiroshi/code/personal/vite-environment-examples/misc/vite-5.2.6-patch-2.tgz
+        version: file:misc/vite-5.2.6-patch-2.tgz(@types/node@20.11.30)
 
   examples/custom:
     dependencies:
@@ -970,14 +970,14 @@ packages:
     resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: file:/home/hiroshi/code/personal/vite-environment-examples/misc/vite-5.2.6-patch-import-analysis.tgz
+      vite: file:/home/hiroshi/code/personal/vite-environment-examples/misc/vite-5.2.6-patch-2.tgz
     dependencies:
       '@babel/core': 7.24.3
       '@babel/plugin-transform-react-jsx-self': 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.24.3)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: file:misc/vite-5.2.6-patch-import-analysis.tgz(@types/node@20.11.30)
+      vite: file:misc/vite-5.2.6-patch-2.tgz(@types/node@20.11.30)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -1809,9 +1809,9 @@ packages:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
     dev: true
 
-  file:misc/vite-5.2.6-patch-import-analysis.tgz(@types/node@20.11.30):
-    resolution: {integrity: sha512-Awex+9Kxd38N2dfxo6RwhLGWVe5qu5bJ2EDOMdwznrQdGXXbIyKoclUBLi5E2cHkvAaAaxp0tCHO8pKIas8xMw==, tarball: file:misc/vite-5.2.6-patch-import-analysis.tgz}
-    id: file:misc/vite-5.2.6-patch-import-analysis.tgz
+  file:misc/vite-5.2.6-patch-2.tgz(@types/node@20.11.30):
+    resolution: {integrity: sha512-XPzZg0OYZpbJeZ3JWO2GAQYtAKfTtSu9CqSBVmwe2XPUdVqB9rYmwEnnuyrxpurGbRWUBMUKnh2BxTpxSgYzYQ==, tarball: file:misc/vite-5.2.6-patch-2.tgz}
+    id: file:misc/vite-5.2.6-patch-2.tgz
     name: vite
     version: 5.2.6
     engines: {node: ^18.0.0 || >=20.0.0}

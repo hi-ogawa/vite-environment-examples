@@ -1,21 +1,16 @@
 import {
   defineConfig,
-  createNodeEnvironment,
   type PluginOption,
   type Plugin,
   createServerModuleRunner,
   Connect,
 } from "vite";
-import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
+import { createDebug, typedBoolean } from "@hiogawa/utils";
 import { __global } from "./src/global";
 import react from "@vitejs/plugin-react";
 import type { ModuleRunner } from "vite/module-runner";
 
 const debug = createDebug("app");
-
-// [feedback]
-// - cac cli error?
-//   vite build --environment=client
 
 export default defineConfig((env) => ({
   clearScreen: false,
@@ -33,39 +28,22 @@ export default defineConfig((env) => ({
       },
     },
   ],
-  // [feedback] no automatic process.env.NODE_ENV replacement applied for build?
-  define:
-    env.command === "build"
-      ? {
-          "process.env.NODE_ENV": `"production"`,
-        }
-      : {},
-  // [feedback] (doc) array or record?
   environments: {
     client: {
-      // [feedback] not working? (see runBuildTasks below)
       build: {
-        // minify: false,
+        minify: false,
         sourcemap: true,
         outDir: "dist/client",
       },
     },
-    // [feedback] cannot use "ssr" as it conflicts with builtin one?
-    server: {
-      dev: {
-        // [feedback] type error? createEnvironment: createNodeEnvironment
-        createEnvironment: (server) => createNodeEnvironment(server, "server"),
-      },
-      // [feedback] can we reuse vite's default ssr build config e.g. external, minify?
+    ssr: {
       build: {
-        minify: false,
         outDir: "dist/server",
+        // [feedback] should this be automatically set?
+        ssr: true,
         rollupOptions: {
           input: {
             index: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
-          },
-          external: (source) => {
-            return source[0] !== "/" && source[0] !== ".";
           },
         },
       },
@@ -76,17 +54,9 @@ export default defineConfig((env) => ({
   build: env.isPreview ? { outDir: "dist/client" } : {},
 
   builder: {
-    runBuildTasks: async (_builder, buildTasks) => {
-      for (const task of buildTasks) {
-        // [feedback] task config empty?
-        debug("[task.environment.config]", task.environment.config);
-        Object.assign(
-          task.config.build,
-          // for now, we can grab the same config by this
-          task.config.environments[task.environment.name]?.build,
-        );
-        await task.run();
-      }
+    async buildEnvironments(builder, build) {
+      await build(builder.environments["client"]!);
+      await build(builder.environments["ssr"]!);
     },
   },
 }));
@@ -106,11 +76,9 @@ export function vitePluginSsrMiddleware({
   const plugin: Plugin = {
     name: vitePluginSsrMiddleware.name,
 
-    // [feedback] (doc) `ctx.environment` instead of `this.environment`
+    // [feedback] "server" environment full-reload still triggers "client" full-reload?
     hotUpdate(ctx) {
-      if (ctx.environment.name === "server") {
-        // [feedback] can we access runner side `moduleCache`?
-        //            probably not since runner is not in the main process?
+      if (ctx.environment.name === "ssr") {
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
         const invalidated = runner.moduleCache.invalidateDepTree(ids);
         debug("[handleUpdate]", { ids, invalidated: [...invalidated] });
@@ -120,9 +88,7 @@ export function vitePluginSsrMiddleware({
     },
 
     configureServer(server) {
-      const serverEnv = server.environments["server"];
-      tinyassert(serverEnv);
-      runner = createServerModuleRunner(serverEnv);
+      runner = createServerModuleRunner(server.environments.ssr);
 
       const handler: Connect.NextHandleFunction = async (req, res, next) => {
         try {
