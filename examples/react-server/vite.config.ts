@@ -60,13 +60,8 @@ export default defineConfig((env) => ({
 
   builder: {
     async buildEnvironments(builder, build) {
-      manager.buildType = "react-server";
       await build(builder.environments["react-server"]!);
-
-      manager.buildType = "client";
       await build(builder.environments["client"]!);
-
-      manager.buildType = "server";
       await build(builder.environments["ssr"]!);
     },
   },
@@ -74,7 +69,6 @@ export default defineConfig((env) => ({
 
 // singleton to pass data through environment build
 class ReactServerManager {
-  buildType?: "react-server" | "client" | "server";
   public clientReferences = new Set<string>();
 }
 
@@ -145,11 +139,7 @@ function vitePluginUseClient(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
-      // [feedback] this.environment is undefined during build?
-      if (
-        this.environment?.name === "react-server" ||
-        manager.buildType === "react-server"
-      ) {
+      if (this.environment?.name === "react-server") {
         if (/^("use client")|('use client')/.test(code)) {
           manager.clientReferences.add(id);
           const ast = await parseAstAsync(code);
