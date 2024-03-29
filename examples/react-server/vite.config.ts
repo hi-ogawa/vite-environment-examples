@@ -1,6 +1,6 @@
 import {
   defineConfig,
-  createNodeEnvironment,
+  createNodeDevEnvironment,
   type PluginOption,
   type Plugin,
   createServerModuleRunner,
@@ -50,31 +50,14 @@ export default defineConfig((env) => ({
       },
     },
     server: {
-      dev: {
-        createEnvironment: (server) => createNodeEnvironment(server, "server"),
-      },
       build: {
-        createEnvironment(builder, name) {
-          return {
-            name,
-            mode: "build",
-            builder,
-            config: {
-              build: {
-                outDir: "dist/server",
-                sourcemap: true,
-                // [feedback]
-                // still a convenient flag to switch into SSR like build?
-                // e.g. minify: false, modulePreload: false
-                ssr: true,
-                rollupOptions: {
-                  input: {
-                    index: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
-                  },
-                },
-              },
-            },
-          };
+        outDir: "dist/server",
+        sourcemap: true,
+        ssr: true,
+        rollupOptions: {
+          input: {
+            index: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
+          },
         },
       },
     },
@@ -85,24 +68,6 @@ export default defineConfig((env) => ({
 
   builder: {
     runBuildTasks: async (_builder, buildTasks) => {
-      for (const task of buildTasks) {
-        // [feedback] same as react-ssr
-        Object.assign(
-          task.config.build,
-          task.config.environments[task.environment.name]?.build,
-        );
-        // [feedback] resolve also not working?
-        debug("[build:config.resolve]", [
-          task.environment.name,
-          task.config.resolve,
-          task.config.environments[task.environment.name]?.resolve,
-        ]);
-        Object.assign(
-          task.config.resolve,
-          task.config.environments[task.environment.name]?.resolve,
-        );
-      }
-
       debug(
         "[build]",
         buildTasks.map((t) => t.environment.name),
@@ -146,8 +111,7 @@ function vitePluginReactServer(): PluginOption {
           conditions: ["react-server"],
         },
         dev: {
-          createEnvironment: (server) =>
-            createNodeEnvironment(server, "react-server"),
+          createEnvironment: createNodeDevEnvironment,
           optimizeDeps: {
             include: [
               "react",
@@ -158,28 +122,13 @@ function vitePluginReactServer(): PluginOption {
           },
         },
         build: {
-          createEnvironment(builder, name) {
-            return {
-              name,
-              mode: "build",
-              builder,
-              config: {
-                // [feedback] workaround for environment.(name).build
-                resolve: {
-                  conditions: ["react-server"],
-                },
-                build: {
-                  outDir: "dist/react-server",
-                  sourcemap: true,
-                  minify: false,
-                  rollupOptions: {
-                    input: {
-                      index: "/src/entry-react-server",
-                    },
-                  },
-                },
-              },
-            };
+          outDir: "dist/react-server",
+          sourcemap: true,
+          minify: false,
+          rollupOptions: {
+            input: {
+              index: "/src/entry-react-server",
+            },
           },
         },
       };
