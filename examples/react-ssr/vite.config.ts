@@ -93,6 +93,7 @@ export default defineConfig((env) => ({
 
 // createServerModuleRunner port of
 // https://github.com/hi-ogawa/vite-plugins/tree/992368d0c2f23dbb6c2d8c67a7ce0546d610a671/packages/vite-plugin-ssr-middleware
+// TODO: maybe whole `environments.server.dev/build` config can be moved to here
 export function vitePluginSsrMiddleware({
   entry,
   preview,
