@@ -1,6 +1,5 @@
 import {
   defineConfig,
-  createNodeDevEnvironment,
   type PluginOption,
   type Plugin,
   createServerModuleRunner,
@@ -48,11 +47,7 @@ export default defineConfig((env) => ({
         outDir: "dist/client",
       },
     },
-    // [feedback] cannot use "ssr" as it conflicts with builtin one?
     ssr: {
-      dev: {
-        createEnvironment: createNodeDevEnvironment,
-      },
       build: {
         outDir: "dist/server",
         // [feedback]
