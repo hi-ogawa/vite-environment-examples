@@ -13,7 +13,6 @@ jobs:
       - run: pnpm i
       - run: pnpm lint-check
       - run: pnpm tsc
-      - run: pnpm build
       - run: npx playwright install chromium
       - run: pnpm -C examples/react-ssr test-e2e
       - run: pnpm -C examples/react-ssr build
