@@ -12,10 +12,6 @@ import type { ModuleRunner } from "vite/module-runner";
 
 const debug = createDebug("app");
 
-// [feedback]
-// - cac cli error?
-//   vite build --environment=client
-
 export default defineConfig((env) => ({
   clearScreen: false,
   appType: "custom",
