@@ -82,7 +82,6 @@ function vitePluginReactServer(): PluginOption {
     config(config, _env) {
       tinyassert(config.environments);
       config.environments["react-server"] = {
-        // [feedback] not working during build?
         resolve: {
           conditions: ["react-server"],
         },
