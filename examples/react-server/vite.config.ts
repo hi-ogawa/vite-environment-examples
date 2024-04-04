@@ -1,6 +1,5 @@
 import {
   defineConfig,
-  createNodeDevEnvironment,
   type PluginOption,
   type Plugin,
   createServerModuleRunner,
@@ -10,10 +9,6 @@ import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { __global } from "./src/global";
 import react from "@vitejs/plugin-react";
 import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
-import {
-  vitePluginEnvironmentOptimizeDeps,
-  vitePluginFixJsxDEV,
-} from "./vite-plugin-environment-optimize-deps";
 
 const debug = createDebug("app");
 
@@ -27,10 +22,6 @@ export default defineConfig((env) => ({
       preview: new URL("./dist/server/index.js", import.meta.url).toString(),
     }),
     vitePluginReactServer(),
-    vitePluginEnvironmentOptimizeDeps({
-      name: "react-server",
-    }),
-    vitePluginFixJsxDEV(),
     vitePluginSilenceUseClientBuildWarning(),
   ],
 
@@ -58,6 +49,11 @@ export default defineConfig((env) => ({
 
   // [feedback] same as react-ssr
   build: env.isPreview ? { outDir: "dist/client" } : {},
+
+  ssr: {
+    // [feedback] deps optimization platform per environment?
+    target: env.command === "serve" ? "webworker" : undefined,
+  },
 
   builder: {
     async buildEnvironments(builder, build) {
@@ -87,7 +83,6 @@ function vitePluginReactServer(): PluginOption {
           conditions: ["react-server"],
         },
         dev: {
-          createEnvironment: createNodeDevEnvironment,
           optimizeDeps: {
             include: [
               "react",
