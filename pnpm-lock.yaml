@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  vite: file:./misc/vite-5.2.7.tgz
+  vite: https://github.com/hi-ogawa/vite-environment-examples/raw/96d95bc538b7f53589db72f17e23e75b4e57e960/misc/vite-5.2.7.tgz
 
 importers:
 
@@ -42,8 +42,8 @@ importers:
         specifier: ^5.4.3
         version: 5.4.3
       vite:
-        specifier: file:/home/hiroshi/code/personal/vite-environment-examples/misc/vite-5.2.7.tgz
-        version: file:misc/vite-5.2.7.tgz(@types/node@20.11.30)
+        specifier: https://github.com/hi-ogawa/vite-environment-examples/raw/96d95bc538b7f53589db72f17e23e75b4e57e960/misc/vite-5.2.7.tgz
+        version: '@github.com/hi-ogawa/vite-environment-examples/raw/96d95bc538b7f53589db72f17e23e75b4e57e960/misc/vite-5.2.7.tgz(@types/node@20.11.30)'
 
   examples/custom:
     dependencies:
@@ -981,14 +981,14 @@ packages:
     resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: file:/home/hiroshi/code/personal/vite-environment-examples/misc/vite-5.2.7.tgz
+      vite: https://github.com/hi-ogawa/vite-environment-examples/raw/96d95bc538b7f53589db72f17e23e75b4e57e960/misc/vite-5.2.7.tgz
     dependencies:
       '@babel/core': 7.24.3
       '@babel/plugin-transform-react-jsx-self': 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.24.3)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: file:misc/vite-5.2.7.tgz(@types/node@20.11.30)
+      vite: '@github.com/hi-ogawa/vite-environment-examples/raw/96d95bc538b7f53589db72f17e23e75b4e57e960/misc/vite-5.2.7.tgz(@types/node@20.11.30)'
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -1844,9 +1844,9 @@ packages:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
     dev: true
 
-  file:misc/vite-5.2.7.tgz(@types/node@20.11.30):
-    resolution: {integrity: sha512-C8KKXG6XyLKRot09F7Q9CA+7ybKBjuH/oXs1UplfnUdLvTFjlS5y/LQJeUureNtpEgMtAlwx6BXLb7eS6CXnNg==, tarball: file:misc/vite-5.2.7.tgz}
-    id: file:misc/vite-5.2.7.tgz
+  '@github.com/hi-ogawa/vite-environment-examples/raw/96d95bc538b7f53589db72f17e23e75b4e57e960/misc/vite-5.2.7.tgz(@types/node@20.11.30)':
+    resolution: {tarball: https://github.com/hi-ogawa/vite-environment-examples/raw/96d95bc538b7f53589db72f17e23e75b4e57e960/misc/vite-5.2.7.tgz}
+    id: '@github.com/hi-ogawa/vite-environment-examples/raw/96d95bc538b7f53589db72f17e23e75b4e57e960/misc/vite-5.2.7.tgz'
     name: vite
     version: 5.2.7
     engines: {node: ^18.0.0 || >=20.0.0}
