@@ -1,5 +1,6 @@
 import {
   defineConfig,
+  createNodeDevEnvironment,
   type PluginOption,
   type Plugin,
   createServerModuleRunner,
@@ -83,6 +84,7 @@ function vitePluginReactServer(): PluginOption {
           conditions: ["react-server"],
         },
         dev: {
+          createEnvironment: createNodeDevEnvironment,
           optimizeDeps: {
             include: [
               "react",
