@@ -84,7 +84,7 @@ function vitePluginReactServer(): PluginOption {
         build: {
           outDir: "dist/react-server",
           sourcemap: true,
-          minify: false,
+          ssr: true,
           rollupOptions: {
             input: {
               index: "/src/entry-react-server",
@@ -104,13 +104,16 @@ function vitePluginReactServer(): PluginOption {
     hotUpdate(ctx) {
       if (ctx.environment.name === "react-server") {
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
-        const invalidated =
-          __global.reactServerRunner.moduleCache.invalidateDepTree(ids);
-        debug("[react-server:hotUpdate]", {
-          ids,
-          invalidated: [...invalidated],
-        });
-        return [];
+        if (ids.length > 0) {
+          const invalidated =
+            __global.reactServerRunner.moduleCache.invalidateDepTree(ids);
+          console.log("[react-server:invalidate]", ctx.file);
+          debug("[react-server:hotUpdate]", {
+            ids,
+            invalidated: [...invalidated],
+          });
+          return [];
+        }
       }
       return;
     },

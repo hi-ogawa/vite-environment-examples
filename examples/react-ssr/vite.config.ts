@@ -98,11 +98,14 @@ export function vitePluginSsrMiddleware({
     hotUpdate(ctx) {
       if (ctx.environment.name === "ssr") {
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
-        const invalidated = runner.moduleCache.invalidateDepTree(ids);
-        debug("[handleUpdate]", { ids, invalidated: [...invalidated] });
-        return [];
+        if (ids.length > 0) {
+          const invalidated = runner.moduleCache.invalidateDepTree(ids);
+          console.log("[ssr:invalidate]", ctx.file);
+          debug("[ssr:handleUpdate]", { ids, invalidated: [...invalidated] });
+          return [];
+        }
       }
-      return ctx.modules;
+      return;
     },
 
     configureServer(server) {
