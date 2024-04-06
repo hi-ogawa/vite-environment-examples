@@ -36,6 +36,12 @@ async function main() {
       reactDomClient.hydrateRoot(rootEl, reactRootEl);
     });
   }
+
+  if (import.meta.hot) {
+    import.meta.hot.on("react-server:update", (e) => {
+      console.log("[react-server] hot update", e);
+    });
+  }
 }
 
 main();
