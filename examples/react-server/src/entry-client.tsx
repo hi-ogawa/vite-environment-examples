@@ -25,7 +25,8 @@ async function main() {
 
   function Root() {
     const [streamData, setStreamData] = React.useState(initialStreamData);
-    __setStreamData = setStreamData;
+    const [_isPending, startTransition] = React.useTransition();
+    __setStreamData = (v) => startTransition(() => setStreamData(v));
     return React.use(streamData);
   }
 
