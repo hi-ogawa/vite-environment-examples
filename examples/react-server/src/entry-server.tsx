@@ -10,6 +10,11 @@ import {
 export async function handler(request: Request) {
   const reactServer = await importReactServer();
   const rscStream = await reactServer.handler({ request });
+  if (new URL(request.url).searchParams.has("__rsc")) {
+    return new Response(rscStream, {
+      headers: { "content-type": "text/x-component; charset=utf-8" },
+    });
+  }
   const htmlStream = await renderHtml(rscStream);
   return new Response(htmlStream, { headers: { "content-type": "text/html" } });
 }

@@ -14,14 +14,16 @@ async function main() {
     "react-server-dom-webpack/client.browser"
   );
 
-  const rscStream = readRscStreamScript();
-  const rscPromise = reactServerDomClient.createFromReadableStream(
-    rscStream,
+  const initialStreamData = reactServerDomClient.createFromReadableStream(
+    readRscStreamScript(),
     {},
   );
 
+  let __setStreamData: (v: Promise<React.ReactNode>) => void;
+
   function Root() {
-    return React.use(rscPromise);
+    const [streamData, __setStreamData] = React.useState(initialStreamData);
+    return React.use(streamData);
   }
 
   const reactRootEl = <Root />;
@@ -40,6 +42,11 @@ async function main() {
   if (import.meta.hot) {
     import.meta.hot.on("react-server:update", (e) => {
       console.log("[react-server] hot update", e);
+      const streamData = reactServerDomClient.createFromFetch(
+        fetch("/?__rsc"),
+        {},
+      );
+      __setStreamData(streamData);
     });
   }
 }
