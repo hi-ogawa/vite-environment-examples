@@ -82,6 +82,7 @@ function vitePluginReactServer(): PluginOption {
       config.environments["react-server"] = {
         resolve: {
           conditions: ["react-server"],
+          noExternal: true,
         },
         dev: {
           createEnvironment: createNodeDevEnvironment,
