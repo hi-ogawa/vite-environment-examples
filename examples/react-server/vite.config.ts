@@ -51,11 +51,6 @@ export default defineConfig((env) => ({
   // [feedback] same as react-ssr
   build: env.isPreview ? { outDir: "dist/client" } : {},
 
-  ssr: {
-    // [feedback] deps optimization platform per environment?
-    target: env.command === "serve" ? "webworker" : undefined,
-  },
-
   builder: {
     async buildEnvironments(builder, build) {
       await build(builder.environments["react-server"]!);
@@ -82,6 +77,7 @@ function vitePluginReactServer(): PluginOption {
       config.environments["react-server"] = {
         resolve: {
           conditions: ["react-server"],
+          noExternal: true,
         },
         dev: {
           createEnvironment: createNodeDevEnvironment,
