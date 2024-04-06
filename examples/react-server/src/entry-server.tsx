@@ -6,7 +6,7 @@ import {
   createModuleMap,
   initializeWebpackServer,
 } from "./features/use-client/server";
-import type { StreamData } from "./features/stream/utils";
+import type { StreamData } from "./entry-react-server";
 
 export async function handler(request: Request) {
   const reactServer = await importReactServer();

@@ -3,7 +3,7 @@ import React from "react";
 import reactDomClient from "react-dom/client";
 import { readRscStreamScript } from "./utils/rsc-stream-script";
 import { initializeWebpackServer } from "./features/use-client/server";
-import type { StreamData } from "./features/stream/utils";
+import type { StreamData } from "./entry-react-server";
 
 async function main() {
   if (window.location.search.includes("__noCsr")) {
