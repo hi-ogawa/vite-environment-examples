@@ -24,7 +24,8 @@ async function main() {
   let __setStreamData: (v: Promise<StreamData>) => void;
 
   function Root() {
-    const [streamData, __setStreamData] = React.useState(initialStreamData);
+    const [streamData, setStreamData] = React.useState(initialStreamData);
+    __setStreamData = setStreamData;
     return React.use(streamData);
   }
 
@@ -43,7 +44,7 @@ async function main() {
 
   if (import.meta.hot) {
     import.meta.hot.on("react-server:update", (e) => {
-      console.log("[react-server] hot update", e);
+      console.log("[react-server] hot update", e.file);
       const streamData = reactServerDomClient.createFromFetch<StreamData>(
         fetch("/?__rsc"),
         {},

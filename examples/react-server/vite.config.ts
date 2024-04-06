@@ -107,10 +107,17 @@ function vitePluginReactServer(): PluginOption {
         if (ids.length > 0) {
           const invalidated =
             __global.reactServerRunner.moduleCache.invalidateDepTree(ids);
-          console.log("[react-server:invalidate]", ctx.file);
           debug("[react-server:hotUpdate]", {
             ids,
             invalidated: [...invalidated],
+          });
+          console.log("[react-server:hmr]", ctx.file);
+          __global.server.environments.client.hot.send({
+            type: "custom",
+            event: "react-server:update",
+            data: {
+              file: ctx.file,
+            },
           });
           return [];
         }
