@@ -6,6 +6,7 @@ import {
   createModuleMap,
   initializeWebpackServer,
 } from "./features/use-client/server";
+import type { StreamData } from "./features/stream/utils";
 
 export async function handler(request: Request) {
   const reactServer = await importReactServer();
@@ -27,12 +28,15 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
 
   const [rscStream1, rscStream2] = rscStream.tee();
 
-  const rscPromise = reactServerDomClient.createFromReadableStream(rscStream1, {
-    ssrManifest: {
-      moduleMap: createModuleMap(),
-      moduleLoading: null,
+  const rscPromise = reactServerDomClient.createFromReadableStream<StreamData>(
+    rscStream1,
+    {
+      ssrManifest: {
+        moduleMap: createModuleMap(),
+        moduleLoading: null,
+      },
     },
-  });
+  );
 
   function Root() {
     return React.use(rscPromise);

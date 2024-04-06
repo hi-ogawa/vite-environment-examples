@@ -3,6 +3,7 @@ import React from "react";
 import reactDomClient from "react-dom/client";
 import { readRscStreamScript } from "./utils/rsc-stream-script";
 import { initializeWebpackServer } from "./features/use-client/server";
+import type { StreamData } from "./features/stream/utils";
 
 async function main() {
   if (window.location.search.includes("__noCsr")) {
@@ -14,12 +15,13 @@ async function main() {
     "react-server-dom-webpack/client.browser"
   );
 
-  const initialStreamData = reactServerDomClient.createFromReadableStream(
-    readRscStreamScript(),
-    {},
-  );
+  const initialStreamData =
+    reactServerDomClient.createFromReadableStream<StreamData>(
+      readRscStreamScript(),
+      {},
+    );
 
-  let __setStreamData: (v: Promise<React.ReactNode>) => void;
+  let __setStreamData: (v: Promise<StreamData>) => void;
 
   function Root() {
     const [streamData, __setStreamData] = React.useState(initialStreamData);
@@ -42,7 +44,7 @@ async function main() {
   if (import.meta.hot) {
     import.meta.hot.on("react-server:update", (e) => {
       console.log("[react-server] hot update", e);
-      const streamData = reactServerDomClient.createFromFetch(
+      const streamData = reactServerDomClient.createFromFetch<StreamData>(
         fetch("/?__rsc"),
         {},
       );
