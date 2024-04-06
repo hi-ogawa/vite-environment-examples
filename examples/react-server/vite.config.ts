@@ -13,7 +13,7 @@ import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
 
 const debug = createDebug("app");
 
-export default defineConfig((env) => ({
+export default defineConfig((_env) => ({
   clearScreen: false,
   appType: "custom",
   plugins: [
@@ -38,18 +38,9 @@ export default defineConfig((env) => ({
       build: {
         outDir: "dist/server",
         sourcemap: true,
-        ssr: true,
-        rollupOptions: {
-          input: {
-            index: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
-          },
-        },
       },
     },
   },
-
-  // [feedback] same as react-ssr
-  build: env.isPreview ? { outDir: "dist/client" } : {},
 
   builder: {
     async buildEnvironments(builder, build) {

@@ -12,7 +12,7 @@ import type { ModuleRunner } from "vite/module-runner";
 
 const debug = createDebug("app");
 
-export default defineConfig((env) => ({
+export default defineConfig((_env) => ({
   clearScreen: false,
   appType: "custom",
   plugins: [
@@ -39,19 +39,9 @@ export default defineConfig((env) => ({
     ssr: {
       build: {
         outDir: "dist/server",
-        // [feedback] should this be automatically set?
-        ssr: true,
-        rollupOptions: {
-          input: {
-            index: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
-          },
-        },
       },
     },
   },
-
-  // [feedback] should preview automatically pick up environments.client.build.outDir?
-  build: env.isPreview ? { outDir: "dist/client" } : {},
 
   builder: {
     async buildEnvironments(builder, build) {
@@ -63,7 +53,6 @@ export default defineConfig((env) => ({
 
 // createServerModuleRunner port of
 // https://github.com/hi-ogawa/vite-plugins/tree/992368d0c2f23dbb6c2d8c67a7ce0546d610a671/packages/vite-plugin-ssr-middleware
-// TODO: maybe whole `environments.server.dev/build` config can be moved to here
 export function vitePluginSsrMiddleware({
   entry,
   preview,
@@ -75,6 +64,35 @@ export function vitePluginSsrMiddleware({
 
   const plugin: Plugin = {
     name: vitePluginSsrMiddleware.name,
+
+    config(config, env) {
+      // [feedback] to be fixed by https://github.com/vitejs/vite/pull/16301
+      if (env.isPreview) {
+        return {
+          build: {
+            outDir: config.environments?.["client"]?.build?.outDir,
+          },
+        };
+      }
+      return;
+    },
+
+    configEnvironment(name, _config, _env) {
+      if (name === "ssr") {
+        return {
+          build: {
+            // [feedback] should `ssr: true` be automatically set?
+            ssr: true,
+            rollupOptions: {
+              input: {
+                index: entry,
+              },
+            },
+          },
+        };
+      }
+      return;
+    },
 
     // [feedback] "server" environment full-reload still triggers "client" full-reload?
     hotUpdate(ctx) {
