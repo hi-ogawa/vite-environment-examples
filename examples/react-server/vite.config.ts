@@ -84,7 +84,7 @@ function vitePluginReactServer(): PluginOption {
         build: {
           outDir: "dist/react-server",
           sourcemap: true,
-          minify: false,
+          ssr: true,
           rollupOptions: {
             input: {
               index: "/src/entry-react-server",
