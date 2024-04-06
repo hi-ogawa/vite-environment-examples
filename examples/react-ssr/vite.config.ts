@@ -101,7 +101,7 @@ export function vitePluginSsrMiddleware({
         if (ids.length > 0) {
           const invalidated = runner.moduleCache.invalidateDepTree(ids);
           console.log("[ssr:invalidate]", ctx.file);
-          debug("[handleUpdate]", { ids, invalidated: [...invalidated] });
+          debug("[ssr:handleUpdate]", { ids, invalidated: [...invalidated] });
           return [];
         }
       }
