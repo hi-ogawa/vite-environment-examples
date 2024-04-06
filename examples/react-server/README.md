@@ -24,9 +24,9 @@ pnpm cf-release
 - [x] client reference
   - [x] dev
   - [x] build
-- [ ] hmr
+- [x] hmr
   - [x] browser
-  - [ ] react-server
+  - [x] react-server
 - [ ] integrate to `@hiogawa/react-server`
 
 ## references
