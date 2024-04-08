@@ -3,6 +3,8 @@ import { fileURLToPath } from "url";
 
 // npx tsx examples/workerd/src/example2/main.ts
 
+const DO_NAME = "__do";
+
 async function main() {
   const mf = new Miniflare({
     modulesRoot: "/",
@@ -12,9 +14,20 @@ async function main() {
         path: fileURLToPath(new URL("./worker.mjs", import.meta.url)),
       },
     ],
+    durableObjects: {
+      [DO_NAME]: {
+        className: "MyDurableObject",
+        // need this dark magic?
+        // unsafeUniqueKey: kUnsafeEphemeralUniqueKey,
+        // unsafePreventEviction: true,
+      },
+    },
   });
-  const res = await mf.dispatchFetch("https://test.local/hello");
-  console.log("[node] response", {
+
+  const ns = await mf.getDurableObjectNamespace(DO_NAME);
+  const stub = ns.get(ns.idFromName(""));
+  const res = await stub.fetch("http://test.local/hello");
+  console.log("[response]", {
     status: res.status,
     headers: Object.fromEntries(res.headers),
     text: await res.text(),

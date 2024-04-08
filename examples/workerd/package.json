@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {},
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240405.0",
     "miniflare": "^3.20240404.0"
   },
   "volta": {
