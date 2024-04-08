@@ -14,7 +14,7 @@ export default defineConfig((_env) => ({
   ],
   environments: {
     workerd: {
-      // [feedback] how to prevent deps optimization to inject this?
+      // [feedback] how to prevent deps optimization to inject this? still `ssr.target: "webworker"` needed?
       //    import { createRequire } from 'module';const require = createRequire(import.meta.url);
       nodeCompatible: false,
       webCompatible: true,
@@ -32,6 +32,9 @@ export default defineConfig((_env) => ({
         },
       },
     },
+  },
+  optimizeDeps: {
+    force: true,
   },
   ssr: {
     target: "webworker",

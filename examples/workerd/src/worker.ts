@@ -57,10 +57,8 @@ export class RunnerObject implements DurableObject {
             Object.freeze(context.__vite_ssr_exports__);
           },
           async runExternalModule(filepath) {
-            return {
-              createRequire: () => {},
-            };
-            // return import(filepath);
+            console.log("[runExternalModule]", filepath);
+            return import(filepath);
           },
         },
       );

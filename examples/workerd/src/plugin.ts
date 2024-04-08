@@ -110,6 +110,7 @@ async function setupMiniflareManager(options: WorkerdPluginOptions) {
   const ns = await miniflare.getDurableObjectNamespace(RUNNER_OBJECT_BINDING);
   const runnerObject = ns.get(ns.idFromName(""));
 
+  // TODO: use binding constants
   const initOpitons: RunnerInitOpitons = {
     // TODO: should be server.config.root
     root: process.cwd(),
