@@ -1,3 +1,3 @@
-export default function main() {
+export default function main(): string {
   return "yay!";
 }

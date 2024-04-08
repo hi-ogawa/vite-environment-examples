@@ -39,6 +39,7 @@ export class RunnerObject implements DurableObject {
         },
         {
           runInlinedModule: async (context, transformed, id) => {
+            // TODO: check stacktrace
             const codeDefinition = `'use strict';async (${Object.keys(
               context,
             ).join(",")})=>{{`;

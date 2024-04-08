@@ -73,8 +73,6 @@ async function main() {
       },
     },
   });
-  const workerdEnv = viteDevServer.environments["workerd"];
-  tinyassert(workerdEnv);
 
   const res = await runnerObject.fetch("http://test.local");
   console.log("[response]", {
