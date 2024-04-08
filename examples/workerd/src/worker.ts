@@ -14,8 +14,8 @@ export class RunnerObject implements DurableObject {
     const url = new URL(request.url);
 
     if (url.pathname === RUNNER_INIT_PATH) {
-      const { 0: ws1, 1: ws2 } = new WebSocketPair();
-      (ws1 as any).accept();
+      const { 0: webSocket, 1: webSocketReturn } = new WebSocketPair();
+      (webSocket as any).accept();
 
       tinyassert(!this.#runner);
       this.#runner = new ModuleRunner(
@@ -35,8 +35,19 @@ export class RunnerObject implements DurableObject {
               return result as any;
             },
           },
-          // TODO: use WebSocketPair
-          hmr: false,
+          hmr: {
+            connection: {
+              isReady: () => true,
+              onUpdate(callback) {
+                webSocket.addEventListener("message", (event) => {
+                  callback(JSON.parse(event.data));
+                });
+              },
+              send(messages) {
+                webSocket.send(JSON.stringify(messages));
+              },
+            },
+          },
         },
         {
           runInlinedModule: async (context, transformed, id) => {
@@ -54,7 +65,7 @@ export class RunnerObject implements DurableObject {
           },
         },
       );
-      return new Response(null, { status: 101, webSocket: ws2 });
+      return new Response(null, { status: 101, webSocket: webSocketReturn });
     }
 
     tinyassert(this.#runner);

@@ -8,12 +8,7 @@ import {
 import { fileURLToPath } from "url";
 import { tinyassert } from "@hiogawa/utils";
 import { RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
-import {
-  DevEnvironment,
-  RemoteEnvironmentTransport,
-  type Plugin,
-  type ViteDevServer,
-} from "vite";
+import { DevEnvironment, type Plugin, type ViteDevServer } from "vite";
 import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 
 interface WorkerdPluginOptions {
@@ -40,7 +35,7 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
       // `createEnvironment` should be async?
       //  otherwise this complicated miniflare setup has to be done outside of `createEnvironment`
       manager = await setupMiniflareManager(pluginOptions);
-      const ws = manager.webSocket;
+      const webSocket = manager.webSocket;
 
       return {
         environments: {
@@ -48,19 +43,11 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
             dev: {
               createEnvironment(server, name) {
                 globalServer = server;
+                webSocket;
 
                 return new DevEnvironment(server, name, {
-                  runner: {
-                    transport: new RemoteEnvironmentTransport({
-                      send: (data) => ws.send(JSON.stringify(data)),
-                      onMessage: (handler) => {
-                        ws.addEventListener("message", (event) => {
-                          tinyassert(typeof event.data === "string");
-                          handler(JSON.parse(event.data));
-                        });
-                      },
-                    }),
-                  },
+                  // TODO
+                  hot: false,
                 });
               },
             },
