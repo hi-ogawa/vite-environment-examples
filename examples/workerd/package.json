@@ -2,7 +2,9 @@
   "name": "@hiogawa/vite-environment-examples-workerd",
   "private": true,
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "dev": "tsup --watch"
+  },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240405.0",
     "miniflare": "^3.20240404.0"
