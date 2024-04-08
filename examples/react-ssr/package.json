@@ -1,5 +1,5 @@
 {
-  "name": "@hiogawa/vite-environment-examples-react-server",
+  "name": "@hiogawa/vite-environment-examples-react-ssr",
   "private": true,
   "type": "module",
   "scripts": {
