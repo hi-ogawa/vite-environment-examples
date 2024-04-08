@@ -137,10 +137,10 @@ export function vitePluginVirtualIndexHtml(): Plugin {
       server = server_;
     },
     resolveId(source, _importer, _options) {
-      return source === "virtual:index.html" ? "\0" + source : undefined;
+      return source === "virtual:index-html" ? "\0" + source : undefined;
     },
     async load(id, _options) {
-      if (id === "\0" + "virtual:index.html") {
+      if (id === "\0" + "virtual:index-html") {
         let html: string;
         if (server) {
           this.addWatchFile("index.html");

@@ -34,9 +34,6 @@ export default defineConfig((_env) => ({
       },
     },
   },
-  optimizeDeps: {
-    force: true,
-  },
   ssr: {
     target: "webworker",
   },
