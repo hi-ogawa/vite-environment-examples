@@ -1,7 +1,7 @@
 import { Miniflare } from "miniflare";
 import { fileURLToPath } from "url";
 
-// npx tsx examples/workerd/src/index.ts
+// npx tsx examples/workerd/src/example2/main.ts
 
 async function main() {
   const mf = new Miniflare({
