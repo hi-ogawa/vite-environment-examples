@@ -6,11 +6,7 @@ import {
 } from "miniflare";
 import { fileURLToPath } from "url";
 import { tinyassert } from "@hiogawa/utils";
-import {
-  RUNNER_INIT_PATH,
-  UNSAFE_EVAL_BINDING,
-  type RunnerInitOpitons,
-} from "./shared";
+import { RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
 import { DevEnvironment, RemoteEnvironmentTransport, type Plugin } from "vite";
 import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 
@@ -86,7 +82,6 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
 type MiniflareManager = Awaited<ReturnType<typeof setupMiniflareManager>>;
 
 const RUNNER_OBJECT_BINDING = "__VITE_RUNNER";
-const BASE_URL = "http://test.local";
 
 async function setupMiniflareManager(options: WorkerdPluginOptions) {
   const miniflareOptions: MiniflareOptions = {
@@ -101,7 +96,12 @@ async function setupMiniflareManager(options: WorkerdPluginOptions) {
     durableObjects: {
       [RUNNER_OBJECT_BINDING]: "RunnerObject",
     },
-    unsafeEvalBinding: UNSAFE_EVAL_BINDING,
+    unsafeEvalBinding: "__viteUnsafeEval",
+    bindings: {
+      // TODO: server.config.root
+      __viteRoot: process.cwd(),
+      __viteEntry: options.entry,
+    } satisfies Omit<RunnerEnv, "__viteUnsafeEval">,
   };
   options.options?.(miniflareOptions);
 
@@ -110,24 +110,11 @@ async function setupMiniflareManager(options: WorkerdPluginOptions) {
   const ns = await miniflare.getDurableObjectNamespace(RUNNER_OBJECT_BINDING);
   const runnerObject = ns.get(ns.idFromName(""));
 
-  // TODO: use binding constants
-  const initOpitons: RunnerInitOpitons = {
-    // TODO: should be server.config.root
-    root: process.cwd(),
-    entry: options.entry,
-  };
-
-  const res = await runnerObject.fetch(
-    BASE_URL +
-      RUNNER_INIT_PATH +
-      "?" +
-      new URLSearchParams({ options: JSON.stringify(initOpitons) }),
-    {
-      headers: {
-        Upgrade: "websocket",
-      },
+  const res = await runnerObject.fetch("http://test.local" + RUNNER_INIT_PATH, {
+    headers: {
+      Upgrade: "websocket",
     },
-  );
+  });
   tinyassert(res.webSocket);
   const { webSocket } = res;
   webSocket.accept();

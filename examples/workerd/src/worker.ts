@@ -1,17 +1,12 @@
 import { tinyassert } from "@hiogawa/utils";
-import {
-  RUNNER_INIT_PATH,
-  UNSAFE_EVAL_BINDING,
-  type RunnerInitOpitons,
-} from "./shared";
+import { RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
 import { ModuleRunner, RemoteRunnerTransport } from "vite/module-runner";
 
 export class RunnerObject implements DurableObject {
+  #env: RunnerEnv;
   #runner: ModuleRunner | undefined;
-  #env: any;
-  #entry!: string;
 
-  constructor(_state: DurableObjectState, env: any) {
+  constructor(_state: DurableObjectState, env: RunnerEnv) {
     this.#env = env;
   }
 
@@ -23,14 +18,9 @@ export class RunnerObject implements DurableObject {
       (ws1 as any).accept();
 
       tinyassert(!this.#runner);
-      const initOpitonsRaw = url.searchParams.get("options");
-      tinyassert(initOpitonsRaw);
-      const initOptions = JSON.parse(initOpitonsRaw) as RunnerInitOpitons;
-      this.#entry = initOptions.entry;
-
       this.#runner = new ModuleRunner(
         {
-          root: initOptions.root,
+          root: this.#env.__viteRoot,
           sourcemapInterceptor: "prepareStackTrace",
           // TODO: websocket for fetchModule is still too big
           transport: new RemoteRunnerTransport({
@@ -52,7 +42,7 @@ export class RunnerObject implements DurableObject {
               context,
             ).join(",")})=>{{`;
             const code = `${codeDefinition}${transformed}\n}}`;
-            const fn = this.#env[UNSAFE_EVAL_BINDING].eval(code, id);
+            const fn = this.#env.__viteUnsafeEval.eval(code, id);
             await fn(...Object.values(context));
             Object.freeze(context.__vite_ssr_exports__);
           },
@@ -66,7 +56,7 @@ export class RunnerObject implements DurableObject {
     }
 
     tinyassert(this.#runner);
-    const mod = await this.#runner.import(this.#entry);
+    const mod = await this.#runner.import(this.#env.__viteEntry);
     return mod.default.fetch(request, this.#env);
   }
 }
