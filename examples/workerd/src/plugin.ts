@@ -16,58 +16,20 @@ interface WorkerdPluginOptions {
   options?: (v: MiniflareOptions & WorkerOptions) => void;
 }
 
-let globalServer: ViteDevServer;
-
 export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
-  let manager: MiniflareManager | undefined;
-  let dispose = async () => {
-    await manager?.miniflare.dispose();
-    manager = undefined;
-  };
-
   return {
     name: vitePluginWorkerd.name,
-    apply: "serve",
     async config(_config, _env) {
-      dispose();
-
-      // [feedback]
-      // `createEnvironment` should be async?
-      //  otherwise this complicated miniflare setup has to be done outside of `createEnvironment`
-      manager = await setupMiniflareManager(pluginOptions);
-      const webSocket = manager.webSocket;
-
       return {
         environments: {
           workerd: {
             dev: {
-              createEnvironment(server, name) {
-                globalServer = server;
-
-                return new DevEnvironment(server, name, {
-                  hot: {
-                    name,
-                    close() {},
-                    listen() {},
-                    // cf. createServerHMRChannel
-                    send(...args: any[]) {
-                      let payload: any;
-                      if (typeof args[0] === "string") {
-                        payload = {
-                          type: "custom",
-                          event: args[0],
-                          data: args[1],
-                        };
-                      } else {
-                        payload = args[0];
-                      }
-                      webSocket.send(JSON.stringify(payload));
-                    },
-                    // TODO: for custom event e.g. vite:invalidate
-                    on() {},
-                    off() {},
-                  },
-                });
+              async createEnvironment(server, name) {
+                const manager = await setupMiniflareManager(
+                  server,
+                  pluginOptions,
+                );
+                return new WorkerdDevEnvironment(server, name, manager);
               },
             },
           },
@@ -77,29 +39,70 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
 
     configureServer(server) {
       return () => {
+        // TODO: allow interface merging for custom environment to provide a typing?
+        const devEnv = server.environments["workerd"];
+        tinyassert(devEnv instanceof WorkerdDevEnvironment);
+
         server.middlewares.use(
-          createMiddleware(
-            (ctx) => {
-              tinyassert(manager);
-              return manager.dispatchFetch(ctx.request);
-            },
-            {
-              alwaysCallNext: false,
-            },
-          ),
+          createMiddleware((ctx) => devEnv.api.fetch(ctx.request), {
+            alwaysCallNext: false,
+          }),
         );
       };
-    },
-
-    async buildEnd() {
-      await dispose();
     },
   };
 }
 
+class WorkerdDevEnvironment extends DevEnvironment {
+  constructor(
+    server: ViteDevServer,
+    name: string,
+    public manager: MiniflareManager,
+  ) {
+    super(server, name, {
+      hot: {
+        name,
+        close() {},
+        listen() {},
+        // cf. createServerHMRChannel
+        send(...args: any[]) {
+          let payload: any;
+          if (typeof args[0] === "string") {
+            payload = {
+              type: "custom",
+              event: args[0],
+              data: args[1],
+            };
+          } else {
+            payload = args[0];
+          }
+          manager.webSocket.send(JSON.stringify(payload));
+        },
+        // TODO: for custom event e.g. vite:invalidate
+        on() {},
+        off() {},
+      },
+    });
+  }
+
+  override async close() {
+    await super.close();
+    await this.manager.miniflare.dispose();
+  }
+
+  get api() {
+    return {
+      fetch: this.manager.dispatchFetch,
+    };
+  }
+}
+
 type MiniflareManager = Awaited<ReturnType<typeof setupMiniflareManager>>;
 
-async function setupMiniflareManager(options: WorkerdPluginOptions) {
+async function setupMiniflareManager(
+  server: ViteDevServer,
+  options: WorkerdPluginOptions,
+) {
   const RUNNER_OBJECT_BINDING = "__VITE_RUNNER";
 
   const miniflareOptions: MiniflareOptions = {
@@ -117,7 +120,7 @@ async function setupMiniflareManager(options: WorkerdPluginOptions) {
     unsafeEvalBinding: "__viteUnsafeEval",
     serviceBindings: {
       __viteFetchModule: async (request) => {
-        const devEnv = globalServer.environments["workerd"];
+        const devEnv = server.environments["workerd"];
         tinyassert(devEnv);
         const args = await request.json();
         const result = await devEnv.fetchModule(...(args as [any, any]));
@@ -125,8 +128,7 @@ async function setupMiniflareManager(options: WorkerdPluginOptions) {
       },
     },
     bindings: {
-      // TODO: server.config.root
-      __viteRoot: process.cwd(),
+      __viteRoot: server.config.root,
       __viteEntry: options.entry,
     } satisfies Omit<RunnerEnv, "__viteUnsafeEval" | "__viteFetchModule">,
   };
@@ -157,5 +159,5 @@ async function setupMiniflareManager(options: WorkerdPluginOptions) {
     return response as any as Response;
   }
 
-  return { miniflare, runnerObject, webSocket, dispatchFetch };
+  return { miniflare, webSocket, dispatchFetch };
 }
