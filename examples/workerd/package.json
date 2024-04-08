@@ -1,0 +1,11 @@
+{
+  "name": "@hiogawa/vite-environment-examples-workerd",
+  "private": true,
+  "type": "module",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {},
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
