@@ -2,6 +2,7 @@
   "extends": "@tsconfig/strictest/tsconfig.json",
   "include": ["src", "vite.config.ts", "e2e", "playwright.config.ts"],
   "compilerOptions": {
+    "checkJs": false,
     "exactOptionalPropertyTypes": false,
     "verbatimModuleSyntax": true,
     "noEmit": true,
