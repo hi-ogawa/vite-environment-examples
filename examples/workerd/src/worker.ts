@@ -1,6 +1,6 @@
 import { tinyassert } from "@hiogawa/utils";
 import { RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
-import { ModuleRunner, RemoteRunnerTransport } from "vite/module-runner";
+import { ModuleRunner } from "vite/module-runner";
 
 export class RunnerObject implements DurableObject {
   #env: RunnerEnv;
@@ -22,18 +22,20 @@ export class RunnerObject implements DurableObject {
         {
           root: this.#env.__viteRoot,
           sourcemapInterceptor: "prepareStackTrace",
-          // TODO: websocket for fetchModule is still too big
-          transport: new RemoteRunnerTransport({
-            onMessage: (listener) => {
-              ws1.addEventListener("message", (event) => {
-                listener(JSON.parse(event.data));
-              });
+          transport: {
+            fetchModule: async (...args) => {
+              const response = await this.#env.__viteFetchModule.fetch(
+                new Request("https://any.local", {
+                  method: "POST",
+                  body: JSON.stringify(args),
+                }),
+              );
+              tinyassert(response.ok);
+              const result = response.json();
+              return result as any;
             },
-            send: (message) => {
-              ws1.send(JSON.stringify(message));
-            },
-          }),
-          // TODO: spawn two pairs of websocket?
+          },
+          // TODO: use WebSocketPair
           hmr: false,
         },
         {

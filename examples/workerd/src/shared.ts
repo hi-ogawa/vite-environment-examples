@@ -6,4 +6,7 @@ export type RunnerEnv = {
   __viteUnsafeEval: {
     eval: (code: string, filename: string) => any;
   };
+  __viteFetchModule: {
+    fetch: (request: Request) => Promise<Response>;
+  };
 };

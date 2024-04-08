@@ -3,17 +3,25 @@ import {
   Miniflare,
   type MiniflareOptions,
   type WorkerOptions,
+  Response as MiniflareResponse,
 } from "miniflare";
 import { fileURLToPath } from "url";
 import { tinyassert } from "@hiogawa/utils";
 import { RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
-import { DevEnvironment, RemoteEnvironmentTransport, type Plugin } from "vite";
+import {
+  DevEnvironment,
+  RemoteEnvironmentTransport,
+  type Plugin,
+  type ViteDevServer,
+} from "vite";
 import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 
 interface WorkerdPluginOptions {
   entry: string;
   options?: (v: MiniflareOptions & WorkerOptions) => void;
 }
+
+let globalServer: ViteDevServer;
 
 export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
   let manager: MiniflareManager | undefined;
@@ -28,7 +36,10 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
     async config(_config, _env) {
       dispose();
 
-      // [feedback] createEnvironment should be async?
+      // [feedback]
+      // `createEnvironment` should be async?
+      //  otherwise this complicated miniflare setup has to be done outside
+      // without access to `ViteDevServer`, `ResvoledConfig` etc...
       manager = await setupMiniflareManager(pluginOptions);
       const ws = manager.webSocket;
 
@@ -37,6 +48,8 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
           workerd: {
             dev: {
               createEnvironment(server, name) {
+                globalServer = server;
+
                 return new DevEnvironment(server, name, {
                   runner: {
                     transport: new RemoteEnvironmentTransport({
@@ -81,9 +94,9 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
 
 type MiniflareManager = Awaited<ReturnType<typeof setupMiniflareManager>>;
 
-const RUNNER_OBJECT_BINDING = "__VITE_RUNNER";
-
 async function setupMiniflareManager(options: WorkerdPluginOptions) {
+  const RUNNER_OBJECT_BINDING = "__VITE_RUNNER";
+
   const miniflareOptions: MiniflareOptions = {
     log: new Log(),
     modulesRoot: "/",
@@ -97,11 +110,20 @@ async function setupMiniflareManager(options: WorkerdPluginOptions) {
       [RUNNER_OBJECT_BINDING]: "RunnerObject",
     },
     unsafeEvalBinding: "__viteUnsafeEval",
+    serviceBindings: {
+      __viteFetchModule: async (request) => {
+        const devEnv = globalServer.environments["workerd"];
+        tinyassert(devEnv);
+        const args = await request.json();
+        const result = await devEnv.fetchModule(...(args as [any, any]));
+        return new MiniflareResponse(JSON.stringify(result));
+      },
+    },
     bindings: {
       // TODO: server.config.root
       __viteRoot: process.cwd(),
       __viteEntry: options.entry,
-    } satisfies Omit<RunnerEnv, "__viteUnsafeEval">,
+    } satisfies Omit<RunnerEnv, "__viteUnsafeEval" | "__viteFetchModule">,
   };
   options.options?.(miniflareOptions);
 
@@ -110,7 +132,7 @@ async function setupMiniflareManager(options: WorkerdPluginOptions) {
   const ns = await miniflare.getDurableObjectNamespace(RUNNER_OBJECT_BINDING);
   const runnerObject = ns.get(ns.idFromName(""));
 
-  const res = await runnerObject.fetch("http://test.local" + RUNNER_INIT_PATH, {
+  const res = await runnerObject.fetch("http://any.local" + RUNNER_INIT_PATH, {
     headers: {
       Upgrade: "websocket",
     },
