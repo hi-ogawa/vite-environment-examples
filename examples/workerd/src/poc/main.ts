@@ -5,7 +5,7 @@ import { RUNNER_INIT_PATH, UNSAFE_EVAL_BINDING } from "./shared";
 import { DevEnvironment, RemoteEnvironmentTransport, createServer } from "vite";
 
 // pnpm -C examples/workerd dev
-// npx tsx examples/workerd/src/example4/main.ts
+// npx tsx examples/workerd/src/poc/main.ts
 
 const RUNNER_OBJECT_BINDING = "__VITE_RUNNER";
 

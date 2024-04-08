@@ -1,5 +1,5 @@
 {
-  "name": "@hiogawa/vite-environment-examples-workerd",
+  "name": "@hiogawa/vite-plugin-workerd",
   "private": true,
   "type": "module",
   "scripts": {

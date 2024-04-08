@@ -2,8 +2,8 @@ import { defineConfig } from "tsup";
 
 export default [
   defineConfig({
-    outDir: "src/example4/dist",
-    entry: ["src/example4/worker.ts"],
+    outDir: "src/poc/dist",
+    entry: ["src/poc/worker.ts"],
     format: ["esm"],
     platform: "browser",
     noExternal: [/.*/],
