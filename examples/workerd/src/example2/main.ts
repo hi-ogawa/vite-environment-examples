@@ -26,12 +26,20 @@ async function main() {
 
   const ns = await mf.getDurableObjectNamespace(DO_NAME);
   const stub = ns.get(ns.idFromName(""));
-  const res = await stub.fetch("http://test.local/hello");
-  console.log("[response]", {
-    status: res.status,
-    headers: Object.fromEntries(res.headers),
-    text: await res.text(),
-  });
+
+  async function run() {
+    const res = await stub.fetch("http://test.local/hello");
+    console.log("[response]", {
+      status: res.status,
+      headers: Object.fromEntries(res.headers),
+      text: await res.text(),
+    });
+  }
+
+  await run();
+  await run();
+  await run();
+
   await mf.dispose();
 }
 
