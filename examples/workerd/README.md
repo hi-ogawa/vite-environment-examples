@@ -1,5 +1,9 @@
 # workerd
 
+Vite module runner on Durable Objects.
+
+See [`examples/react-ssr/vite.config.workerd.ts`](../react-ssr/vite.config.workerd.ts).
+
 ## references
 
 - https://github.com/cloudflare/workers-sdk/blame/2789f26a87c769fc6177b0bdc79a839a15f4ced1/packages/miniflare/test/plugins/do/index.spec.ts
