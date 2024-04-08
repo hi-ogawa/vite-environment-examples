@@ -2,9 +2,12 @@
   "name": "@hiogawa/vite-environment-examples-workerd",
   "private": true,
   "type": "module",
-  "scripts": {},
-  "dependencies": {},
-  "devDependencies": {},
+  "scripts": {
+    "dev": "tsx src/index.ts"
+  },
+  "devDependencies": {
+    "miniflare": "^3.20240404.0"
+  },
   "volta": {
     "extends": "../../package.json"
   }
