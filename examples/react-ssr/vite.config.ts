@@ -4,11 +4,12 @@ import {
   type Plugin,
   createServerModuleRunner,
   Connect,
+  type ViteDevServer,
 } from "vite";
 import { createDebug, typedBoolean } from "@hiogawa/utils";
-import { __global } from "./src/global";
 import react from "@vitejs/plugin-react";
 import type { ModuleRunner } from "vite/module-runner";
+import fs from "node:fs";
 
 const debug = createDebug("app");
 
@@ -21,12 +22,7 @@ export default defineConfig((_env) => ({
       entry: "/src/adapters/node",
       preview: "./dist/server/index.js",
     }),
-    {
-      name: "global-server",
-      configureServer(server) {
-        __global.server = server;
-      },
-    },
+    vitePluginVirtualIndexHtml(),
   ],
   environments: {
     client: {
@@ -131,4 +127,32 @@ export function vitePluginSsrMiddleware({
     },
   };
   return [plugin];
+}
+
+export function vitePluginVirtualIndexHtml(): Plugin {
+  let server: ViteDevServer;
+  return {
+    name: vitePluginVirtualIndexHtml.name,
+    apply: "serve",
+    configureServer(server_) {
+      server = server_;
+    },
+    resolveId(source, _importer, _options) {
+      return source === "virtual:index.html" ? "\0" + source : undefined;
+    },
+    async load(id, _options) {
+      if (id === "\0" + "virtual:index.html") {
+        let html: string;
+        if (server) {
+          this.addWatchFile("index.html");
+          html = await fs.promises.readFile("index.html", "utf-8");
+          html = await server.transformIndexHtml("/", html);
+        } else {
+          html = await fs.promises.readFile("dist/client/index.html", "utf-8");
+        }
+        return `export default ${JSON.stringify(html)}`;
+      }
+      return;
+    },
+  };
 }

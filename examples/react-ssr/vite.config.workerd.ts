@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
-import { __global } from "./src/global";
 import react from "@vitejs/plugin-react";
 import { vitePluginWorkerd } from "@hiogawa/vite-plugin-workerd";
+import { vitePluginVirtualIndexHtml } from "./vite.config";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
@@ -11,6 +11,7 @@ export default defineConfig((_env) => ({
     vitePluginWorkerd({
       entry: "/src/adapters/workerd.ts",
     }),
+    vitePluginVirtualIndexHtml(),
   ],
   environments: {
     workerd: {
