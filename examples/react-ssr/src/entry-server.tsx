@@ -4,6 +4,9 @@ import { __global } from "./global";
 
 export async function handler(_req: Request) {
   const ssrHtml = ReactDomServer.renderToString(<Root />);
+  if (1) {
+    return new Response(ssrHtml, { headers: { "content-type": "text/html" } });
+  }
   let html = await importHtml();
   html = html.replace(/<body>/, `<body><div id="root">${ssrHtml}</div>`);
   return new Response(html, { headers: { "content-type": "text/html" } });

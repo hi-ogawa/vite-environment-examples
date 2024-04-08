@@ -131,14 +131,15 @@ async function setupMiniflareManager(options: WorkerdPluginOptions) {
   const { webSocket } = res;
   webSocket.accept();
 
-  function dispatchFetch(request: Request) {
-    return runnerObject.fetch(request.url, {
+  async function dispatchFetch(request: Request) {
+    const response = await runnerObject.fetch(request.url, {
       method: request.method,
       headers: request.headers,
       body: request.body as any,
       duplex: "half",
       redirect: "manual",
-    }) as any as Response;
+    });
+    return response as any as Response;
   }
 
   return { miniflare, runnerObject, webSocket, dispatchFetch };

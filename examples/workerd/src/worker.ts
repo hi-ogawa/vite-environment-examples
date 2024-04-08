@@ -32,6 +32,7 @@ export class RunnerObject implements DurableObject {
         {
           root: initOptions.root,
           sourcemapInterceptor: "prepareStackTrace",
+          // TODO: websocket for fetchModule is still too big
           transport: new RemoteRunnerTransport({
             onMessage: (listener) => {
               ws1.addEventListener("message", (event) => {
@@ -55,8 +56,11 @@ export class RunnerObject implements DurableObject {
             await fn(...Object.values(context));
             Object.freeze(context.__vite_ssr_exports__);
           },
-          runExternalModule(filepath) {
-            return import(filepath);
+          async runExternalModule(filepath) {
+            return {
+              createRequire: () => {},
+            };
+            // return import(filepath);
           },
         },
       );
@@ -65,6 +69,6 @@ export class RunnerObject implements DurableObject {
 
     tinyassert(this.#runner);
     const mod = await this.#runner.import(this.#entry);
-    return new Response(mod.default(request, this.#env));
+    return mod.default.fetch(request, this.#env);
   }
 }

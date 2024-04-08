@@ -2,8 +2,15 @@
   "name": "@hiogawa/vite-plugin-workerd",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "build": "tsup"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240405.0",
