@@ -43,11 +43,30 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
             dev: {
               createEnvironment(server, name) {
                 globalServer = server;
-                webSocket;
 
                 return new DevEnvironment(server, name, {
-                  // TODO
-                  hot: false,
+                  hot: {
+                    name,
+                    close() {},
+                    listen() {},
+                    // cf. createServerHMRChannel
+                    send(...args: any[]) {
+                      let payload: any;
+                      if (typeof args[0] === "string") {
+                        payload = {
+                          type: "custom",
+                          event: args[0],
+                          data: args[1],
+                        };
+                      } else {
+                        payload = args[0];
+                      }
+                      webSocket.send(JSON.stringify(payload));
+                    },
+                    // TODO: for custom event e.g. vite:invalidate
+                    on() {},
+                    off() {},
+                  },
                 });
               },
             },
