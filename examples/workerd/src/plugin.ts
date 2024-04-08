@@ -38,8 +38,7 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
 
       // [feedback]
       // `createEnvironment` should be async?
-      //  otherwise this complicated miniflare setup has to be done outside
-      // without access to `ViteDevServer`, `ResvoledConfig` etc...
+      //  otherwise this complicated miniflare setup has to be done outside of `createEnvironment`
       manager = await setupMiniflareManager(pluginOptions);
       const ws = manager.webSocket;
 
