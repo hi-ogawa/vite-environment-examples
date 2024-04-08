@@ -130,10 +130,9 @@ export function vitePluginSsrMiddleware({
 }
 
 export function vitePluginVirtualIndexHtml(): Plugin {
-  let server: ViteDevServer;
+  let server: ViteDevServer | undefined;
   return {
     name: vitePluginVirtualIndexHtml.name,
-    apply: "serve",
     configureServer(server_) {
       server = server_;
     },
