@@ -1,13 +1,13 @@
 import { tinyassert } from "@hiogawa/utils";
 import ReactDomClient from "react-dom/client";
-import { Root } from "./routes";
+import Page from "./routes/page";
 import React from "react";
 
 async function main() {
   const el = document.getElementById("root");
   tinyassert(el);
   React.startTransition(() => {
-    ReactDomClient.hydrateRoot(el, <Root />);
+    ReactDomClient.hydrateRoot(el, <Page />);
   });
 }
 
