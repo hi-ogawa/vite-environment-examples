@@ -100,7 +100,6 @@ function vitePluginReactServer(): PluginOption {
       __global.server = server;
       __global.reactServerRunner = reactServerRunner;
     },
-    // same as vitePluginSsrMiddleware
     hotUpdate(ctx) {
       if (ctx.environment.name === "react-server") {
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
