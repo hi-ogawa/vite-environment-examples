@@ -105,13 +105,6 @@ function vitePluginReactServer(): PluginOption {
       if (ctx.environment.name === "react-server") {
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
         if (ids.length > 0) {
-          const invalidated =
-            __global.reactServerRunner.moduleCache.invalidateDepTree(ids);
-          debug("[react-server:hotUpdate]", {
-            ids,
-            invalidated: [...invalidated],
-          });
-          console.log("[react-server:hmr]", ctx.file);
           __global.server.environments.client.hot.send({
             type: "custom",
             event: "react-server:update",
@@ -119,7 +112,6 @@ function vitePluginReactServer(): PluginOption {
               file: ctx.file,
             },
           });
-          return [];
         }
       }
       return;
