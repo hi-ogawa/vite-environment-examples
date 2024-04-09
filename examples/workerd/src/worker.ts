@@ -5,12 +5,12 @@ import { ModuleRunner } from "vite/module-runner";
 export class RunnerObject implements DurableObject {
   #env: RunnerEnv;
   #runner?: ModuleRunner;
-  // #entry?: string;
 
   constructor(_state: DurableObjectState, env: RunnerEnv) {
     this.#env = env;
   }
 
+  // TODO: handle error
   async fetch(request: Request) {
     const url = new URL(request.url);
 
@@ -23,8 +23,18 @@ export class RunnerObject implements DurableObject {
     }
 
     tinyassert(this.#runner);
-    const mod = await this.#runner.import(this.#env.__viteEntry);
-    return mod.default.fetch(request, this.#env);
+    const entry = request.headers.get("__viteEntry");
+    tinyassert(entry);
+
+    const mod = await this.#runner.import(entry);
+    const handler = mod.default as ExportedHandler<RunnerEnv>;
+    tinyassert(handler.fetch);
+
+    return handler.fetch(request, this.#env, {
+      waitUntil(_promise: Promise<any>) {},
+      passThroughOnException() {},
+      abort(_reason?: any) {},
+    });
   }
 }
 

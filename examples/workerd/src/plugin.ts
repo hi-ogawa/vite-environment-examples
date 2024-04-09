@@ -8,7 +8,7 @@ import {
 } from "miniflare";
 import { fileURLToPath } from "url";
 import { tinyassert } from "@hiogawa/utils";
-import { ANY_URL, RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
+import { ANY_URL, RUNNER_INIT_PATH } from "./shared";
 import {
   DevEnvironment,
   type HMRChannel,
@@ -18,8 +18,11 @@ import {
 import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 import type { SourcelessWorkerOptions } from "wrangler";
 
-interface WorkerdPluginOptions {
+interface WorkerdPluginOptions extends WorkerdEnvironmentOptions {
   entry: string;
+}
+
+interface WorkerdEnvironmentOptions {
   miniflare?: SourcelessWorkerOptions;
   wrangler?: {
     configPath?: string;
@@ -43,14 +46,15 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
     },
 
     configureServer(server) {
-      return () => {
-        // TODO: allow interface merging so users can register typing?
+      return async () => {
         const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
-
         server.middlewares.use(
-          createMiddleware((ctx) => devEnv.api.fetch(ctx.request), {
-            alwaysCallNext: false,
-          }),
+          createMiddleware(
+            (ctx) => devEnv.api.dispatchFetch(pluginOptions.entry, ctx.request),
+            {
+              alwaysCallNext: false,
+            },
+          ),
         );
       };
     },
@@ -62,14 +66,13 @@ export type WorkerdDevEnvironment = DevEnvironment & {
 };
 
 type WorkerdDevEnvironmentApi = {
-  setEntry(entry: string): void;
-  fetch(request: Request): Promise<Response>;
+  dispatchFetch(entry: string, request: Request): Promise<Response>;
 };
 
 async function createWorkerdDevEnvironment(
   server: ViteDevServer,
   name: string,
-  pluginOptions: WorkerdPluginOptions,
+  pluginOptions: WorkerdEnvironmentOptions,
 ) {
   // setup miniflare with a durable object script to run vite module runner
   let runnerWorkerOptions: WorkerOptions = {
@@ -95,9 +98,7 @@ async function createWorkerdDevEnvironment(
     },
     bindings: {
       __viteRoot: server.config.root,
-      // TODO: can set entry later?
-      __viteEntry: pluginOptions.entry,
-    } satisfies Omit<RunnerEnv, "__viteUnsafeEval" | "__viteFetchModule">,
+    },
   };
 
   // https://github.com/cloudflare/workers-sdk/blob/2789f26a87c769fc6177b0bdc79a839a15f4ced1/packages/vitest-pool-workers/src/pool/config.ts#L174-L195
@@ -169,18 +170,14 @@ async function createWorkerdDevEnvironment(
       await miniflare.dispose();
     }
 
-    // TODO: custom api for environment users?
-    // TODO: can proxy entire `SELF` like vitest integration?
-    // https://developers.cloudflare.com/workers/testing/vitest-integration/test-apis/
+    // custom api for environment users
     api: WorkerdDevEnvironmentApi = {
-      setEntry(entry) {
-        entry;
-      },
-
-      async fetch(request: Request) {
+      async dispatchFetch(entry: string, request: Request) {
+        const headers = new Headers(request.headers);
+        headers.set("__viteEntry", entry);
         const req = new MiniflareRequest(request.url, {
           method: request.method,
-          headers: request.headers,
+          headers,
           body: request.body as any,
           duplex: "half",
           redirect: "manual",
