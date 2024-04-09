@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { vitePluginWorkerd } from "@hiogawa/vite-plugin-workerd";
 import { vitePluginVirtualIndexHtml } from "./vite.config";
+import { Log } from "miniflare";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
@@ -10,12 +11,11 @@ export default defineConfig((_env) => ({
     react(),
     vitePluginWorkerd({
       entry: "/src/adapters/workerd.ts",
-      // miniflare: {
-      //   kvNamespaces: [],
-      // },
-      // wrangler: {
-      //   configPath: "./wrangler.toml",
-      // },
+      miniflare: {
+        log: new Log(),
+        kvNamespaces: { kv: "0".repeat(32) },
+        kvPersist: ".wrangler/state/v3/kv",
+      },
     }),
     vitePluginVirtualIndexHtml(),
   ],

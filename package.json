@@ -16,6 +16,7 @@
     "@types/node": "^20.11.30",
     "@vitejs/plugin-react": "^4.2.1",
     "esbuild": "^0.20.2",
+    "miniflare": "^3.20240404.0",
     "prettier": "^3.2.5",
     "tsup": "^8.0.2",
     "tsx": "^4.7.1",

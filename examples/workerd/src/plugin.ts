@@ -1,10 +1,10 @@
 import {
-  Log,
   Miniflare,
   type WorkerOptions,
   Request as MiniflareRequest,
   Response as MiniflareResponse,
   mergeWorkerOptions,
+  type SharedOptions,
 } from "miniflare";
 import { fileURLToPath } from "url";
 import { DefaultMap, tinyassert } from "@hiogawa/utils";
@@ -24,7 +24,7 @@ interface WorkerdPluginOptions extends WorkerdEnvironmentOptions {
 }
 
 interface WorkerdEnvironmentOptions {
-  miniflare?: SourcelessWorkerOptions;
+  miniflare?: SharedOptions & SourcelessWorkerOptions;
   wrangler?: {
     configPath?: string;
   };
@@ -118,7 +118,7 @@ export async function createWorkerdDevEnvironment(
   }
 
   const miniflare = new Miniflare({
-    log: new Log(),
+    ...pluginOptions.miniflare,
     workers: [runnerWorkerOptions],
   });
 
