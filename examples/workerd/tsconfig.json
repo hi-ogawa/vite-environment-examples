@@ -1,21 +1,16 @@
 {
   "extends": "@tsconfig/strictest/tsconfig.json",
-  "include": [
-    "src",
-    "vite.config.ts",
-    "vite.config.workerd.ts",
-    "e2e",
-    "playwright.config.ts"
-  ],
+  "include": ["src", "vite.config.ts", "e2e", "playwright.config.ts"],
   "compilerOptions": {
+    "checkJs": false,
     "exactOptionalPropertyTypes": false,
     "verbatimModuleSyntax": true,
     "noEmit": true,
     "moduleResolution": "Bundler",
     "module": "ESNext",
     "target": "ESNext",
-    "lib": ["ESNext", "DOM"],
-    "types": ["vite/client"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "@cloudflare/workers-types/experimental"],
     "jsx": "react-jsx"
   }
 }

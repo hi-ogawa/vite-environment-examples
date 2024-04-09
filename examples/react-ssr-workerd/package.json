@@ -1,0 +1,22 @@
+{
+  "name": "@hiogawa/vite-environment-examples-react-ssr-workerd",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "test-e2e": "playwright test"
+  },
+  "dependencies": {
+    "react": "18.3.0-canary-6c3b8dbfe-20240226",
+    "react-dom": "18.3.0-canary-6c3b8dbfe-20240226"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240405.0",
+    "@hiogawa/vite-plugin-workerd": "workspace:*",
+    "@types/react": "18.2.72",
+    "@types/react-dom": "18.2.22"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

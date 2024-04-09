@@ -12,11 +12,14 @@ jobs:
       - run: corepack enable
       - run: pnpm i
       - run: pnpm lint-check
+      - run: pnpm -C examples/workerd build
       - run: pnpm tsc
       - run: npx playwright install chromium
       - run: pnpm -C examples/react-ssr test-e2e
       - run: pnpm -C examples/react-ssr build
       - run: pnpm -C examples/react-ssr test-e2e-preview
+      - run: pnpm -C examples/react-ssr test-e2e-workerd
+      - run: pnpm -C examples/react-ssr-workerd test-e2e
       - run: pnpm -C examples/react-server test-e2e
       - run: pnpm -C examples/react-server build
       - run: pnpm -C examples/react-server test-e2e-preview
