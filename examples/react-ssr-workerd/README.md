@@ -1,4 +1,4 @@
-# react-ssr
+# react-ssr-workerd
 
 ```sh
 pnpm dev
