@@ -13,8 +13,9 @@ export default defineConfig((_env) => ({
       entry: "/src/adapters/workerd.ts",
       miniflare: {
         log: new Log(),
-        kvNamespaces: { kv: "0".repeat(32) },
-        kvPersist: ".wrangler/state/v3/kv",
+      },
+      wrangler: {
+        configPath: "./wrangler.toml",
       },
     }),
     vitePluginVirtualIndexHtml(),

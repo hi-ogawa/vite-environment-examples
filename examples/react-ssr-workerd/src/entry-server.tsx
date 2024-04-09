@@ -6,6 +6,10 @@ export async function handler(request: Request) {
   if (url.pathname === "/api") {
     return apiHandler(request);
   }
+  if (url.pathname === "/nodejs-compat") {
+    const util = await import("node:util");
+    return new Response(util.format("hello %s", "world"));
+  }
 
   const ssrHtml = ReactDomServer.renderToString(<Page />);
   let html = (await import("virtual:index-html")).default;
