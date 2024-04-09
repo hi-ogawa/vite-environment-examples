@@ -19,7 +19,7 @@
     "prettier": "^3.2.5",
     "tsx": "^4.7.1",
     "typescript": "^5.4.3",
-    "vite": "6.0.0-alpha.0"
+    "vite": "6.0.0-alpha.1"
   },
   "packageManager": "pnpm@8.15.5+sha256.4b4efa12490e5055d59b9b9fc9438b7d581a6b7af3b5675eb5c5f447cee1a589",
   "volta": {
