@@ -8,7 +8,7 @@ import {
 } from "miniflare";
 import { fileURLToPath } from "url";
 import { tinyassert } from "@hiogawa/utils";
-import { ANY_URL, RUNNER_INIT_PATH } from "./shared";
+import { ANY_URL, RUNNER_INIT_PATH, setRunnerFetchOptions } from "./shared";
 import {
   DevEnvironment,
   type HMRChannel,
@@ -173,11 +173,11 @@ async function createWorkerdDevEnvironment(
     // custom api for environment users
     api: WorkerdDevEnvironmentApi = {
       async dispatchFetch(entry: string, request: Request) {
-        const headers = new Headers(request.headers);
-        headers.set("__viteEntry", entry);
         const req = new MiniflareRequest(request.url, {
           method: request.method,
-          headers,
+          headers: setRunnerFetchOptions(new Headers(request.headers), {
+            entry,
+          }),
           body: request.body as any,
           duplex: "half",
           redirect: "manual",

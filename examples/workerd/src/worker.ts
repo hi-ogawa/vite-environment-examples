@@ -1,5 +1,10 @@
 import { tinyassert } from "@hiogawa/utils";
-import { ANY_URL, RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
+import {
+  ANY_URL,
+  RUNNER_INIT_PATH,
+  getRunnerFetchOptions,
+  type RunnerEnv,
+} from "./shared";
 import { ModuleRunner } from "vite/module-runner";
 
 export class RunnerObject implements DurableObject {
@@ -35,10 +40,8 @@ export class RunnerObject implements DurableObject {
     }
 
     tinyassert(this.#runner);
-    const entry = request.headers.get("__viteEntry");
-    tinyassert(entry);
-
-    const mod = await this.#runner.import(entry);
+    const options = getRunnerFetchOptions(request.headers);
+    const mod = await this.#runner.import(options.entry);
     const handler = mod.default as ExportedHandler<RunnerEnv>;
     tinyassert(handler.fetch);
 
