@@ -1,6 +1,6 @@
 import React from "react";
 
-export function Root() {
+export default function Page() {
   const [count, setCount] = React.useState(0);
 
   const [hydrated, setHydrated] = React.useState(false);

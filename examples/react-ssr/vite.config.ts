@@ -6,12 +6,9 @@ import {
   Connect,
   type ViteDevServer,
 } from "vite";
-import { createDebug, typedBoolean } from "@hiogawa/utils";
 import react from "@vitejs/plugin-react";
 import type { ModuleRunner } from "vite/module-runner";
 import fs from "node:fs";
-
-const debug = createDebug("app");
 
 export default defineConfig((_env) => ({
   clearScreen: false,
@@ -86,20 +83,6 @@ export function vitePluginSsrMiddleware({
             },
           },
         };
-      }
-      return;
-    },
-
-    // [feedback] "server" environment full-reload still triggers "client" full-reload?
-    hotUpdate(ctx) {
-      if (ctx.environment.name === "ssr") {
-        const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
-        if (ids.length > 0) {
-          const invalidated = runner.moduleCache.invalidateDepTree(ids);
-          console.log("[ssr:invalidate]", ctx.file);
-          debug("[ssr:handleUpdate]", { ids, invalidated: [...invalidated] });
-          return [];
-        }
       }
       return;
     },
