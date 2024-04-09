@@ -61,15 +61,11 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
   };
 }
 
-export type WorkerdDevEnvironment = DevEnvironment & {
-  api: WorkerdDevEnvironmentApi;
-};
+export type WorkerdDevEnvironment = Awaited<
+  ReturnType<typeof createWorkerdDevEnvironment>
+>;
 
-type WorkerdDevEnvironmentApi = {
-  dispatchFetch(entry: string, request: Request): Promise<Response>;
-};
-
-async function createWorkerdDevEnvironment(
+export async function createWorkerdDevEnvironment(
   server: ViteDevServer,
   name: string,
   pluginOptions: WorkerdEnvironmentOptions,
@@ -163,34 +159,38 @@ async function createWorkerdDevEnvironment(
     off() {},
   };
 
-  // inheritance to extend dispose + custom api
+  // inheritance to extend dispose
   class WorkerdDevEnvironment extends DevEnvironment {
     override async close() {
       await super.close();
       await miniflare.dispose();
     }
-
-    // custom api for environment users
-    api: WorkerdDevEnvironmentApi = {
-      async dispatchFetch(entry: string, request: Request) {
-        const req = new MiniflareRequest(request.url, {
-          method: request.method,
-          headers: setRunnerFetchOptions(new Headers(request.headers), {
-            entry,
-          }),
-          body: request.body as any,
-          duplex: "half",
-          redirect: "manual",
-        });
-        const res = await runnerObject.fetch(req);
-        return new Response(res.body as any, {
-          status: res.status,
-          statusText: res.statusText,
-          headers: res.headers as any,
-        });
-      },
-    };
   }
 
-  return new WorkerdDevEnvironment(server, name, { hot });
+  const devEnv = new WorkerdDevEnvironment(server, name, { hot });
+
+  // custom environment api
+  const api = {
+    async dispatchFetch(entry: string, request: Request) {
+      const req = new MiniflareRequest(request.url, {
+        method: request.method,
+        headers: setRunnerFetchOptions(new Headers(request.headers), {
+          entry,
+        }),
+        body: request.body as any,
+        duplex: "half",
+        redirect: "manual",
+      });
+      const res = await runnerObject.fetch(req);
+      return new Response(res.body as any, {
+        status: res.status,
+        statusText: res.statusText,
+        headers: res.headers as any,
+      });
+    },
+  };
+
+  // workaround for tsup dts?
+  Object.assign(devEnv, { api });
+  return devEnv as DevEnvironment & { api: typeof api };
 }
