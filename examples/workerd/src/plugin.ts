@@ -7,10 +7,11 @@ import {
   mergeWorkerOptions,
 } from "miniflare";
 import { fileURLToPath } from "url";
-import { tinyassert } from "@hiogawa/utils";
+import { DefaultMap, tinyassert } from "@hiogawa/utils";
 import { ANY_URL, RUNNER_INIT_PATH, setRunnerFetchOptions } from "./shared";
 import {
   DevEnvironment,
+  type CustomPayload,
   type HMRChannel,
   type Plugin,
   type ViteDevServer,
@@ -135,29 +136,19 @@ export async function createWorkerdDevEnvironment(
   const { webSocket } = initResponse;
   webSocket.accept();
 
-  // vite environment hot
-  const hot: HMRChannel = {
+  // websocket hmr channgel
+  const hot = createSimpleHMRChannel({
     name,
-    close() {},
-    listen() {},
-    // cf. createServerHMRChannel
-    send(...args: any[]) {
-      let payload: any;
-      if (typeof args[0] === "string") {
-        payload = {
-          type: "custom",
-          event: args[0],
-          data: args[1],
-        };
-      } else {
-        payload = args[0];
-      }
-      webSocket.send(JSON.stringify(payload));
+    post: (data) => webSocket.send(data),
+    on: (listener) => {
+      webSocket.addEventListener("message", listener);
+      return () => {
+        webSocket.removeEventListener("message", listener);
+      };
     },
-    // TODO: for custom event e.g. vite:invalidate
-    on() {},
-    off() {},
-  };
+    serialize: (v) => JSON.stringify(v),
+    deserialize: (v) => JSON.parse(v.data),
+  });
 
   // inheritance to extend dispose
   class WorkerdDevEnvironment extends DevEnvironment {
@@ -193,4 +184,53 @@ export async function createWorkerdDevEnvironment(
   // workaround for tsup dts?
   Object.assign(devEnv, { api });
   return devEnv as DevEnvironment & { api: typeof api };
+}
+
+// cf.
+// https://github.com/vitejs/vite/blob/feat/environment-api/packages/vite/src/node/server/hmr.ts/#L909-L910
+// https://github.com/vitejs/vite/blob/feat/environment-api/packages/vite/src/node/ssr/runtime/serverHmrConnector.ts/#L33-L34
+function createSimpleHMRChannel(options: {
+  name: string;
+  post: (data: any) => any;
+  on: (listener: (data: any) => void) => () => void;
+  serialize: (v: any) => any;
+  deserialize: (v: any) => any;
+}): HMRChannel {
+  const listerMap = new DefaultMap<string, Set<Function>>(() => new Set());
+  let dispose: (() => void) | undefined;
+
+  return {
+    name: options.name,
+    listen() {
+      dispose = options.on((data) => {
+        const payload = options.deserialize(data) as CustomPayload;
+        for (const f of listerMap.get(payload.event)) {
+          f(payload.data);
+        }
+      });
+    },
+    close() {
+      dispose?.();
+      dispose = undefined;
+    },
+    on(event: string, listener: (...args: any[]) => any) {
+      listerMap.get(event).add(listener);
+    },
+    off(event: string, listener: (...args: any[]) => any) {
+      listerMap.get(event).delete(listener);
+    },
+    send(...args: any[]) {
+      let payload: any;
+      if (typeof args[0] === "string") {
+        payload = {
+          type: "custom",
+          event: args[0],
+          data: args[1],
+        };
+      } else {
+        payload = args[0];
+      }
+      options.post(options.serialize(payload));
+    },
+  };
 }
