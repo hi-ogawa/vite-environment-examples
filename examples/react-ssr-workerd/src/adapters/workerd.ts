@@ -1,5 +1,8 @@
 import { handler } from "../entry-server";
 
 export default {
-  fetch: handler,
+  fetch(request: Request, env: unknown) {
+    Object.assign(globalThis, { env });
+    return handler(request);
+  },
 };

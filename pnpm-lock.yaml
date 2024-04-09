@@ -105,6 +105,28 @@ importers:
         specifier: 18.2.22
         version: 18.2.22
 
+  examples/react-ssr-workerd:
+    dependencies:
+      react:
+        specifier: 18.3.0-canary-6c3b8dbfe-20240226
+        version: 18.3.0-canary-6c3b8dbfe-20240226
+      react-dom:
+        specifier: 18.3.0-canary-6c3b8dbfe-20240226
+        version: 18.3.0-canary-6c3b8dbfe-20240226(react@18.3.0-canary-6c3b8dbfe-20240226)
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20240405.0
+        version: 4.20240405.0
+      '@hiogawa/vite-plugin-workerd':
+        specifier: workspace:*
+        version: link:../workerd
+      '@types/react':
+        specifier: 18.2.72
+        version: 18.2.72
+      '@types/react-dom':
+        specifier: 18.2.22
+        version: 18.2.22
+
   examples/workerd:
     dependencies:
       miniflare:
