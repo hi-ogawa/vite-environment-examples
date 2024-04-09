@@ -47,16 +47,15 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
     },
 
     configureServer(server) {
-      return async () => {
-        const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
-        server.middlewares.use(
-          createMiddleware(
-            (ctx) => devEnv.api.dispatchFetch(pluginOptions.entry, ctx.request),
-            {
-              alwaysCallNext: false,
-            },
-          ),
-        );
+      const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
+      const nodeMiddleware = createMiddleware(
+        (ctx) => devEnv.api.dispatchFetch(pluginOptions.entry, ctx.request),
+        {
+          alwaysCallNext: false,
+        },
+      );
+      return () => {
+        server.middlewares.use(nodeMiddleware);
       };
     },
   };
