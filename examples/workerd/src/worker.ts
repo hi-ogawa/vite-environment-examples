@@ -10,8 +10,20 @@ export class RunnerObject implements DurableObject {
     this.#env = env;
   }
 
-  // TODO: handle error
   async fetch(request: Request) {
+    try {
+      return await this.#fetch(request);
+    } catch (e) {
+      console.error(e);
+      let body = "[vite workerd runner error]\n";
+      if (e instanceof Error) {
+        body += `${e.stack ?? e.message}`;
+      }
+      return new Response(body, { status: 500 });
+    }
+  }
+
+  async #fetch(request: Request) {
     const url = new URL(request.url);
 
     if (url.pathname === RUNNER_INIT_PATH) {
