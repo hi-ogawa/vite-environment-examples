@@ -12,9 +12,23 @@
     "dev": "tsup --watch",
     "build": "tsup"
   },
+  "dependencies": {
+    "miniflare": "^3.20240404.0",
+    "wrangler": "^3.48.0",
+    "vite": "*"
+  },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240405.0",
-    "miniflare": "^3.20240404.0"
+    "@cloudflare/workers-types": "^4.20240405.0"
+  },
+  "peerDependencies": {
+    "miniflare": "*",
+    "wrangler": "*",
+    "vite": "*"
+  },
+  "peerDependenciesMeta": {
+    "wrangler": {
+      "optional": true
+    }
   },
   "volta": {
     "extends": "../../package.json"

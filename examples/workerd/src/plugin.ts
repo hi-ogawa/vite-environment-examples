@@ -1,10 +1,10 @@
 import {
   Log,
   Miniflare,
-  type MiniflareOptions,
   type WorkerOptions,
   Request as MiniflareRequest,
   Response as MiniflareResponse,
+  mergeWorkerOptions,
 } from "miniflare";
 import { fileURLToPath } from "url";
 import { tinyassert } from "@hiogawa/utils";
@@ -16,10 +16,14 @@ import {
   type ViteDevServer,
 } from "vite";
 import { createMiddleware } from "@hattip/adapter-node/native-fetch";
+import type { SourcelessWorkerOptions } from "wrangler";
 
 interface WorkerdPluginOptions {
   entry: string;
-  options?: (v: MiniflareOptions & WorkerOptions) => void;
+  miniflare?: SourcelessWorkerOptions;
+  wrangler?: {
+    configPath?: string;
+  };
 }
 
 export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
@@ -67,9 +71,8 @@ async function createWorkerdDevEnvironment(
   name: string,
   pluginOptions: WorkerdPluginOptions,
 ) {
-  // setup miniflare with a durable object script
-  const miniflareOptions: MiniflareOptions = {
-    log: new Log(),
+  // setup miniflare with a durable object script to run vite module runner
+  let runnerWorkerOptions: WorkerOptions = {
     modulesRoot: "/",
     modules: [
       {
@@ -96,8 +99,30 @@ async function createWorkerdDevEnvironment(
       __viteEntry: pluginOptions.entry,
     } satisfies Omit<RunnerEnv, "__viteUnsafeEval" | "__viteFetchModule">,
   };
-  pluginOptions.options?.(miniflareOptions);
-  const miniflare = new Miniflare(miniflareOptions);
+
+  // https://github.com/cloudflare/workers-sdk/blob/2789f26a87c769fc6177b0bdc79a839a15f4ced1/packages/vitest-pool-workers/src/pool/config.ts#L174-L195
+  if (pluginOptions.wrangler?.configPath) {
+    const wrangler = await import("wrangler");
+    const wranglerOptions = wrangler.unstable_getMiniflareWorkerOptions(
+      pluginOptions.wrangler.configPath,
+    );
+    runnerWorkerOptions = mergeWorkerOptions(
+      wranglerOptions.workerOptions,
+      runnerWorkerOptions,
+    ) as WorkerOptions;
+  }
+
+  if (pluginOptions.miniflare) {
+    runnerWorkerOptions = mergeWorkerOptions(
+      pluginOptions.miniflare,
+      runnerWorkerOptions,
+    ) as WorkerOptions;
+  }
+
+  const miniflare = new Miniflare({
+    log: new Log(),
+    workers: [runnerWorkerOptions],
+  });
 
   // get durable object singleton
   const ns = await miniflare.getDurableObjectNamespace("__viteRunner");

@@ -15,11 +15,11 @@ export class RunnerObject implements DurableObject {
     const url = new URL(request.url);
 
     if (url.pathname === RUNNER_INIT_PATH) {
-      const { 0: webSocket, 1: webSocketReturn } = new WebSocketPair();
-      (webSocket as any).accept();
+      const pair = new WebSocketPair();
+      (pair[0] as any).accept();
       tinyassert(!this.#runner);
-      this.#runner = createRunner(this.#env, webSocket);
-      return new Response(null, { status: 101, webSocket: webSocketReturn });
+      this.#runner = createRunner(this.#env, pair[0]);
+      return new Response(null, { status: 101, webSocket: pair[1] });
     }
 
     tinyassert(this.#runner);

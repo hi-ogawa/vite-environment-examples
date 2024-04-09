@@ -10,6 +10,12 @@ export default defineConfig((_env) => ({
     react(),
     vitePluginWorkerd({
       entry: "/src/adapters/workerd.ts",
+      // miniflare: {
+      //   kvNamespaces: [],
+      // },
+      // wrangler: {
+      //   configPath: "./wrangler.toml",
+      // },
     }),
     vitePluginVirtualIndexHtml(),
   ],
