@@ -8,7 +8,12 @@ import {
 import { fileURLToPath } from "url";
 import { tinyassert } from "@hiogawa/utils";
 import { RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
-import { DevEnvironment, type Plugin, type ViteDevServer } from "vite";
+import {
+  DevEnvironment,
+  type HMRChannel,
+  type Plugin,
+  type ViteDevServer,
+} from "vite";
 import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 
 interface WorkerdPluginOptions {
@@ -24,13 +29,8 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
         environments: {
           workerd: {
             dev: {
-              async createEnvironment(server, name) {
-                const manager = await setupMiniflareManager(
-                  server,
-                  pluginOptions,
-                );
-                return new WorkerdDevEnvironment(server, name, manager);
-              },
+              createEnvironment: (server, name) =>
+                createWorkerdDevEnvironment(server, name, pluginOptions),
             },
           },
         },
@@ -39,9 +39,8 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
 
     configureServer(server) {
       return () => {
-        // TODO: allow interface merging for custom environment to provide a typing?
-        const devEnv = server.environments["workerd"];
-        tinyassert(devEnv instanceof WorkerdDevEnvironment);
+        // TODO: allow interface merging so users can register typing?
+        const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
 
         server.middlewares.use(
           createMiddleware((ctx) => devEnv.api.fetch(ctx.request), {
@@ -53,58 +52,20 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
   };
 }
 
-class WorkerdDevEnvironment extends DevEnvironment {
-  constructor(
-    server: ViteDevServer,
-    name: string,
-    public manager: MiniflareManager,
-  ) {
-    super(server, name, {
-      hot: {
-        name,
-        close() {},
-        listen() {},
-        // cf. createServerHMRChannel
-        send(...args: any[]) {
-          let payload: any;
-          if (typeof args[0] === "string") {
-            payload = {
-              type: "custom",
-              event: args[0],
-              data: args[1],
-            };
-          } else {
-            payload = args[0];
-          }
-          manager.webSocket.send(JSON.stringify(payload));
-        },
-        // TODO: for custom event e.g. vite:invalidate
-        on() {},
-        off() {},
-      },
-    });
-  }
+export type WorkerdDevEnvironment = DevEnvironment & {
+  api: WorkerdDevEnvironmentApi;
+};
 
-  override async close() {
-    await super.close();
-    await this.manager.miniflare.dispose();
-  }
+type WorkerdDevEnvironmentApi = {
+  fetch(request: Request): Promise<Response>;
+};
 
-  get api() {
-    return {
-      fetch: this.manager.dispatchFetch,
-    };
-  }
-}
-
-type MiniflareManager = Awaited<ReturnType<typeof setupMiniflareManager>>;
-
-async function setupMiniflareManager(
+async function createWorkerdDevEnvironment(
   server: ViteDevServer,
-  options: WorkerdPluginOptions,
+  name: string,
+  pluginOptions: WorkerdPluginOptions,
 ) {
-  const RUNNER_OBJECT_BINDING = "__VITE_RUNNER";
-
+  // setup miniflare with a durable object script
   const miniflareOptions: MiniflareOptions = {
     log: new Log(),
     modulesRoot: "/",
@@ -115,7 +76,7 @@ async function setupMiniflareManager(
       },
     ],
     durableObjects: {
-      [RUNNER_OBJECT_BINDING]: "RunnerObject",
+      __viteRunner: "RunnerObject",
     },
     unsafeEvalBinding: "__viteUnsafeEval",
     serviceBindings: {
@@ -129,35 +90,76 @@ async function setupMiniflareManager(
     },
     bindings: {
       __viteRoot: server.config.root,
-      __viteEntry: options.entry,
+      // TODO: can set entry later?
+      __viteEntry: pluginOptions.entry,
     } satisfies Omit<RunnerEnv, "__viteUnsafeEval" | "__viteFetchModule">,
   };
-  options.options?.(miniflareOptions);
-
+  pluginOptions.options?.(miniflareOptions);
   const miniflare = new Miniflare(miniflareOptions);
 
-  const ns = await miniflare.getDurableObjectNamespace(RUNNER_OBJECT_BINDING);
+  // get durable object singleton
+  const ns = await miniflare.getDurableObjectNamespace("__viteRunner");
   const runnerObject = ns.get(ns.idFromName(""));
 
-  const res = await runnerObject.fetch("http://any.local" + RUNNER_INIT_PATH, {
-    headers: {
-      Upgrade: "websocket",
+  // initial request to setup websocket
+  const initResponse = await runnerObject.fetch(
+    "http://any.local" + RUNNER_INIT_PATH,
+    {
+      headers: {
+        Upgrade: "websocket",
+      },
     },
-  });
-  tinyassert(res.webSocket);
-  const { webSocket } = res;
+  );
+  tinyassert(initResponse.webSocket);
+  const { webSocket } = initResponse;
   webSocket.accept();
 
-  async function dispatchFetch(request: Request) {
-    const response = await runnerObject.fetch(request.url, {
-      method: request.method,
-      headers: request.headers,
-      body: request.body as any,
-      duplex: "half",
-      redirect: "manual",
-    });
-    return response as any as Response;
+  // vite environment hot
+  const hot: HMRChannel = {
+    name,
+    close() {},
+    listen() {},
+    // cf. createServerHMRChannel
+    send(...args: any[]) {
+      let payload: any;
+      if (typeof args[0] === "string") {
+        payload = {
+          type: "custom",
+          event: args[0],
+          data: args[1],
+        };
+      } else {
+        payload = args[0];
+      }
+      webSocket.send(JSON.stringify(payload));
+    },
+    // TODO: for custom event e.g. vite:invalidate
+    on() {},
+    off() {},
+  };
+
+  class WorkerdDevEnvironment extends DevEnvironment {
+    override async close() {
+      await super.close();
+      await miniflare.dispose();
+    }
+
+    // TODO: custom api for environment users?
+    // TODO: can proxy entire `SELF` like vitest integration?
+    // https://developers.cloudflare.com/workers/testing/vitest-integration/test-apis/
+    api: WorkerdDevEnvironmentApi = {
+      async fetch(request: Request) {
+        const response = await runnerObject.fetch(request.url, {
+          method: request.method,
+          headers: request.headers,
+          body: request.body as any,
+          duplex: "half",
+          redirect: "manual",
+        });
+        return response as any as Response;
+      },
+    };
   }
 
-  return { miniflare, webSocket, dispatchFetch };
+  return new WorkerdDevEnvironment(server, name, { hot });
 }
