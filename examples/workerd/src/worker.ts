@@ -1,10 +1,11 @@
 import { tinyassert } from "@hiogawa/utils";
-import { RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
+import { ANY_URL, RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
 import { ModuleRunner } from "vite/module-runner";
 
 export class RunnerObject implements DurableObject {
   #env: RunnerEnv;
-  #runner: ModuleRunner | undefined;
+  #runner?: ModuleRunner;
+  // #entry?: string;
 
   constructor(_state: DurableObjectState, env: RunnerEnv) {
     this.#env = env;
@@ -25,7 +26,7 @@ export class RunnerObject implements DurableObject {
           transport: {
             fetchModule: async (...args) => {
               const response = await this.#env.__viteFetchModule.fetch(
-                new Request("https://any.local", {
+                new Request(ANY_URL, {
                   method: "POST",
                   body: JSON.stringify(args),
                 }),

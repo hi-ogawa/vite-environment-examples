@@ -3,11 +3,12 @@ import {
   Miniflare,
   type MiniflareOptions,
   type WorkerOptions,
+  Request as MiniflareRequest,
   Response as MiniflareResponse,
 } from "miniflare";
 import { fileURLToPath } from "url";
 import { tinyassert } from "@hiogawa/utils";
-import { RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
+import { ANY_URL, RUNNER_INIT_PATH, type RunnerEnv } from "./shared";
 import {
   DevEnvironment,
   type HMRChannel,
@@ -57,6 +58,7 @@ export type WorkerdDevEnvironment = DevEnvironment & {
 };
 
 type WorkerdDevEnvironmentApi = {
+  setEntry(entry: string): void;
   fetch(request: Request): Promise<Response>;
 };
 
@@ -102,14 +104,11 @@ async function createWorkerdDevEnvironment(
   const runnerObject = ns.get(ns.idFromName(""));
 
   // initial request to setup websocket
-  const initResponse = await runnerObject.fetch(
-    "http://any.local" + RUNNER_INIT_PATH,
-    {
-      headers: {
-        Upgrade: "websocket",
-      },
+  const initResponse = await runnerObject.fetch(ANY_URL + RUNNER_INIT_PATH, {
+    headers: {
+      Upgrade: "websocket",
     },
-  );
+  });
   tinyassert(initResponse.webSocket);
   const { webSocket } = initResponse;
   webSocket.accept();
@@ -138,6 +137,7 @@ async function createWorkerdDevEnvironment(
     off() {},
   };
 
+  // inheritance to extend dispose + custom api
   class WorkerdDevEnvironment extends DevEnvironment {
     override async close() {
       await super.close();
@@ -148,15 +148,24 @@ async function createWorkerdDevEnvironment(
     // TODO: can proxy entire `SELF` like vitest integration?
     // https://developers.cloudflare.com/workers/testing/vitest-integration/test-apis/
     api: WorkerdDevEnvironmentApi = {
+      setEntry(entry) {
+        entry;
+      },
+
       async fetch(request: Request) {
-        const response = await runnerObject.fetch(request.url, {
+        const req = new MiniflareRequest(request.url, {
           method: request.method,
           headers: request.headers,
           body: request.body as any,
           duplex: "half",
           redirect: "manual",
         });
-        return response as any as Response;
+        const res = await runnerObject.fetch(req);
+        return new Response(res.body as any, {
+          status: res.status,
+          statusText: res.statusText,
+          headers: res.headers as any,
+        });
       },
     };
   }
