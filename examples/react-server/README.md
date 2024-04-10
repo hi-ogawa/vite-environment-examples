@@ -15,7 +15,6 @@ pnpm cf-release
 ## todo
 
 - [x] custom react-server environment
-  - with a patch for noExternal and optimizeDeps
 - [x] rsc stream
 - [x] rsc ssr
   - [x] dev
@@ -25,7 +24,7 @@ pnpm cf-release
   - [x] dev
   - [x] build
 - [x] hmr
-  - [x] browser
+  - [x] browser (?)
   - [x] react-server
 - [ ] integrate to `@hiogawa/react-server`
 
