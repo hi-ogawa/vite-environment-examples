@@ -13,6 +13,7 @@ export default defineConfig((_env) => ({
       entry: "/src/adapters/workerd.ts",
       miniflare: {
         log: new Log(),
+        kvPersist: true,
       },
       wrangler: {
         configPath: "./wrangler.toml",
