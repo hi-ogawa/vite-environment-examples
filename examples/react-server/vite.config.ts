@@ -110,14 +110,18 @@ function vitePluginReactServer(): PluginOption {
             ids,
             invalidated: [...invalidated],
           });
-          console.log("[react-server:hmr]", ctx.file);
-          __global.server.environments.client.hot.send({
-            type: "custom",
-            event: "react-server:update",
-            data: {
-              file: ctx.file,
-            },
-          });
+          // client reference id is also in react server module graph,
+          // but we skip RSC HMR for this case since Client HMR handles it.
+          if (!ids.some((id) => manager.clientReferences.has(id))) {
+            console.log("[react-server:hmr]", ctx.file);
+            __global.server.environments.client.hot.send({
+              type: "custom",
+              event: "react-server:update",
+              data: {
+                file: ctx.file,
+              },
+            });
+          }
           return [];
         }
       }
@@ -132,6 +136,7 @@ function vitePluginUseClient(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
+      manager.clientReferences.delete(id);
       if (this.environment?.name === "react-server") {
         if (/^("use client")|('use client')/.test(code)) {
           manager.clientReferences.add(id);
