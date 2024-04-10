@@ -136,8 +136,8 @@ function vitePluginUseClient(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
-      manager.clientReferences.delete(id);
       if (this.environment?.name === "react-server") {
+        manager.clientReferences.delete(id);
         if (/^("use client")|('use client')/.test(code)) {
           manager.clientReferences.add(id);
           const ast = await parseAstAsync(code);
