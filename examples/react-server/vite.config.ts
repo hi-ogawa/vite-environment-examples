@@ -167,9 +167,9 @@ function vitePluginUseClient(): PluginOption {
               }
             }
           }
-          let result = `import { createClientReference } from "/src/features/use-client/react-server";\n`;
+          let result = `import { registerClientReference as $$register } from "/src/features/use-client/react-server";\n`;
           for (const name of exportNames) {
-            result += `export const ${name} = createClientReference("${id}", "${name}");\n`;
+            result += `export const ${name} = $$register("${id}", "${name}");\n`;
           }
           debug(`[${vitePluginUseClient.name}:transform]`, {
             id,
