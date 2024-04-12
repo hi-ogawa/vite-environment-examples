@@ -19,7 +19,7 @@ export default defineConfig((_env) => ({
   plugins: [
     react(),
     vitePluginSsrMiddleware({
-      entry: "/src/adapters/node",
+      entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
       preview: new URL("./dist/server/index.js", import.meta.url).toString(),
     }),
     vitePluginReactServer(),
