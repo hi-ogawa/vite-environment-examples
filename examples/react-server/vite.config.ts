@@ -163,7 +163,7 @@ function vitePluginUseClient(): PluginOption {
             exportNames,
             result,
           });
-          return result;
+          return { code: result, map: null };
         }
       }
       return;
@@ -184,12 +184,13 @@ function vitePluginUseClient(): PluginOption {
     createVirtualPlugin("client-reference", function () {
       tinyassert(this.environment?.name !== "react-server");
       tinyassert(!this.meta.watchMode);
-      let result = `export default {\n`;
-      for (let id of manager.clientReferences) {
-        result += `"${id}": () => import("${id}"),\n`;
-      }
-      result += "};\n";
-      return result;
+      return [
+        `export default {`,
+        [...manager.clientReferences].map(
+          (id) => `"${id}": () => import("${id}"),`,
+        ),
+        `}`,
+      ].join("\n");
     }),
   ];
 }
@@ -211,7 +212,8 @@ function vitePluginSilenceUseClientBuildWarning(): Plugin {
             }
             if (
               warning.code === "MODULE_LEVEL_DIRECTIVE" &&
-              warning.message.includes(`"use client"`)
+              (warning.message.includes(`"use client"`) ||
+                warning.message.includes(`"use server"`))
             ) {
               return;
             }
@@ -257,7 +259,7 @@ function vitePluginServerAction(): PluginOption {
           for (const name of exportNames) {
             result += `${name} = $$register(${name}, "${id}", "${name}");\n`;
           }
-          return result;
+          return { code: result, map: null };
         } else {
           const runtime =
             this.environment?.name === "client" ? "browser" : "server";
@@ -265,7 +267,7 @@ function vitePluginServerAction(): PluginOption {
           for (const name of exportNames) {
             result += `export const ${name} = $$create("${id}#${name}");\n`;
           }
-          return result;
+          return { code: result, map: null };
         }
       }
       return;
@@ -281,11 +283,49 @@ function vitePluginServerAction(): PluginOption {
       }
 
   */
-  const virtualServerReference = createVirtualPlugin("server-reference", () => {
-    return "export default {}";
-  });
+  const virtualServerReference: Plugin = {
+    apply: "build",
+    ...createVirtualPlugin("server-reference", async function () {
+      tinyassert(this.environment?.name === "react-server");
+      const files: string[] = [];
+      await traverseFiles(path.resolve("./src"), (file, e) => {
+        if (e.isFile()) {
+          files.push(file);
+        }
+      });
+      const ids: string[] = [];
+      for (const file of files) {
+        const code = await fs.promises.readFile(file, "utf-8");
+        if (/^("use server")|('use server')/.test(code)) {
+          ids.push(file);
+        }
+      }
+      return [
+        "export default {",
+        ...ids.map((id) => `"${id}": () => import("${id}"),\n`),
+        "}",
+      ].join("\n");
+    }),
+  };
 
   return [transformPlugin, virtualServerReference];
+}
+
+import fs from "node:fs";
+import path from "node:path";
+
+async function traverseFiles(
+  dir: string,
+  callback: (filepath: string, e: fs.Dirent) => void,
+) {
+  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+  for (const e of entries) {
+    const filepath = path.join(e.path, e.name);
+    callback(filepath, e);
+    if (e.isDirectory()) {
+      await traverseFiles(filepath, callback);
+    }
+  }
 }
 
 //

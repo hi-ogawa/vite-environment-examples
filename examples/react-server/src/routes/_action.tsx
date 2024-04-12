@@ -1,4 +1,4 @@
-"use action";
+"use server";
 
 let count = 0;
 
