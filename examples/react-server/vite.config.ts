@@ -275,6 +275,12 @@ function vitePluginServerAction(): PluginOption {
   */
   const clientTransform: Plugin = {
     name: vitePluginServerAction.name + ":client",
+    transform(code, id, _options) {
+      if (this.environment?.name !== "react-server") {
+        code;
+        id;
+      }
+    },
   };
 
   /*
@@ -291,6 +297,12 @@ function vitePluginServerAction(): PluginOption {
   */
   const serverTransform: Plugin = {
     name: vitePluginServerAction.name + ":server",
+    transform(code, id, _options) {
+      if (this.environment?.name === "react-server") {
+        code;
+        id;
+      }
+    },
   };
 
   /*
