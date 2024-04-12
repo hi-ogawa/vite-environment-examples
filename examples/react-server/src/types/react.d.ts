@@ -46,11 +46,8 @@ declare module "react-server-dom-webpack/client.browser" {
       callServer?: import(".").CallServerCallback;
     },
   ): Promise<T>;
-
-  export function encodeReply(
-    v: unknown,
-  ): Promise<string | URLSearchParams | FormData>;
 }
+
 declare module "react-dom/server.edge" {
   export * from "react-dom/server";
 }
