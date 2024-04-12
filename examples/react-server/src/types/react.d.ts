@@ -25,8 +25,6 @@ declare module "react-server-dom-webpack/client.edge" {
     stream: ReadableStream<Uint8Array>,
     options: {
       ssrManifest: import(".").SsrManifest;
-      // TODO
-      // encodeFormAction
     },
   ): Promise<T>;
 }
@@ -46,8 +44,4 @@ declare module "react-server-dom-webpack/client.browser" {
       callServer?: import(".").CallServerCallback;
     },
   ): Promise<T>;
-}
-
-declare module "react-dom/server.edge" {
-  export * from "react-dom/server";
 }
