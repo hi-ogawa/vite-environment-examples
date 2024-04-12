@@ -7,5 +7,5 @@ export function getCounter() {
 }
 
 export function changeCounter(formData: FormData) {
-  formData;
+  count += Number(formData.get("value"));
 }
