@@ -300,10 +300,9 @@ function vitePluginServerAction(): PluginOption {
       ...
     }
   */
-  const virtualServerReference = createVirtualPlugin(
-    "server-reference",
-    () => {},
-  );
+  const virtualServerReference = createVirtualPlugin("server-reference", () => {
+    return "export default {}";
+  });
 
   return [clientTransform, serverTransform, virtualServerReference];
 }
