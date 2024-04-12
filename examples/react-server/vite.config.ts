@@ -136,12 +136,15 @@ function vitePluginReactServer(): PluginOption {
 function vitePluginUseClient(): PluginOption {
   /*
     [input]
-    "use client"
-    export function Counter() {}
+
+      "use client"
+      export function Counter() {}
 
     [output]
-    import { registerClientReference as $$register } from "...runtime..."
-    export const Counter = $$register("<id>", "Counter");
+
+      import { registerClientReference as $$register } from "...runtime..."
+      export const Counter = $$register("<id>", "Counter");
+
   */
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
@@ -160,7 +163,7 @@ function vitePluginUseClient(): PluginOption {
             exportNames,
             result,
           });
-          return { code: result, map: null };
+          return result;
         }
       }
       return;
@@ -171,10 +174,12 @@ function vitePluginUseClient(): PluginOption {
     transformPlugin,
     /*
       [output]
-      export default {
-        "<id>": () => import("<id>"),
-        ...
-      }
+
+        export default {
+          "<id>": () => import("<id>"),
+          ...
+        }
+
     */
     createVirtualPlugin("client-reference", function () {
       tinyassert(this.environment?.name !== "react-server");
@@ -225,58 +230,62 @@ function vitePluginSilenceUseClientBuildWarning(): Plugin {
 function vitePluginServerAction(): PluginOption {
   /*
     [input]
-    "use server"
-    export function hello() {}
 
-    [output] (client / ssr)
-    import { createServerReference as $$create } from "...runtime..."
-    export const hello = $$create("<id>#hello");
+      "use server"
+      export function hello() {}
+
+    [output] (react-server)
+
+      export function hello() { ... }
+      import { registerServerReference as $$register } from "...runtime..."
+      hello = $$register(hello, "<id>", "hello");
+
+    [output] (client)
+
+      import { createServerReference as $$create } from "...runtime..."
+      export const hello = $$create("<id>#hello");
+
   */
-  const clientTransform: Plugin = {
-    name: vitePluginServerAction.name + ":client",
-    transform(code, id, _options) {
-      if (this.environment?.name !== "react-server") {
-        code;
-        id;
-        parseExports;
+  const transformPlugin: Plugin = {
+    name: vitePluginServerAction.name + ":transform",
+    async transform(code, id) {
+      if (/^("use server")|('use server')/.test(code)) {
+        const { exportNames, writableCode } = await parseExports(code);
+        if (this.environment?.name === "react-server") {
+          let result = writableCode;
+          result += `import { registerServerReference as $$register } from "/src/features/server-action/react-server";\n`;
+          for (const name of exportNames) {
+            result += `${name} = $$register(${name}, "${id}", "${name}");\n`;
+          }
+          return result;
+        } else {
+          const runtime =
+            this.environment?.name === "client" ? "browser" : "server";
+          let result = `import { createServerReference as $$create } from "/src/features/server-action/${runtime}";\n`;
+          for (const name of exportNames) {
+            result += `export const ${name} = $$create("${id}#${name}");\n`;
+          }
+          return result;
+        }
       }
+      return;
     },
   };
 
   /*
-    [input]
-    "use server"
-    export function hello() { ... }
-
     [output]
-    "use server"
-    export function hello() { ... }
 
-    import { registerServerReference as $$register } from "...runtime..."
-    hello = $$register(hello, "<id>", "hello");
-  */
-  const serverTransform: Plugin = {
-    name: vitePluginServerAction.name + ":server",
-    transform(code, id, _options) {
-      if (this.environment?.name === "react-server") {
-        code;
-        id;
+      export default {
+        "<id>": () => import("<id>"),
+        ...
       }
-    },
-  };
 
-  /*
-    [output]
-    export default {
-      "<id>": () => import("<id>"),
-      ...
-    }
   */
   const virtualServerReference = createVirtualPlugin("server-reference", () => {
     return "export default {}";
   });
 
-  return [clientTransform, serverTransform, virtualServerReference];
+  return [transformPlugin, virtualServerReference];
 }
 
 //
