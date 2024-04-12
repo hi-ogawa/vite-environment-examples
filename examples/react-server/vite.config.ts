@@ -24,6 +24,7 @@ export default defineConfig((_env) => ({
     }),
     vitePluginReactServer(),
     vitePluginSilenceUseClientBuildWarning(),
+    vitePluginServerAction(),
   ],
 
   environments: {
@@ -133,6 +134,15 @@ function vitePluginReactServer(): PluginOption {
 }
 
 function vitePluginUseClient(): PluginOption {
+  /*
+    [input]
+    "use client"
+    export function Counter() {}
+
+    [output]
+    import { registerClientReference as $$register } from "...runtime..."
+    export const Counter = $$register("<id>", "Counter");
+  */
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
@@ -185,6 +195,13 @@ function vitePluginUseClient(): PluginOption {
 
   return [
     transformPlugin,
+    /*
+      [output]
+      export default {
+        "<id>": () => import("<id>"),
+        ...
+      }
+    */
     createVirtualPlugin("client-reference", function () {
       tinyassert(this.environment?.name !== "react-server");
       tinyassert(!this.meta.watchMode);
@@ -244,4 +261,49 @@ function vitePluginSilenceUseClientBuildWarning(): Plugin {
       },
     }),
   };
+}
+
+function vitePluginServerAction(): PluginOption {
+  /*
+    [input]
+    "use server"
+    export function hello() {}
+
+    [output] (client / ssr)
+    import { createServerReference as $$create } from "...runtime..."
+    export const hello = $$create("<id>#hello");
+  */
+  const clientTransform: Plugin = {
+    name: vitePluginServerAction.name + ":client",
+  };
+
+  /*
+    [input]
+    "use server"
+    export function hello() { ... }
+
+    [output]
+    "use server"
+    export function hello() { ... }
+
+    import { registerServerReference as $$register } from "...runtime..."
+    hello = $$register(hello, "<id>", "hello");
+  */
+  const serverTransform: Plugin = {
+    name: vitePluginServerAction.name + ":server",
+  };
+
+  /*
+    [output]
+    export default {
+      "<id>": () => import("<id>"),
+      ...
+    }
+  */
+  const virtualServerReference = createVirtualPlugin(
+    "server-reference",
+    () => {},
+  );
+
+  return [clientTransform, serverTransform, virtualServerReference];
 }
