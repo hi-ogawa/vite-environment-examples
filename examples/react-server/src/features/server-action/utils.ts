@@ -2,6 +2,7 @@ import { tinyassert } from "@hiogawa/utils";
 
 // uniformly handle simple use cases of form action
 // both for progressive enhancement and for client-side request
+// without using encodeReply/decodeReply/decodeAction API
 const ACTION_ID_PREFIX = "$ACTION_ID_";
 
 export function injectActionId(formData: FormData, id: string) {
