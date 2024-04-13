@@ -36,10 +36,6 @@ export function vitePluginSilenceDirectiveBuildWarning(): Plugin {
   };
 }
 
-//
-// plugin utils
-//
-
 export function createVirtualPlugin(name: string, load: Plugin["load"]) {
   name = "virtual:" + name;
   return {
@@ -111,16 +107,26 @@ function replaceCode(
 // fs utils
 //
 
-export async function traverseFiles(
+export async function collectFiles(baseDir: string) {
+  const files: string[] = [];
+  await traverseFiles(baseDir, async (filepath, e) => {
+    if (e.isFile()) {
+      files.push(filepath);
+    }
+    return e.isDirectory();
+  });
+  return files;
+}
+
+async function traverseFiles(
   dir: string,
-  callback: (filepath: string, e: fs.Dirent) => void,
+  onEntry: (filepath: string, e: fs.Dirent) => Promise<boolean>,
 ) {
   const entries = await fs.promises.readdir(dir, { withFileTypes: true });
   for (const e of entries) {
     const filepath = path.join(e.path, e.name);
-    callback(filepath, e);
-    if (e.isDirectory()) {
-      await traverseFiles(filepath, callback);
+    if (await onEntry(filepath, e)) {
+      await traverseFiles(filepath, onEntry);
     }
   }
 }

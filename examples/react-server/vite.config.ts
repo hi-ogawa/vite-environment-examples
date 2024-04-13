@@ -10,9 +10,9 @@ import { __global } from "./src/global";
 import react from "@vitejs/plugin-react";
 import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
 import {
+  collectFiles,
   createVirtualPlugin,
   parseExports,
-  traverseFiles,
   vitePluginSilenceDirectiveBuildWarning,
 } from "./src/features/utils/plugin";
 import fs from "node:fs";
@@ -263,12 +263,7 @@ function vitePluginServerAction(): PluginOption {
     async function () {
       tinyassert(this.environment?.name === "react-server");
       tinyassert(this.environment.mode === "build");
-      const files: string[] = [];
-      await traverseFiles(path.resolve("./src"), (file, e) => {
-        if (e.isFile()) {
-          files.push(file);
-        }
-      });
+      const files = await collectFiles(path.resolve("./src"));
       const ids: string[] = [];
       for (const file of files) {
         const code = await fs.promises.readFile(file, "utf-8");
