@@ -120,13 +120,13 @@ export async function collectFiles(baseDir: string) {
 
 async function traverseFiles(
   dir: string,
-  onEntry: (filepath: string, e: fs.Dirent) => Promise<boolean>,
+  callback: (filepath: string, e: fs.Dirent) => Promise<boolean>,
 ) {
   const entries = await fs.promises.readdir(dir, { withFileTypes: true });
   for (const e of entries) {
     const filepath = path.join(e.path, e.name);
-    if (await onEntry(filepath, e)) {
-      await traverseFiles(filepath, onEntry);
+    if (await callback(filepath, e)) {
+      await traverseFiles(filepath, callback);
     }
   }
 }
