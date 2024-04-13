@@ -193,7 +193,7 @@ function vitePluginUseClient(): PluginOption {
       tinyassert(this.environment?.mode === "build");
       return [
         `export default {`,
-        ...Array(manager.clientReferences).map(
+        ...Array.from(manager.clientReferences).map(
           (id) => `"${id}": () => import("${id}"),`,
         ),
         `}`,
