@@ -11,7 +11,7 @@ export function ClientComponent() {
   }, []);
 
   return (
-    <div>
+    <div data-testid="client-component">
       <h4>Hello Client Component</h4>
       <div>hydrated: {String(hydrated)}</div>
       <div>Count: {count}</div>
