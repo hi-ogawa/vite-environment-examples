@@ -19,11 +19,12 @@ export default defineConfig((_env) => ({
   plugins: [
     react(),
     vitePluginSsrMiddleware({
-      entry: "/src/adapters/node",
+      entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
       preview: new URL("./dist/server/index.js", import.meta.url).toString(),
     }),
     vitePluginReactServer(),
     vitePluginSilenceUseClientBuildWarning(),
+    vitePluginServerAction(),
   ],
 
   environments: {
@@ -133,6 +134,18 @@ function vitePluginReactServer(): PluginOption {
 }
 
 function vitePluginUseClient(): PluginOption {
+  /*
+    [input]
+
+      "use client"
+      export function Counter() {}
+
+    [output]
+
+      import { registerClientReference as $$register } from "...runtime..."
+      export const Counter = $$register("<id>", "Counter");
+
+  */
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
@@ -140,33 +153,7 @@ function vitePluginUseClient(): PluginOption {
         manager.clientReferences.delete(id);
         if (/^("use client")|('use client')/.test(code)) {
           manager.clientReferences.add(id);
-          const ast = await parseAstAsync(code);
-          const exportNames = new Set<string>();
-          for (const node of ast.body) {
-            // named exports
-            if (node.type === "ExportNamedDeclaration") {
-              if (node.declaration) {
-                if (
-                  node.declaration.type === "FunctionDeclaration" ||
-                  node.declaration.type === "ClassDeclaration"
-                ) {
-                  /**
-                   * export function foo() {}
-                   */
-                  exportNames.add(node.declaration.id.name);
-                } else if (node.declaration.type === "VariableDeclaration") {
-                  /**
-                   * export const foo = 1, bar = 2
-                   */
-                  for (const decl of node.declaration.declarations) {
-                    if (decl.id.type === "Identifier") {
-                      exportNames.add(decl.id.name);
-                    }
-                  }
-                }
-              }
-            }
-          }
+          const { exportNames } = await parseExports(code);
           let result = `import { registerClientReference as $$register } from "/src/features/use-client/react-server";\n`;
           for (const name of exportNames) {
             result += `export const ${name} = $$register("${id}", "${name}");\n`;
@@ -185,32 +172,27 @@ function vitePluginUseClient(): PluginOption {
 
   return [
     transformPlugin,
+    /*
+      [output]
+
+        export default {
+          "<id>": () => import("<id>"),
+          ...
+        }
+
+    */
     createVirtualPlugin("client-reference", function () {
       tinyassert(this.environment?.name !== "react-server");
       tinyassert(!this.meta.watchMode);
-      let result = `export default {\n`;
-      for (let id of manager.clientReferences) {
-        result += `"${id}": () => import("${id}"),\n`;
-      }
-      result += "};\n";
-      return result;
+      return [
+        `export default {`,
+        [...manager.clientReferences].map(
+          (id) => `"${id}": () => import("${id}"),`,
+        ),
+        `}`,
+      ].join("\n");
     }),
   ];
-}
-
-function createVirtualPlugin(name: string, load: Plugin["load"]) {
-  name = "virtual:" + name;
-  return {
-    name: `virtual-${name}`,
-    resolveId(source, _importer, _options) {
-      return source === name ? "\0" + name : undefined;
-    },
-    load(id, options) {
-      if (id === "\0" + name) {
-        return (load as any).apply(this, [id, options]);
-      }
-    },
-  } satisfies Plugin;
 }
 
 function vitePluginSilenceUseClientBuildWarning(): Plugin {
@@ -230,7 +212,8 @@ function vitePluginSilenceUseClientBuildWarning(): Plugin {
             }
             if (
               warning.code === "MODULE_LEVEL_DIRECTIVE" &&
-              warning.message.includes(`"use client"`)
+              (warning.message.includes(`"use client"`) ||
+                warning.message.includes(`"use server"`))
             ) {
               return;
             }
@@ -244,4 +227,174 @@ function vitePluginSilenceUseClientBuildWarning(): Plugin {
       },
     }),
   };
+}
+
+function vitePluginServerAction(): PluginOption {
+  /*
+    [input]
+
+      "use server"
+      export function hello() {}
+
+    [output] (react-server)
+
+      export function hello() { ... }
+      import { registerServerReference as $$register } from "...runtime..."
+      hello = $$register(hello, "<id>", "hello");
+
+    [output] (client)
+
+      import { createServerReference as $$create } from "...runtime..."
+      export const hello = $$create("<id>#hello");
+
+  */
+  const transformPlugin: Plugin = {
+    name: vitePluginServerAction.name + ":transform",
+    async transform(code, id) {
+      if (/^("use server")|('use server')/.test(code)) {
+        const { exportNames, writableCode } = await parseExports(code);
+        if (this.environment?.name === "react-server") {
+          let result = writableCode;
+          result += `import { registerServerReference as $$register } from "/src/features/server-action/react-server";\n`;
+          for (const name of exportNames) {
+            result += `${name} = $$register(${name}, "${id}", "${name}");\n`;
+          }
+          return { code: result, map: null };
+        } else {
+          const runtime =
+            this.environment?.name === "client" ? "browser" : "server";
+          let result = `import { createServerReference as $$create } from "/src/features/server-action/${runtime}";\n`;
+          for (const name of exportNames) {
+            result += `export const ${name} = $$create("${id}#${name}");\n`;
+          }
+          return { code: result, map: null };
+        }
+      }
+      return;
+    },
+  };
+
+  /*
+    [output]
+
+      export default {
+        "<id>": () => import("<id>"),
+        ...
+      }
+
+  */
+  const virtualServerReference: Plugin = {
+    apply: "build",
+    ...createVirtualPlugin("server-reference", async function () {
+      tinyassert(this.environment?.name === "react-server");
+      const files: string[] = [];
+      await traverseFiles(path.resolve("./src"), (file, e) => {
+        if (e.isFile()) {
+          files.push(file);
+        }
+      });
+      const ids: string[] = [];
+      for (const file of files) {
+        const code = await fs.promises.readFile(file, "utf-8");
+        if (/^("use server")|('use server')/.test(code)) {
+          ids.push(file);
+        }
+      }
+      return [
+        "export default {",
+        ...ids.map((id) => `"${id}": () => import("${id}"),\n`),
+        "}",
+      ].join("\n");
+    }),
+  };
+
+  return [transformPlugin, virtualServerReference];
+}
+
+import fs from "node:fs";
+import path from "node:path";
+
+async function traverseFiles(
+  dir: string,
+  callback: (filepath: string, e: fs.Dirent) => void,
+) {
+  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+  for (const e of entries) {
+    const filepath = path.join(e.path, e.name);
+    callback(filepath, e);
+    if (e.isDirectory()) {
+      await traverseFiles(filepath, callback);
+    }
+  }
+}
+
+//
+// plugin utils
+//
+
+function createVirtualPlugin(name: string, load: Plugin["load"]) {
+  name = "virtual:" + name;
+  return {
+    name: `virtual-${name}`,
+    resolveId(source, _importer, _options) {
+      return source === name ? "\0" + name : undefined;
+    },
+    load(id, options) {
+      if (id === "\0" + name) {
+        return (load as any).apply(this, [id, options]);
+      }
+    },
+  } satisfies Plugin;
+}
+
+//
+// ast utils
+//
+
+async function parseExports(code: string) {
+  const ast = await parseAstAsync(code);
+  const exportNames = new Set<string>();
+  let writableCode = code;
+  for (const node of ast.body) {
+    // named exports
+    if (node.type === "ExportNamedDeclaration") {
+      if (node.declaration) {
+        if (
+          node.declaration.type === "FunctionDeclaration" ||
+          node.declaration.type === "ClassDeclaration"
+        ) {
+          /**
+           * export function foo() {}
+           */
+          exportNames.add(node.declaration.id.name);
+        } else if (node.declaration.type === "VariableDeclaration") {
+          /**
+           * export const foo = 1, bar = 2
+           */
+          if (node.declaration.kind === "const") {
+            const start = (node.declaration as any).start;
+            writableCode = replaceCode(writableCode, start, start + 5, "let  ");
+          }
+          for (const decl of node.declaration.declarations) {
+            if (decl.id.type === "Identifier") {
+              exportNames.add(decl.id.name);
+            }
+          }
+        }
+      }
+    }
+  }
+  return {
+    exportNames,
+    writableCode,
+  };
+}
+
+function replaceCode(
+  code: string,
+  start: number,
+  end: number,
+  content: string,
+) {
+  return code.slice(0, start) + content + code.slice(end);
 }
