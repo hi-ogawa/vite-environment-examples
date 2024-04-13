@@ -4,12 +4,19 @@ import {
   type PluginOption,
   type Plugin,
   createServerModuleRunner,
-  parseAstAsync,
 } from "vite";
 import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { __global } from "./src/global";
 import react from "@vitejs/plugin-react";
 import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
+import {
+  collectFiles,
+  createVirtualPlugin,
+  parseExports,
+  vitePluginSilenceDirectiveBuildWarning,
+} from "./src/features/utils/plugin";
+import fs from "node:fs";
+import path from "node:path";
 
 const debug = createDebug("app");
 
@@ -23,7 +30,7 @@ export default defineConfig((_env) => ({
       preview: new URL("./dist/server/index.js", import.meta.url).toString(),
     }),
     vitePluginReactServer(),
-    vitePluginSilenceUseClientBuildWarning(),
+    vitePluginSilenceDirectiveBuildWarning(),
     vitePluginServerAction(),
   ],
 
@@ -170,20 +177,20 @@ function vitePluginUseClient(): PluginOption {
     },
   };
 
-  return [
-    transformPlugin,
-    /*
-      [output]
+  /*
+    [output]
 
-        export default {
-          "<id>": () => import("<id>"),
-          ...
-        }
+      export default {
+        "<id>": () => import("<id>"),
+        ...
+      }
 
-    */
-    createVirtualPlugin("client-reference", function () {
+  */
+  const virtualPlugin: Plugin = createVirtualPlugin(
+    "client-reference",
+    function () {
       tinyassert(this.environment?.name !== "react-server");
-      tinyassert(!this.meta.watchMode);
+      tinyassert(this.environment?.mode === "build");
       return [
         `export default {`,
         [...manager.clientReferences].map(
@@ -191,42 +198,10 @@ function vitePluginUseClient(): PluginOption {
         ),
         `}`,
       ].join("\n");
-    }),
-  ];
-}
+    },
+  );
 
-function vitePluginSilenceUseClientBuildWarning(): Plugin {
-  return {
-    name: vitePluginSilenceUseClientBuildWarning.name,
-    apply: "build",
-    enforce: "post",
-    config: (config, _env) => ({
-      build: {
-        rollupOptions: {
-          onwarn(warning, defaultHandler) {
-            if (
-              warning.code === "SOURCEMAP_ERROR" &&
-              warning.message.includes("(1:0)")
-            ) {
-              return;
-            }
-            if (
-              warning.code === "MODULE_LEVEL_DIRECTIVE" &&
-              (warning.message.includes(`"use client"`) ||
-                warning.message.includes(`"use server"`))
-            ) {
-              return;
-            }
-            if (config.build?.rollupOptions?.onwarn) {
-              config.build.rollupOptions.onwarn(warning, defaultHandler);
-            } else {
-              defaultHandler(warning);
-            }
-          },
-        },
-      },
-    }),
-  };
+  return [transformPlugin, virtualPlugin];
 }
 
 function vitePluginServerAction(): PluginOption {
@@ -283,16 +258,12 @@ function vitePluginServerAction(): PluginOption {
       }
 
   */
-  const virtualServerReference: Plugin = {
-    apply: "build",
-    ...createVirtualPlugin("server-reference", async function () {
+  const virtualServerReference = createVirtualPlugin(
+    "server-reference",
+    async function () {
       tinyassert(this.environment?.name === "react-server");
-      const files: string[] = [];
-      await traverseFiles(path.resolve("./src"), (file, e) => {
-        if (e.isFile()) {
-          files.push(file);
-        }
-      });
+      tinyassert(this.environment.mode === "build");
+      const files = await collectFiles(path.resolve("./src"));
       const ids: string[] = [];
       for (const file of files) {
         const code = await fs.promises.readFile(file, "utf-8");
@@ -305,96 +276,8 @@ function vitePluginServerAction(): PluginOption {
         ...ids.map((id) => `"${id}": () => import("${id}"),\n`),
         "}",
       ].join("\n");
-    }),
-  };
+    },
+  );
 
   return [transformPlugin, virtualServerReference];
-}
-
-import fs from "node:fs";
-import path from "node:path";
-
-async function traverseFiles(
-  dir: string,
-  callback: (filepath: string, e: fs.Dirent) => void,
-) {
-  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-  for (const e of entries) {
-    const filepath = path.join(e.path, e.name);
-    callback(filepath, e);
-    if (e.isDirectory()) {
-      await traverseFiles(filepath, callback);
-    }
-  }
-}
-
-//
-// plugin utils
-//
-
-function createVirtualPlugin(name: string, load: Plugin["load"]) {
-  name = "virtual:" + name;
-  return {
-    name: `virtual-${name}`,
-    resolveId(source, _importer, _options) {
-      return source === name ? "\0" + name : undefined;
-    },
-    load(id, options) {
-      if (id === "\0" + name) {
-        return (load as any).apply(this, [id, options]);
-      }
-    },
-  } satisfies Plugin;
-}
-
-//
-// ast utils
-//
-
-async function parseExports(code: string) {
-  const ast = await parseAstAsync(code);
-  const exportNames = new Set<string>();
-  let writableCode = code;
-  for (const node of ast.body) {
-    // named exports
-    if (node.type === "ExportNamedDeclaration") {
-      if (node.declaration) {
-        if (
-          node.declaration.type === "FunctionDeclaration" ||
-          node.declaration.type === "ClassDeclaration"
-        ) {
-          /**
-           * export function foo() {}
-           */
-          exportNames.add(node.declaration.id.name);
-        } else if (node.declaration.type === "VariableDeclaration") {
-          /**
-           * export const foo = 1, bar = 2
-           */
-          if (node.declaration.kind === "const") {
-            const start = (node.declaration as any).start;
-            writableCode = replaceCode(writableCode, start, start + 5, "let  ");
-          }
-          for (const decl of node.declaration.declarations) {
-            if (decl.id.type === "Identifier") {
-              exportNames.add(decl.id.name);
-            }
-          }
-        }
-      }
-    }
-  }
-  return {
-    exportNames,
-    writableCode,
-  };
-}
-
-function replaceCode(
-  code: string,
-  start: number,
-  end: number,
-  content: string,
-) {
-  return code.slice(0, start) + content + code.slice(end);
 }
