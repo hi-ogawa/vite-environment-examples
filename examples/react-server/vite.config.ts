@@ -161,15 +161,13 @@ function vitePluginUseClient(): PluginOption {
         if (/^("use client")|('use client')/.test(code)) {
           manager.clientReferences.add(id);
           const { exportNames } = await parseExports(code);
-          let result = `import { registerClientReference as $$register } from "/src/features/use-client/react-server";\n`;
-          for (const name of exportNames) {
-            result += `export const ${name} = $$register("${id}", "${name}");\n`;
-          }
-          debug(`[${vitePluginUseClient.name}:transform]`, {
-            id,
-            exportNames,
-            result,
-          });
+          const result = [
+            `import { registerClientReference as $$register } from "/src/features/use-client/react-server";`,
+            [...exportNames].map(
+              (name) =>
+                `export const ${name} = $$register("${id}", "${name}");\n`,
+            ),
+          ].join("\n");
           return { code: result, map: null };
         }
       }
@@ -229,19 +227,23 @@ function vitePluginServerAction(): PluginOption {
       if (/^("use server")|('use server')/.test(code)) {
         const { exportNames, writableCode } = await parseExports(code);
         if (this.environment?.name === "react-server") {
-          let result = writableCode;
-          result += `import { registerServerReference as $$register } from "/src/features/server-action/react-server";\n`;
-          for (const name of exportNames) {
-            result += `${name} = $$register(${name}, "${id}", "${name}");\n`;
-          }
+          const result = [
+            writableCode,
+            `import { registerServerReference as $$register } from "/src/features/server-action/react-server";`,
+            [...exportNames].map(
+              (name) => `${name} = $$register(${name}, "${id}", "${name}");\n`,
+            ),
+          ].join("\n");
           return { code: result, map: null };
         } else {
           const runtime =
             this.environment?.name === "client" ? "browser" : "server";
-          let result = `import { createServerReference as $$create } from "/src/features/server-action/${runtime}";\n`;
-          for (const name of exportNames) {
-            result += `export const ${name} = $$create("${id}#${name}");\n`;
-          }
+          const result = [
+            `import { createServerReference as $$create } from "/src/features/server-action/${runtime}";`,
+            [...exportNames].map(
+              (name) => `export const ${name} = $$create("${id}#${name}");`,
+            ),
+          ].join("\n");
           return { code: result, map: null };
         }
       }
