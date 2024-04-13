@@ -127,6 +127,8 @@ importers:
         specifier: 18.2.22
         version: 18.2.22
 
+  examples/remote-runner: {}
+
   packages/workerd:
     dependencies:
       miniflare:
