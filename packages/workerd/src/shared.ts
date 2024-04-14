@@ -49,9 +49,4 @@ export type RunnerEvalContext = {
   args: any[];
 };
 
-export type RunnerEvalFn = (ctx: {
-  env: any;
-  runner: ModuleRunner;
-  exports: Record<string, any>;
-  args: any[];
-}) => Promise<any>;
+export type RunnerEvalFn = (ctx: RunnerEvalContext) => Promise<any>;
