@@ -5,6 +5,8 @@ test("basic", async () => {
   using proc = childProcess.spawn("pnpm", ["cli"]);
   const helper = createProcessHelper(proc);
   await helper.waitFor((out) => out.includes("[mf:inf] Ready"));
+  proc.stdin.write(`env\n`);
+  await helper.waitFor((out) => out.includes("{ kv: KvNamespace {} }"));
   proc.stdin.write(`env.kv.list()\n`);
   await helper.waitFor((out) => out.includes("{ keys: []"));
 });
