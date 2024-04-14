@@ -206,6 +206,39 @@ export async function createWorkerdDevEnvironment(
       tinyassert(res.ok);
       return (await res.json()) as any;
     },
+
+    // not-so-magical proxy
+    // - proxy only shallow exports using above `eval`
+    // - all async call
+    async importProxy(entry: string): Promise<unknown> {
+      return new Proxy(
+        {},
+        {
+          get(_target, exportName, _receiver) {
+            return new Proxy(() => {}, {
+              get(_target, prop, _receiver) {
+                return api.eval(
+                  entry,
+                  (mod: any, exportName: any, prop: any) =>
+                    mod[exportName][prop],
+                  exportName,
+                  prop,
+                );
+              },
+              apply(_target, _thisArg, argArray) {
+                return api.eval(
+                  entry,
+                  (mod: any, exportName: any, argArray: any) =>
+                    mod[exportName](...argArray),
+                  exportName,
+                  argArray,
+                );
+              },
+            });
+          },
+        },
+      );
+    },
   };
 
   // workaround for tsup dts?
