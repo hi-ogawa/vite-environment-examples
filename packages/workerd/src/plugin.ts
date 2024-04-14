@@ -207,7 +207,7 @@ export async function createWorkerdDevEnvironment(
     // not-so-magical proxy
     // - proxy only shallow exports using above `eval`
     // - all async call
-    async importProxy(entry: string): Promise<unknown> {
+    async importProxy(entry: string): Promise<any> {
       return new Proxy(
         {},
         {

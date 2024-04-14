@@ -48,6 +48,11 @@ async function main() {
   });
   const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
 
+  if (0) {
+    const modProxy = await devEnv.api.importProxy("/entry.js");
+    (req: Request): Promise<Response> => modProxy["default"](req);
+  }
+
   // evaluate command via virtual module
   async function evaluate(cmd: string) {
     if (!cmd.includes("return")) {
