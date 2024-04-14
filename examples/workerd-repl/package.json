@@ -1,0 +1,15 @@
+{
+  "name": "@hiogawa/vite-environment-examples-workerd-cli",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "repl": "tsx src/cli.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@hiogawa/vite-plugin-workerd": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

@@ -13,6 +13,7 @@ import {
   RUNNER_INIT_PATH,
   setRunnerFetchOptions,
   type RunnerEvalOptions,
+  RUNNER_EVAL_PATH,
 } from "./shared";
 import {
   DevEnvironment,
@@ -25,7 +26,7 @@ import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 import type { SourcelessWorkerOptions } from "wrangler";
 
 interface WorkerdPluginOptions extends WorkerdEnvironmentOptions {
-  entry: string;
+  entry?: string;
 }
 
 interface WorkerdEnvironmentOptions {
@@ -52,12 +53,14 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
     },
 
     configureServer(server) {
+      const entry = pluginOptions.entry;
+      if (!entry) {
+        return;
+      }
       const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
       const nodeMiddleware = createMiddleware(
-        (ctx) => devEnv.api.dispatchFetch(pluginOptions.entry, ctx.request),
-        {
-          alwaysCallNext: false,
-        },
+        (ctx) => devEnv.api.dispatchFetch(entry, ctx.request),
+        { alwaysCallNext: false },
       );
       return () => {
         server.middlewares.use(nodeMiddleware);
@@ -192,7 +195,8 @@ export async function createWorkerdDevEnvironment(
       fn: (mod: unknown, ...args: unknown[]) => T,
       ...args: unknown[]
     ): Promise<Awaited<T>> {
-      const res = await runnerObject.fetch(ANY_URL + RUNNER_INIT_PATH, {
+      const res = await runnerObject.fetch(ANY_URL + RUNNER_EVAL_PATH, {
+        method: "POST",
         body: JSON.stringify({
           entry,
           fnString: fn.toString(),
