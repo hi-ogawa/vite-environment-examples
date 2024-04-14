@@ -4,6 +4,9 @@
 $ pnpm cli
 [mf:inf] Ready on http://127.0.0.1:44031
 
+> env
+{ kv: KvNamespace {} }
+
 > env.kv.list()
 { keys: [], list_complete: true, cacheStatus: null }
 

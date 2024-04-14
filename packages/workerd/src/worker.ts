@@ -50,7 +50,7 @@ export class RunnerObject implements DurableObject {
         `() => ${options.fnString}`,
       )();
       const result = await fn({
-        env: objectPickBy(this.#env, (_v, k) => !k.search("__vite")),
+        env: objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite")),
         runner: this.#runner,
         exports,
         args: options.args,
