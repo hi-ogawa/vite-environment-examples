@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "cli": "tsx src/cli.ts"
+    "cli": "tsx src/cli.ts",
+    "test": "node --test"
   },
   "dependencies": {},
   "devDependencies": {
