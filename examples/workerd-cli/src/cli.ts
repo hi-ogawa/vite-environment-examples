@@ -48,16 +48,17 @@ async function main() {
   });
   const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
 
+  // evaluate command via virtual module
   async function evaluate(cmd: string) {
     if (!cmd.includes("return")) {
       cmd = `return ${cmd}`;
     }
-    const entrySource = `export default async function({ env }) { ${cmd} }`;
+    const entrySource = `export default async function(env) { ${cmd} };`;
     const entry = "virtual:repl/" + encodeURI(entrySource);
     await devEnv.api.eval(
       entry,
-      async function (this: any, mod: any) {
-        const result = await mod.default({ env: this.env });
+      async function (ctx) {
+        const result = await ctx.exports["default"](ctx.env);
         if (typeof result !== "undefined") {
           console.log(result);
         }
