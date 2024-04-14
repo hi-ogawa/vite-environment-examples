@@ -2,6 +2,7 @@
 
 ```sh
 $ pnpm repl
+[mf:inf] Ready on http://127.0.0.1:44031
 
 > (await import("/wrangler.toml?raw")).default
 compatibility_date = "2024-01-01"
