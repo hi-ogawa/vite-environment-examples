@@ -1,0 +1,18 @@
+{
+  "name": "@hiogawa/remote-runner",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
