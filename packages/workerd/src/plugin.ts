@@ -8,7 +8,13 @@ import {
 } from "miniflare";
 import { fileURLToPath } from "url";
 import { DefaultMap, tinyassert } from "@hiogawa/utils";
-import { ANY_URL, RUNNER_INIT_PATH, setRunnerFetchOptions } from "./shared";
+import {
+  ANY_URL,
+  RUNNER_INIT_PATH,
+  setRunnerFetchOptions,
+  type RunnerEvalOptions,
+  RUNNER_EVAL_PATH,
+} from "./shared";
 import {
   DevEnvironment,
   type CustomPayload,
@@ -20,7 +26,7 @@ import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 import type { SourcelessWorkerOptions } from "wrangler";
 
 interface WorkerdPluginOptions extends WorkerdEnvironmentOptions {
-  entry: string;
+  entry?: string;
 }
 
 interface WorkerdEnvironmentOptions {
@@ -47,12 +53,14 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
     },
 
     configureServer(server) {
+      const entry = pluginOptions.entry;
+      if (!entry) {
+        return;
+      }
       const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
       const nodeMiddleware = createMiddleware(
-        (ctx) => devEnv.api.dispatchFetch(pluginOptions.entry, ctx.request),
-        {
-          alwaysCallNext: false,
-        },
+        (ctx) => devEnv.api.dispatchFetch(entry, ctx.request),
+        { alwaysCallNext: false },
       );
       return () => {
         server.middlewares.use(nodeMiddleware);
@@ -161,6 +169,7 @@ export async function createWorkerdDevEnvironment(
 
   // custom environment api
   const api = {
+    // fetch proxy
     async dispatchFetch(entry: string, request: Request) {
       const req = new MiniflareRequest(request.url, {
         method: request.method,
@@ -177,6 +186,25 @@ export async function createWorkerdDevEnvironment(
         statusText: res.statusText,
         headers: res.headers as any,
       });
+    },
+
+    // playwright-like eval interface https://playwright.dev/docs/evaluating
+    // (de)serialization can be customized (currently JSON.stringify/parse)
+    async eval<T>(
+      entry: string,
+      fn: (mod: unknown, ...args: unknown[]) => T,
+      ...args: unknown[]
+    ): Promise<Awaited<T>> {
+      const res = await runnerObject.fetch(ANY_URL + RUNNER_EVAL_PATH, {
+        method: "POST",
+        body: JSON.stringify({
+          entry,
+          fnString: fn.toString(),
+          args,
+        } satisfies RunnerEvalOptions),
+      });
+      tinyassert(res.ok);
+      return (await res.json()) as any;
     },
   };
 

@@ -1,0 +1,16 @@
+{
+  "name": "@hiogawa/vite-environment-examples-workerd-cli",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cli": "tsx src/cli.ts",
+    "test": "node --import tsx/esm --test e2e/*.test.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@hiogawa/vite-plugin-workerd": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
