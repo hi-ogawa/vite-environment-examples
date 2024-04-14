@@ -2,8 +2,7 @@ import test from "node:test";
 import childProcess from "node:child_process";
 
 test("basic", async () => {
-  const proc = childProcess.spawn("pnpm", ["cli"]);
-  using _ = proc;
+  using proc = childProcess.spawn("pnpm", ["cli"]);
   const helper = createProcessHelper(proc);
   await helper.waitFor((out) => out.includes("[mf:inf] Ready"));
   proc.stdin.write(`env.kv.list()\n`);
