@@ -1,4 +1,5 @@
 import { tinyassert } from "@hiogawa/utils";
+import type { ModuleRunner } from "vite/module-runner";
 
 export const RUNNER_INIT_PATH = "/__viteInit";
 export const RUNNER_EVAL_PATH = "/__viteEval";
@@ -38,4 +39,9 @@ export type RunnerEvalOptions = {
   entry: string;
   fnString: string;
   args: unknown[];
+};
+
+export type RunnerEvalContext = {
+  env: any;
+  runner: ModuleRunner;
 };

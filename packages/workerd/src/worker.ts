@@ -6,6 +6,7 @@ import {
   type RunnerEnv,
   RUNNER_EVAL_PATH,
   type RunnerEvalOptions,
+  type RunnerEvalContext,
 } from "./shared";
 import { ModuleRunner } from "vite/module-runner";
 
@@ -46,7 +47,8 @@ export class RunnerObject implements DurableObject {
       const options = await request.json<RunnerEvalOptions>();
       const fn = this.#env.__viteUnsafeEval.eval(`() => ${options.fnString}`)();
       const mod = await this.#runner.import(options.entry);
-      const result = await fn.apply({ env: this.#env }, [mod, ...options.args]);
+      const ctx: RunnerEvalContext = { env: this.#env, runner: this.#runner };
+      const result = await fn(ctx, mod, ...options.args);
       return new Response(JSON.stringify(result ?? null));
     }
 

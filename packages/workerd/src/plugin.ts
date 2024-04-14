@@ -14,6 +14,7 @@ import {
   setRunnerFetchOptions,
   type RunnerEvalOptions,
   RUNNER_EVAL_PATH,
+  type RunnerEvalContext,
 } from "./shared";
 import {
   DevEnvironment,
@@ -192,8 +193,8 @@ export async function createWorkerdDevEnvironment(
     // (de)serialization can be customized (currently JSON.stringify/parse)
     async eval<T>(
       entry: string,
-      fn: (mod: unknown, ...args: unknown[]) => T,
-      ...args: unknown[]
+      fn: (ctx: RunnerEvalContext, mod: any, ...args: any[]) => T,
+      ...args: any[]
     ): Promise<Awaited<T>> {
       const res = await runnerObject.fetch(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
@@ -210,7 +211,7 @@ export async function createWorkerdDevEnvironment(
     // not-so-magical proxy
     // - proxy only shallow exports using above `eval`
     // - all async call
-    async importProxy(entry: string): Promise<unknown> {
+    async importProxy(entry: string): Promise<any> {
       return new Proxy(
         {},
         {

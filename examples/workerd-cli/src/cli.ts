@@ -56,8 +56,8 @@ async function main() {
     const entry = "virtual:repl/" + encodeURI(entrySource);
     await devEnv.api.eval(
       entry,
-      async function (this: any, mod: any) {
-        const result = await mod.default({ env: this.env });
+      async function (ctx: any, mod: any) {
+        const result = await mod.default(ctx);
         if (typeof result !== "undefined") {
           console.log(result);
         }
