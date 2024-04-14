@@ -216,8 +216,7 @@ export async function createWorkerdDevEnvironment(
               get(_target, prop, _receiver) {
                 return api.eval(
                   entry,
-                  (mod: any, exportName: any, prop: any) =>
-                    mod[exportName][prop],
+                  (ctx) => ctx.exports[ctx.args[0]][ctx.args[1]],
                   exportName,
                   prop,
                 );
@@ -225,8 +224,7 @@ export async function createWorkerdDevEnvironment(
               apply(_target, _thisArg, argArray) {
                 return api.eval(
                   entry,
-                  (mod: any, exportName: any, argArray: any) =>
-                    mod[exportName](...argArray),
+                  (ctx) => ctx.exports[ctx.args[0]](...ctx.args[1]),
                   exportName,
                   argArray,
                 );
