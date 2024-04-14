@@ -127,7 +127,7 @@ importers:
         specifier: 18.2.22
         version: 18.2.22
 
-  examples/workerd-repl:
+  examples/workerd-cli:
     devDependencies:
       '@hiogawa/vite-plugin-workerd':
         specifier: workspace:*

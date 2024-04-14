@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "repl": "tsx src/cli.ts"
+    "cli": "tsx src/cli.ts"
   },
   "dependencies": {},
   "devDependencies": {

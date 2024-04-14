@@ -1,7 +1,7 @@
-# workerd-repl
+# workerd-cli
 
 ```sh
-$ pnpm repl
+$ pnpm cli
 [mf:inf] Ready on http://127.0.0.1:44031
 
 > (await import("/wrangler.toml?raw")).default
