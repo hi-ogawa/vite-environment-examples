@@ -10,9 +10,13 @@
 // function
 
 // const client = new ProxyClient({ post });
-// const proxy = client.getRootProxy();
-// (await (await proxy.runner).import)
-// const mod = await proxy.runner.import("/src/entry");
+// const runnerProxy = client.getRootProxy();
+// const mod = await (await runnerProxy.import)("/src/entry");
+// const res = await (await mod.default)(req);
+
+// [with sync getter]
+// const runnerProxy = client.getRootProxy();
+// const mod = await runnerProxy.import("/src/entry");
 // const res = await mod.default(req);
 
 // const server = new ProxyServer({ on, root: { runner } });
@@ -58,3 +62,15 @@ export class ProxyClient {
     });
   }
 }
+
+// puppeteer/playwright style "handle" + "eval" system?
+// https://playwright.dev/docs/evaluating
+
+// const runner = createRemoteRunner();
+// const modHandle = await runner.import("/some-entry.ts");
+// const result = await runner.eval((mod) => mod.default("hello"), [modHandle]);
+
+// const result = await runner.import("/some-entry.ts", (mod, args) => mod.default(...args), ["hello"]);
+
+// const result = await remoteRunner.$eval("/some-module.ts", (mod, args) => ..., ["hello"]);
+// const moduleHandle = remoteRunner.
