@@ -8,7 +8,12 @@ import {
 } from "miniflare";
 import { fileURLToPath } from "url";
 import { DefaultMap, tinyassert } from "@hiogawa/utils";
-import { ANY_URL, RUNNER_INIT_PATH, setRunnerFetchOptions } from "./shared";
+import {
+  ANY_URL,
+  RUNNER_INIT_PATH,
+  setRunnerFetchOptions,
+  type RunnerEvalOptions,
+} from "./shared";
 import {
   DevEnvironment,
   type CustomPayload,
@@ -161,6 +166,7 @@ export async function createWorkerdDevEnvironment(
 
   // custom environment api
   const api = {
+    // fetch proxy
     async dispatchFetch(entry: string, request: Request) {
       const req = new MiniflareRequest(request.url, {
         method: request.method,
@@ -177,6 +183,24 @@ export async function createWorkerdDevEnvironment(
         statusText: res.statusText,
         headers: res.headers as any,
       });
+    },
+
+    // playwright-like eval interface https://playwright.dev/docs/evaluating
+    // (de)serialization can be customized (currently JSON.stringify/parse)
+    async eval<T>(
+      entry: string,
+      fn: (mod: unknown, ...args: unknown[]) => T,
+      ...args: unknown[]
+    ): Promise<Awaited<T>> {
+      const res = await runnerObject.fetch(ANY_URL + RUNNER_INIT_PATH, {
+        body: JSON.stringify({
+          entry,
+          fnString: fn.toString(),
+          args,
+        } satisfies RunnerEvalOptions),
+      });
+      tinyassert(res.ok);
+      return (await res.json()) as any;
     },
   };
 

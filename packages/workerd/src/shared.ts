@@ -1,12 +1,13 @@
 import { tinyassert } from "@hiogawa/utils";
 
 export const RUNNER_INIT_PATH = "/__viteInit";
+export const RUNNER_EVAL_PATH = "/__viteEval";
 export const ANY_URL = "https://any.local";
 
 export type RunnerEnv = {
   __viteRoot: string;
   __viteUnsafeEval: {
-    eval: (code: string, filename: string) => any;
+    eval: (code: string, filename?: string) => any;
   };
   __viteFetchModule: {
     fetch: (request: Request) => Promise<Response>;
@@ -32,3 +33,9 @@ export function getRunnerFetchOptions(headers: Headers): RunnerFetchOptions {
   tinyassert(raw);
   return JSON.parse(decodeURIComponent(raw));
 }
+
+export type RunnerEvalOptions = {
+  entry: string;
+  fnString: string;
+  args: unknown[];
+};
