@@ -53,9 +53,7 @@ async function main() {
     if (!cmd.includes("return")) {
       cmd = `return ${cmd}`;
     }
-    const entrySource = `
-      export default async function(env) { ${cmd} };
-    `;
+    const entrySource = `export default async function(env) { ${cmd} };`;
     const entry = "virtual:repl/" + encodeURI(entrySource);
     await devEnv.api.eval(
       entry,
