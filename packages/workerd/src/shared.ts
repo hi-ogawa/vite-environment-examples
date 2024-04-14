@@ -13,6 +13,7 @@ export type RunnerEnv = {
   __viteFetchModule: {
     fetch: (request: Request) => Promise<Response>;
   };
+  __viteRunner: DurableObject;
 };
 
 export type RunnerFetchOptions = {
@@ -44,4 +45,13 @@ export type RunnerEvalOptions = {
 export type RunnerEvalContext = {
   env: any;
   runner: ModuleRunner;
+  exports: Record<string, any>;
+  args: any[];
 };
+
+export type RunnerEvalFn = (ctx: {
+  env: any;
+  runner: ModuleRunner;
+  exports: Record<string, any>;
+  args: any[];
+}) => Promise<any>;

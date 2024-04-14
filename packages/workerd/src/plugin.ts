@@ -14,7 +14,7 @@ import {
   setRunnerFetchOptions,
   type RunnerEvalOptions,
   RUNNER_EVAL_PATH,
-  type RunnerEvalContext,
+  type RunnerEvalFn,
 } from "./shared";
 import {
   DevEnvironment,
@@ -191,11 +191,7 @@ export async function createWorkerdDevEnvironment(
 
     // playwright-like eval interface https://playwright.dev/docs/evaluating
     // (de)serialization can be customized (currently JSON.stringify/parse)
-    async eval<T>(
-      entry: string,
-      fn: (ctx: RunnerEvalContext, mod: any, ...args: any[]) => T,
-      ...args: any[]
-    ): Promise<Awaited<T>> {
+    async eval(entry: string, fn: RunnerEvalFn, ...args: any[]): Promise<any> {
       const res = await runnerObject.fetch(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
         body: JSON.stringify({
@@ -220,8 +216,7 @@ export async function createWorkerdDevEnvironment(
               get(_target, prop, _receiver) {
                 return api.eval(
                   entry,
-                  (mod: any, exportName: any, prop: any) =>
-                    mod[exportName][prop],
+                  (ctx) => ctx.exports[ctx.args[0]][ctx.args[1]],
                   exportName,
                   prop,
                 );
@@ -229,8 +224,7 @@ export async function createWorkerdDevEnvironment(
               apply(_target, _thisArg, argArray) {
                 return api.eval(
                   entry,
-                  (mod: any, exportName: any, argArray: any) =>
-                    mod[exportName](...argArray),
+                  (ctx) => ctx.exports[ctx.args[0]](...ctx.args[1]),
                   exportName,
                   argArray,
                 );
