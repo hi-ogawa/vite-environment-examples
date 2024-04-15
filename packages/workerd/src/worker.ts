@@ -7,7 +7,7 @@ import {
   RUNNER_EVAL_PATH,
   type EvalMetadata,
   type EvalFn,
-  type EvalSerializer,
+  jsonEvalSerializer,
 } from "./shared";
 import { ModuleRunner } from "vite/module-runner";
 
@@ -49,17 +49,18 @@ export class RunnerObject implements DurableObject {
       tinyassert(metaRaw);
       const meta = JSON.parse(metaRaw) as EvalMetadata;
       const mod = await this.#runner.import(meta.entry);
-      const serializer: EvalSerializer = await this.#runner.import(
-        meta.serializerEntry,
-      );
+      let serde = jsonEvalSerializer();
+      if (meta.serializerEntry) {
+        serde = await this.#runner.import(meta.serializerEntry);
+      }
       tinyassert(request.body);
-      const args = await serializer.deserialize(request.body);
+      const args = await serde.deserialize(request.body);
       const env = objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite"));
       const fn: EvalFn = this.#env.__viteUnsafeEval.eval(
         `() => ${meta.fnString}`,
       )();
       const result = await fn({ mod, args, env });
-      const body = await serializer.serialize(result);
+      const body = await serde.serialize(result);
       return new Response(body);
     }
 

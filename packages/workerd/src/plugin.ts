@@ -14,6 +14,7 @@ import {
   RUNNER_EVAL_PATH,
   type EvalApi,
   type EvalMetadata,
+  jsonEvalSerializer,
 } from "./shared";
 import {
   DevEnvironment,
@@ -210,7 +211,8 @@ export async function createWorkerdDevEnvironment(
         fnString: ctx.fn.toString(),
         serializerEntry: ctx.serializerEntry,
       };
-      const body = await ctx.serializer.serialize(ctx.args);
+      const serde = ctx.serializer ?? jsonEvalSerializer();
+      const body = await serde.serialize(ctx.args);
       const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
       const response = await fetch_(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
@@ -221,7 +223,7 @@ export async function createWorkerdDevEnvironment(
       });
       tinyassert(response.ok);
       tinyassert(response.body);
-      const result = await ctx.serializer.deserialize(response.body);
+      const result = await serde.deserialize(response.body);
       return result;
     },
   };

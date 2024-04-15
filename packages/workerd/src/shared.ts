@@ -41,14 +41,14 @@ export type EvalApi = (request: {
   entry: string;
   fn: EvalFn;
   args: any[];
-  serializerEntry: string;
-  serializer: EvalSerializer;
+  serializerEntry?: string;
+  serializer?: EvalSerializer;
 }) => Promise<any>;
 
 export type EvalMetadata = {
   entry: string;
   fnString: string;
-  serializerEntry: string;
+  serializerEntry?: string;
 };
 
 export type EvalSerializer = {
@@ -56,4 +56,25 @@ export type EvalSerializer = {
   deserialize: (stream: ReadableStream<Uint8Array>) => Promise<any>;
 };
 
-export function jsonEvalSerializer() {}
+export function jsonEvalSerializer(): EvalSerializer {
+  return {
+    serialize: async (data) => {
+      return new ReadableStream<string>({
+        start(controller) {
+          controller.enqueue(JSON.stringify(data));
+        },
+      }).pipeThrough(new TextEncoderStream());
+    },
+    deserialize: async (stream) => {
+      let output = "";
+      await stream.pipeThrough(new TextDecoderStream()).pipeTo(
+        new WritableStream({
+          write(chunk) {
+            output += chunk;
+          },
+        }),
+      );
+      return JSON.parse(output);
+    },
+  };
+}
