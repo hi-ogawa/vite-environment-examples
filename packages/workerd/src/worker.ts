@@ -48,13 +48,13 @@ export class RunnerObject implements DurableObject {
         request.headers.get("x-vite-eval")!,
       ) as EvalMetadata;
       const mod = await this.#runner.import(meta.entry);
-      const data = await request.json();
+      const data = meta.cusotmSerialize ? request.body : await request.json();
       const env = objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite"));
       const fn: EvalFn = this.#env.__viteUnsafeEval.eval(
         `() => ${meta.fnString}`,
       )();
       const result = await fn({ mod, data, env, runner: this.#runner });
-      const body = JSON.stringify(result ?? null);
+      const body = meta.cusotmSerialize ? result : JSON.stringify(result);
       return new Response(body);
     }
 

@@ -12,6 +12,6 @@ export default [
     format: ["esm"],
     platform: "node",
     dts: true,
-    external: ["vite", "miniflare"],
+    external: ["seroval", "seroval-plugins"],
   }),
 ];

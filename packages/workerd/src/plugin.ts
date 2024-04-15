@@ -36,6 +36,10 @@ interface WorkerdEnvironmentOptions {
   };
 }
 
+//
+// traditional middleware plugin
+//
+
 export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
   return {
     name: vitePluginWorkerd.name,
@@ -58,10 +62,51 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
         return;
       }
       const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
+
+      // implement dispatchFetch based on eval
+      const dispatchFetch = async (request: Request): Promise<Response> => {
+        const seroval = await import("seroval");
+        const serovalPlugins = await import("seroval-plugins/web");
+
+        // TODO: stream directly request/response body
+        const serovalRequest = await seroval.toJSONAsync(request, {
+          plugins: [await createSerovalRequestPlugin()],
+        });
+        const serovalResponse = await devEnv.api.eval({
+          entry,
+          data: { serovalRequest },
+          // cusotmSerialize: true,
+          fn: async ({ mod, data: { serovalRequest }, env, runner }) => {
+            const seroval =
+              await runner.import<typeof import("seroval")>("seroval");
+            const serovalPlugins = await runner.import<
+              typeof import("seroval-plugins/web")
+            >("seroval-plugins/web");
+
+            const request: Request = await seroval.fromJSON(serovalRequest, {
+              plugins: [serovalPlugins.RequestPlugin],
+            });
+            const response: Response = await mod.default.fetch(request, env);
+            const serovalResponse = await seroval.toJSONAsync(response, {
+              plugins: [serovalPlugins.ResponsePlugin],
+            });
+            return serovalResponse;
+          },
+        });
+        const response: Response = await seroval.fromJSON(serovalResponse, {
+          plugins: [serovalPlugins.ResponsePlugin],
+        });
+        return response;
+      };
+
       const nodeMiddleware = createMiddleware(
-        (ctx) => devEnv.api.dispatchFetch(entry, ctx.request),
+        (ctx) => dispatchFetch(ctx.request),
         { alwaysCallNext: false },
       );
+      // const nodeMiddleware = createMiddleware(
+      //   (ctx) => devEnv.api.dispatchFetch(entry, ctx.request),
+      //   { alwaysCallNext: false },
+      // );
       return () => {
         server.middlewares.use(nodeMiddleware);
       };
@@ -101,8 +146,13 @@ export async function createWorkerdDevEnvironment(
         const devEnv = server.environments["workerd"];
         tinyassert(devEnv);
         const args = await request.json();
-        const result = await devEnv.fetchModule(...(args as [any, any]));
-        return new MiniflareResponse(JSON.stringify(result));
+        try {
+          const result = await devEnv.fetchModule(...(args as [any, any]));
+          return new MiniflareResponse(JSON.stringify(result));
+        } catch (e) {
+          console.error(e);
+          throw e;
+        }
       },
     },
     bindings: {
@@ -205,9 +255,12 @@ export async function createWorkerdDevEnvironment(
         JSON.stringify({
           entry: ctx.entry,
           fnString: ctx.fn.toString(),
+          cusotmSerialize: ctx.cusotmSerialize,
         } satisfies EvalMetadata),
       );
-      const body = JSON.stringify(ctx.data ?? (null as any));
+      const body: any = ctx.cusotmSerialize
+        ? ctx.data
+        : JSON.stringify(ctx.data as any);
       const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
       const response = await fetch_(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
@@ -217,7 +270,9 @@ export async function createWorkerdDevEnvironment(
         duplex: "half",
       });
       tinyassert(response.ok);
-      const result = await response.json();
+      const result = ctx.cusotmSerialize
+        ? response.body
+        : await response.json();
       return result as any;
     },
   };
@@ -272,4 +327,91 @@ function createSimpleHMRChannel(options: {
       options.post(options.serialize(payload));
     },
   };
+}
+
+// copied from https://github.com/lxsmnsyc/seroval/blob/63003d77889b06b73bab0365d296bcdd029219fb/packages/plugins/web/request.ts#L40
+// to strip off unsupported workerd Request properties
+
+import type { SerovalNode } from "seroval";
+
+async function createSerovalRequestPlugin() {
+  const seroval = await import("seroval");
+  const serovalPlugins = await import("seroval-plugins/web");
+
+  function createRequestOptions(
+    current: Request,
+    body: ArrayBuffer | ReadableStream | null,
+  ): RequestInit {
+    return {
+      body,
+      // cache: current.cache,
+      // credentials: current.credentials,
+      headers: current.headers,
+      integrity: current.integrity,
+      keepalive: current.keepalive,
+      method: current.method,
+      // mode: current.mode,
+      redirect: current.redirect,
+      // referrer: current.referrer,
+      // referrerPolicy: current.referrerPolicy,
+    };
+  }
+
+  interface RequestNode {
+    url: SerovalNode;
+    options: SerovalNode;
+  }
+
+  const RequestPlugin = /* @__PURE__ */ seroval.createPlugin<
+    Request,
+    RequestNode
+  >({
+    tag: "seroval-plugins/web/Request",
+    extends: [
+      serovalPlugins.ReadableStreamPlugin,
+      serovalPlugins.HeadersPlugin,
+    ],
+    test(value) {
+      if (typeof Request === "undefined") {
+        return false;
+      }
+      return value instanceof Request;
+    },
+    parse: {
+      async async(value, ctx) {
+        return {
+          url: await ctx.parse(value.url),
+          options: await ctx.parse(
+            createRequestOptions(
+              value,
+              value.body ? await value.clone().arrayBuffer() : null,
+            ),
+          ),
+        };
+      },
+      stream(value, ctx) {
+        return {
+          url: ctx.parse(value.url),
+          options: ctx.parse(createRequestOptions(value, value.clone().body)),
+        };
+      },
+    },
+    serialize(node, ctx) {
+      return (
+        "new Request(" +
+        ctx.serialize(node.url) +
+        "," +
+        ctx.serialize(node.options) +
+        ")"
+      );
+    },
+    deserialize(node, ctx) {
+      return new Request(
+        ctx.deserialize(node.url) as string,
+        ctx.deserialize(node.options) as RequestInit,
+      );
+    },
+  });
+
+  return RequestPlugin;
 }
