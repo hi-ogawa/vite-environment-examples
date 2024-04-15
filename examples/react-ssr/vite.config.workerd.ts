@@ -13,6 +13,7 @@ export default defineConfig((_env) => ({
       entry: "/src/adapters/workerd.ts",
       miniflare: {
         log: new Log(),
+        compatibilityDate: "2024-01-01",
       },
     }),
     vitePluginVirtualIndexHtml(),
