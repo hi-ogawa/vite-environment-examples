@@ -55,32 +55,3 @@ export type EvalMetadata = {
   fnString: string;
   cusotmSerialize?: boolean;
 };
-
-export type EvalSerializer = {
-  serialize: (data: any) => Promise<ReadableStream<Uint8Array>>;
-  deserialize: (stream: ReadableStream<Uint8Array>) => Promise<any>;
-};
-
-export function jsonEvalSerializer(): EvalSerializer {
-  return {
-    serialize: async (data) => {
-      return new ReadableStream<string>({
-        start(controller) {
-          controller.enqueue(JSON.stringify(data));
-          controller.close();
-        },
-      }).pipeThrough(new TextEncoderStream());
-    },
-    deserialize: async (stream) => {
-      let output = "";
-      await stream.pipeThrough(new TextDecoderStream()).pipeTo(
-        new WritableStream({
-          write(chunk) {
-            output += chunk;
-          },
-        }),
-      );
-      return JSON.parse(output);
-    },
-  };
-}
