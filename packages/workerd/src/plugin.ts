@@ -22,6 +22,7 @@ import {
   type HMRChannel,
   type Plugin,
   type ViteDevServer,
+  type PluginOption,
 } from "vite";
 import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 import type { SourcelessWorkerOptions } from "wrangler";
@@ -36,6 +37,10 @@ interface WorkerdEnvironmentOptions {
     configPath?: string;
   };
 }
+
+//
+// traditional middleware plugin
+//
 
 export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
   return {
@@ -69,6 +74,57 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
     },
   };
 }
+
+//
+// remote runner plugin
+//
+
+export function vitePluginWorkerdRunner(
+  pluginOptions: WorkerdPluginOptions,
+): PluginOption {
+  const configPlugin: Plugin = {
+    name: vitePluginWorkerdRunner.name,
+    async config(_config, _env) {
+      return {
+        environments: {
+          workerd: {
+            dev: {
+              createEnvironment: async (server, name) => {
+                const devEnv = await createWorkerdDevEnvironment(
+                  server,
+                  name,
+                  pluginOptions,
+                );
+                const entry = fileURLToPath(
+                  new URL("./remote-eval-entry.js", import.meta.url),
+                );
+                const response = devEnv.api.dispatchFetch(
+                  entry,
+                  new Request("https://any.local", {
+                    headers: {},
+                    body: "",
+                  }),
+                );
+                response;
+                return devEnv;
+              },
+            },
+          },
+        },
+      };
+    },
+  };
+  // dispatchFetch
+  //
+
+  // import proxy entry
+
+  return [configPlugin];
+}
+
+//
+// WorkerdDevEnvironment factory
+//
 
 export type WorkerdDevEnvironment = Awaited<
   ReturnType<typeof createWorkerdDevEnvironment>
