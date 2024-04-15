@@ -192,6 +192,8 @@ export async function createWorkerdDevEnvironment(
         }),
         body: request.body as any,
         redirect: "manual",
+        // @ts-ignore
+        duplex: "half",
       });
       const res_ = res as any as Response; // fix web/undici types
       return new Response(res_.body, {
