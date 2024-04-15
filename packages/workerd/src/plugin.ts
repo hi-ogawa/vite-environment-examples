@@ -12,9 +12,9 @@ import {
   ANY_URL,
   RUNNER_INIT_PATH,
   setRunnerFetchOptions,
-  type RunnerEvalOptions,
   RUNNER_EVAL_PATH,
-  type RunnerEvalFn,
+  type EvalApi,
+  type EvalMetadata,
 } from "./shared";
 import {
   DevEnvironment,
@@ -22,7 +22,6 @@ import {
   type HMRChannel,
   type Plugin,
   type ViteDevServer,
-  type PluginOption,
 } from "vite";
 import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 import type { SourcelessWorkerOptions } from "wrangler";
@@ -76,59 +75,17 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
 }
 
 //
-// remote runner plugin
-//
-
-export function vitePluginWorkerdRunner(
-  pluginOptions: WorkerdPluginOptions,
-): PluginOption {
-  const configPlugin: Plugin = {
-    name: vitePluginWorkerdRunner.name,
-    async config(_config, _env) {
-      return {
-        environments: {
-          workerd: {
-            dev: {
-              createEnvironment: async (server, name) => {
-                const devEnv = await createWorkerdDevEnvironment(
-                  server,
-                  name,
-                  pluginOptions,
-                );
-                const entry = fileURLToPath(
-                  new URL("./remote-eval-entry.js", import.meta.url),
-                );
-                const response = devEnv.api.dispatchFetch(
-                  entry,
-                  new Request("https://any.local", {
-                    headers: {},
-                    body: "",
-                  }),
-                );
-                response;
-                return devEnv;
-              },
-            },
-          },
-        },
-      };
-    },
-  };
-  // dispatchFetch
-  //
-
-  // import proxy entry
-
-  return [configPlugin];
-}
-
-//
 // WorkerdDevEnvironment factory
 //
 
-export type WorkerdDevEnvironment = Awaited<
-  ReturnType<typeof createWorkerdDevEnvironment>
->;
+export type WorkerdDevEnvironment = DevEnvironment & {
+  api: WorkerdDevApi;
+};
+
+export type WorkerdDevApi = {
+  dispatchFetch: (entry: string, request: Request) => Promise<Response>;
+  eval: EvalApi;
+};
 
 export async function createWorkerdDevEnvironment(
   server: ViteDevServer,
@@ -215,19 +172,19 @@ export async function createWorkerdDevEnvironment(
   });
 
   // inheritance to extend dispose
-  class WorkerdDevEnvironment extends DevEnvironment {
+  class WorkerdDevEnvironmentInternal extends DevEnvironment {
     override async close() {
       await super.close();
       await miniflare.dispose();
     }
   }
 
-  const devEnv = new WorkerdDevEnvironment(server, name, { hot });
+  const devEnv = new WorkerdDevEnvironmentInternal(server, name, { hot });
 
   // custom environment api
-  const api = {
+  const api: WorkerdDevApi = {
     // fetch proxy
-    async dispatchFetch(entry: string, request: Request) {
+    dispatchFetch: async (entry, request) => {
       const req = new MiniflareRequest(request.url, {
         method: request.method,
         headers: setRunnerFetchOptions(new Headers(request.headers), {
@@ -245,25 +202,29 @@ export async function createWorkerdDevEnvironment(
       });
     },
 
-    // playwright-like eval interface https://playwright.dev/docs/evaluating
-    // (de)serialization can be customized (currently JSON.stringify/parse)
-    async eval(entry: string, fn: RunnerEvalFn, ...args: any[]): Promise<any> {
-      const res = await runnerObject.fetch(ANY_URL + RUNNER_EVAL_PATH, {
+    // playwright-like remote eval interface https://playwright.dev/docs/evaluating
+    eval: async (ctx) => {
+      const meta: EvalMetadata = {
+        entry: ctx.entry,
+        fnString: ctx.fn.toString(),
+        serializerEntry: ctx.serializerEntry,
+      };
+      const body = await ctx.serializer.serialize(ctx.args);
+      const response = await runnerObject.fetch(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
-        body: JSON.stringify({
-          entry,
-          fnString: fn.toString(),
-          args,
-        } satisfies RunnerEvalOptions),
+        headers: {
+          "x-vite-eval-metadata": JSON.stringify(meta),
+        },
+        body: body as any,
       });
-      tinyassert(res.ok);
-      return (await res.json()) as any;
+      tinyassert(response.ok);
+      tinyassert(response.body);
+      const result = await ctx.serializer.deserialize(response.body as any);
+      return result;
     },
   };
 
-  // workaround for tsup dts?
-  Object.assign(devEnv, { api });
-  return devEnv as DevEnvironment & { api: typeof api };
+  return Object.assign(devEnv, { api }) as WorkerdDevEnvironment;
 }
 
 // cf.

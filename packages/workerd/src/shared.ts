@@ -1,5 +1,4 @@
 import { tinyassert } from "@hiogawa/utils";
-import type { ModuleRunner } from "vite/module-runner";
 
 export const RUNNER_INIT_PATH = "/__viteInit";
 export const RUNNER_EVAL_PATH = "/__viteEval";
@@ -36,17 +35,25 @@ export function getRunnerFetchOptions(headers: Headers): RunnerFetchOptions {
   return JSON.parse(decodeURIComponent(raw));
 }
 
-export type RunnerEvalOptions = {
+export type EvalFn = (ctx: { mod: any; args: any[]; env: any }) => any;
+
+export type EvalApi = (request: {
+  entry: string;
+  fn: EvalFn;
+  args: any[];
+  serializerEntry: string;
+  serializer: EvalSerializer;
+}) => Promise<any>;
+
+export type EvalMetadata = {
   entry: string;
   fnString: string;
-  args: unknown[];
+  serializerEntry: string;
 };
 
-export type RunnerEvalContext = {
-  env: any;
-  runner: ModuleRunner;
-  exports: Record<string, any>;
-  args: any[];
+export type EvalSerializer = {
+  serialize: (data: any) => Promise<ReadableStream<Uint8Array>>;
+  deserialize: (stream: ReadableStream<Uint8Array>) => Promise<any>;
 };
 
-export type RunnerEvalFn = (ctx: RunnerEvalContext) => Promise<any>;
+export function jsonEvalSerializer() {}

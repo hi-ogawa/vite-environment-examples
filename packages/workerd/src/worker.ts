@@ -5,8 +5,9 @@ import {
   getRunnerFetchOptions,
   type RunnerEnv,
   RUNNER_EVAL_PATH,
-  type RunnerEvalOptions,
-  type RunnerEvalFn,
+  type EvalMetadata,
+  type EvalFn,
+  type EvalSerializer,
 } from "./shared";
 import { ModuleRunner } from "vite/module-runner";
 
@@ -44,18 +45,22 @@ export class RunnerObject implements DurableObject {
 
     if (url.pathname === RUNNER_EVAL_PATH) {
       tinyassert(this.#runner);
-      const options = await request.json<RunnerEvalOptions>();
-      const exports = await this.#runner.import(options.entry);
-      const fn: RunnerEvalFn = this.#env.__viteUnsafeEval.eval(
-        `() => ${options.fnString}`,
+      const metaRaw = request.headers.get("x-vite-eval-metadata");
+      tinyassert(metaRaw);
+      const meta = JSON.parse(metaRaw) as EvalMetadata;
+      const mod = await this.#runner.import(meta.entry);
+      const serializer: EvalSerializer = await this.#runner.import(
+        meta.serializerEntry,
+      );
+      tinyassert(request.body);
+      const args = await serializer.deserialize(request.body);
+      const env = objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite"));
+      const fn: EvalFn = this.#env.__viteUnsafeEval.eval(
+        `() => ${meta.fnString}`,
       )();
-      const result = await fn({
-        env: objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite")),
-        runner: this.#runner,
-        exports,
-        args: options.args,
-      });
-      return new Response(JSON.stringify(result ?? null));
+      const result = await fn({ mod, args, env });
+      const body = await serializer.serialize(result);
+      return new Response(body);
     }
 
     tinyassert(this.#runner);
