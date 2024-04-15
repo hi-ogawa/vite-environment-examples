@@ -5,9 +5,8 @@ import {
   getRunnerFetchOptions,
   type RunnerEnv,
   RUNNER_EVAL_PATH,
+  type RunnerEvalOptions,
   type RunnerEvalFn,
-  decodeEvalRequest,
-  encodeEvalResponse,
 } from "./shared";
 import { ModuleRunner } from "vite/module-runner";
 
@@ -45,18 +44,18 @@ export class RunnerObject implements DurableObject {
 
     if (url.pathname === RUNNER_EVAL_PATH) {
       tinyassert(this.#runner);
-      const decoded = await decodeEvalRequest(request);
-      const exports = await this.#runner.import(decoded.entry);
+      const options = await request.json<RunnerEvalOptions>();
+      const exports = await this.#runner.import(options.entry);
       const fn: RunnerEvalFn = this.#env.__viteUnsafeEval.eval(
-        `() => ${decoded.fnString}`,
+        `() => ${options.fnString}`,
       )();
       const result = await fn({
         env: objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite")),
         runner: this.#runner,
         exports,
-        args: decoded.args,
+        args: options.args,
       });
-      return encodeEvalResponse(result);
+      return new Response(JSON.stringify(result ?? null));
     }
 
     tinyassert(this.#runner);

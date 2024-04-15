@@ -12,10 +12,9 @@ import {
   ANY_URL,
   RUNNER_INIT_PATH,
   setRunnerFetchOptions,
+  type RunnerEvalOptions,
   RUNNER_EVAL_PATH,
   type RunnerEvalFn,
-  encodeEvalRequest,
-  decodeEvalResponse,
 } from "./shared";
 import {
   DevEnvironment,
@@ -60,29 +59,6 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
         return;
       }
       const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
-      // devEnv.api.eval2(entry, (ctx) => {}, )
-      // serialization can be moved
-      // import { serialize, deserialize } from "deser";
-      // export function f() {}
-      //
-
-      // const nodeMiddleware = createMiddleware(
-      //   (ctx) =>
-      //     devEnv.api.eval2(
-      //       entry,
-      //       (evalCtx) => {
-      //         // const { deserialize, serialize } = await import("serialization-lib");
-      //         // const args = await deserialize(rawArgs);
-      //         // const result = await mod.default(...args);
-      //         // return await serialize(result);
-
-      //         evalCtx.exports["default"](evalCtx.args[0]);
-      //         // evalCtx.args[0];
-      //       },
-      //       ctx.request,
-      //     ),
-      //   { alwaysCallNext: false },
-      // );
       const nodeMiddleware = createMiddleware(
         (ctx) => devEnv.api.dispatchFetch(entry, ctx.request),
         { alwaysCallNext: false },
@@ -214,17 +190,18 @@ export async function createWorkerdDevEnvironment(
     },
 
     // playwright-like eval interface https://playwright.dev/docs/evaluating
+    // (de)serialization can be customized (currently JSON.stringify/parse)
     async eval(entry: string, fn: RunnerEvalFn, ...args: any[]): Promise<any> {
-      const encoded = await encodeEvalRequest({
-        entry,
-        fnString: fn.toString(),
-        args,
-      });
       const res = await runnerObject.fetch(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
-        ...encoded,
+        body: JSON.stringify({
+          entry,
+          fnString: fn.toString(),
+          args,
+        } satisfies RunnerEvalOptions),
       });
-      return decodeEvalResponse(res as any as Response);
+      tinyassert(res.ok);
+      return (await res.json()) as any;
     },
   };
 
