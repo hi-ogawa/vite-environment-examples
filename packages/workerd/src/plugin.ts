@@ -63,10 +63,45 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
         return;
       }
       const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
+
+      // implement dispatchFetch based on eval
+      const dispatchFetch = async (request: Request): Promise<Response> => {
+        const result = await devEnv.api.eval({
+          entry,
+          args: [
+            {
+              url: request.url,
+              method: request.method,
+              headers: [...request.headers.entries()],
+              body: ["HEAD", "GET"].includes(request.method)
+                ? null
+                : await request.text(),
+            },
+          ],
+          fn: async ({ mod, args: [{ url, method, headers, body }], env }) => {
+            const request = new Request(url, { method, headers, body });
+            const response: Response = await mod.default.fetch(request, env);
+            return {
+              headers: [...response.headers.entries()],
+              status: response.status,
+              body: await response.text(),
+            };
+          },
+        });
+        return new Response(result.body, {
+          status: result.status,
+          headers: result.headers,
+        });
+      };
+
       const nodeMiddleware = createMiddleware(
-        (ctx) => devEnv.api.dispatchFetch(entry, ctx.request),
+        (ctx) => dispatchFetch(ctx.request),
         { alwaysCallNext: false },
       );
+      // const nodeMiddleware = createMiddleware(
+      //   (ctx) => devEnv.api.dispatchFetch(entry, ctx.request),
+      //   { alwaysCallNext: false },
+      // );
       return () => {
         server.middlewares.use(nodeMiddleware);
       };
