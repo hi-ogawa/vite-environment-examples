@@ -36,12 +36,12 @@ export function getRunnerFetchOptions(headers: Headers): RunnerFetchOptions {
 }
 
 // TODO: infer Args and Return
-export type EvalFn = (ctx: { mod: any; args: any[]; env: any }) => any;
+export type EvalFn = (ctx: { mod: any; data: any; env: any }) => any;
 
 export type EvalApi = (request: {
   entry: string;
   fn: EvalFn;
-  args: any[]; // data?
+  data: any;
   serializerEntry?: string;
   serializer?: EvalSerializer;
 }) => Promise<any>;

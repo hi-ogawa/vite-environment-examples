@@ -68,7 +68,7 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
       const dispatchFetch = async (request: Request): Promise<Response> => {
         const result = await devEnv.api.eval({
           entry,
-          args: [
+          data: [
             {
               url: request.url,
               method: request.method,
@@ -78,7 +78,7 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
                 : await request.text(),
             },
           ],
-          fn: async ({ mod, args: [{ url, method, headers, body }], env }) => {
+          fn: async ({ mod, data: [{ url, method, headers, body }], env }) => {
             const request = new Request(url, { method, headers, body });
             const response: Response = await mod.default.fetch(request, env);
             return {
@@ -246,7 +246,7 @@ export async function createWorkerdDevEnvironment(
         serializerEntry: ctx.serializerEntry,
       };
       const serde = ctx.serializer ?? jsonEvalSerializer();
-      const body = await serde.serialize(ctx.args);
+      const body = await serde.serialize(ctx.data);
       const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
       const response = await fetch_(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",

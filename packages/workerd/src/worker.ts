@@ -54,12 +54,12 @@ export class RunnerObject implements DurableObject {
         serde = await this.#runner.import(meta.serializerEntry);
       }
       tinyassert(request.body);
-      const args = await serde.deserialize(request.body);
+      const data = await serde.deserialize(request.body);
       const env = objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite"));
       const fn: EvalFn = this.#env.__viteUnsafeEval.eval(
         `() => ${meta.fnString}`,
       )();
-      const result = await fn({ mod, args, env });
+      const result = await fn({ mod, data, env });
       const body = await serde.serialize(result);
       return new Response(body);
     }
