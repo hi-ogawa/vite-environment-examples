@@ -59,6 +59,9 @@ async function main() {
       }
       export default {
         async fetch(request, env) {
+          env = Object.fromEntries(
+            Object.entries(env).filter(([k, v]) => !k.startsWith("__vite"))
+          );
           const result = await $$evaluate(env);
           if (typeof result !== "undefined") {
             console.log(result);
@@ -67,7 +70,7 @@ async function main() {
         }
       }
     `;
-    // TODO: invalidate virtual entry after eval
+    // TODO: we can invalidate virtual entry after eval
     const entry = "virtual:eval/" + encodeURI(entrySource);
     await devEnv.api.dispatchFetch(entry, new Request("https://any.local"));
   }
