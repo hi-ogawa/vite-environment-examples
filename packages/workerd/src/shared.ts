@@ -1,4 +1,3 @@
-import { tinyassert } from "@hiogawa/utils";
 import type { ModuleRunner } from "vite/module-runner";
 
 export const RUNNER_INIT_PATH = "/__viteInit";
@@ -16,37 +15,24 @@ export type RunnerEnv = {
   __viteRunner: DurableObject;
 };
 
-export type RunnerFetchOptions = {
+export type FetchMetadata = {
   entry: string;
 };
 
-const FETCH_OPTIONS_KEY = "__viteFetchOptions";
-
-export function setRunnerFetchOptions(
-  headers: Headers,
-  options: RunnerFetchOptions,
-): Headers {
-  headers.set(FETCH_OPTIONS_KEY, encodeURIComponent(JSON.stringify(options)));
-  return headers;
-}
-
-export function getRunnerFetchOptions(headers: Headers): RunnerFetchOptions {
-  const raw = headers.get(FETCH_OPTIONS_KEY);
-  tinyassert(raw);
-  return JSON.parse(decodeURIComponent(raw));
-}
-
-export type RunnerEvalOptions = {
-  entry: string;
-  fnString: string;
-  args: unknown[];
-};
-
-export type RunnerEvalContext = {
+export type EvalFn<In = any, Out = any> = (ctx: {
+  mod: any;
+  data?: In;
   env: any;
   runner: ModuleRunner;
-  exports: Record<string, any>;
-  args: any[];
-};
+}) => Promise<Out> | Out;
 
-export type RunnerEvalFn = (ctx: RunnerEvalContext) => Promise<any>;
+export type EvalApi = <In = any, Out = any>(request: {
+  entry: string;
+  data?: In;
+  fn: EvalFn<In, Out>;
+}) => Promise<Awaited<Out>>;
+
+export type EvalMetadata = {
+  entry: string;
+  fnString: string;
+};

@@ -2,11 +2,11 @@ import { objectPickBy, tinyassert } from "@hiogawa/utils";
 import {
   ANY_URL,
   RUNNER_INIT_PATH,
-  getRunnerFetchOptions,
   type RunnerEnv,
   RUNNER_EVAL_PATH,
-  type RunnerEvalOptions,
-  type RunnerEvalFn,
+  type EvalMetadata,
+  type EvalFn,
+  type FetchMetadata,
 } from "./shared";
 import { ModuleRunner } from "vite/module-runner";
 
@@ -44,22 +44,24 @@ export class RunnerObject implements DurableObject {
 
     if (url.pathname === RUNNER_EVAL_PATH) {
       tinyassert(this.#runner);
-      const options = await request.json<RunnerEvalOptions>();
-      const exports = await this.#runner.import(options.entry);
-      const fn: RunnerEvalFn = this.#env.__viteUnsafeEval.eval(
-        `() => ${options.fnString}`,
+      const meta = JSON.parse(
+        request.headers.get("x-vite-eval")!,
+      ) as EvalMetadata;
+      const mod = await this.#runner.import(meta.entry);
+      const data = await request.json();
+      const env = objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite"));
+      const fn: EvalFn = this.#env.__viteUnsafeEval.eval(
+        `() => ${meta.fnString}`,
       )();
-      const result = await fn({
-        env: objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite")),
-        runner: this.#runner,
-        exports,
-        args: options.args,
-      });
-      return new Response(JSON.stringify(result ?? null));
+      const result = await fn({ mod, data, env, runner: this.#runner });
+      const body = JSON.stringify(result ?? null);
+      return new Response(body);
     }
 
     tinyassert(this.#runner);
-    const options = getRunnerFetchOptions(request.headers);
+    const options = JSON.parse(
+      request.headers.get("x-vite-fetch")!,
+    ) as FetchMetadata;
     const mod = await this.#runner.import(options.entry);
     const handler = mod.default as ExportedHandler;
     tinyassert(handler.fetch);
