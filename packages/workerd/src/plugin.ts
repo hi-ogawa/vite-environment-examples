@@ -10,10 +10,10 @@ import { DefaultMap, tinyassert } from "@hiogawa/utils";
 import {
   ANY_URL,
   RUNNER_INIT_PATH,
-  setRunnerFetchOptions,
   RUNNER_EVAL_PATH,
   type EvalApi,
   type EvalMetadata,
+  type FetchMetadata,
 } from "./shared";
 import {
   DevEnvironment,
@@ -114,15 +114,11 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
   };
 }
 
-//
-// WorkerdDevEnvironment factory
-//
-
 export type WorkerdDevEnvironment = DevEnvironment & {
   api: WorkerdDevApi;
 };
 
-export type WorkerdDevApi = {
+type WorkerdDevApi = {
   dispatchFetch: (entry: string, request: Request) => Promise<Response>;
   eval: EvalApi;
 };
@@ -217,25 +213,28 @@ export async function createWorkerdDevEnvironment(
   });
 
   // inheritance to extend dispose
-  class WorkerdDevEnvironmentInternal extends DevEnvironment {
+  class WorkerdDevEnvironmentImpl extends DevEnvironment {
     override async close() {
       await super.close();
       await miniflare.dispose();
     }
   }
 
-  const devEnv = new WorkerdDevEnvironmentInternal(server, name, { hot });
+  const devEnv = new WorkerdDevEnvironmentImpl(server, name, { hot });
 
   // custom environment api
   const api: WorkerdDevApi = {
     // fetch proxy
-    dispatchFetch: async (entry, request) => {
+    async dispatchFetch(entry: string, request: Request) {
+      const headers = new Headers(request.headers);
+      headers.set(
+        "x-vite-fetch",
+        JSON.stringify({ entry } satisfies FetchMetadata),
+      );
       const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
       const res = await fetch_(request.url, {
         method: request.method,
-        headers: setRunnerFetchOptions(new Headers(request.headers), {
-          entry,
-        }),
+        headers,
         body: request.body as any,
         redirect: "manual",
         // @ts-ignore undici
@@ -248,28 +247,30 @@ export async function createWorkerdDevEnvironment(
       });
     },
 
-    // playwright-like remote eval interface https://playwright.dev/docs/evaluating
+    // playwright-like eval interface https://playwright.dev/docs/evaluating
     eval: async (ctx) => {
-      const meta: EvalMetadata = {
-        entry: ctx.entry,
-        fnString: ctx.fn.toString(),
-        cusotmSerialize: ctx.cusotmSerialize,
-      };
-      const body: any = meta.cusotmSerialize
+      const headers = new Headers();
+      headers.set(
+        "x-vite-eval",
+        JSON.stringify({
+          entry: ctx.entry,
+          fnString: ctx.fn.toString(),
+          cusotmSerialize: ctx.cusotmSerialize,
+        } satisfies EvalMetadata),
+      );
+      const body: any = ctx.cusotmSerialize
         ? ctx.data
         : JSON.stringify(ctx.data as any);
       const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
       const response = await fetch_(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
-        headers: {
-          "x-vite-eval-metadata": JSON.stringify(meta),
-        },
+        headers,
         body,
         // @ts-ignore undici
         duplex: "half",
       });
       tinyassert(response.ok);
-      const result = meta.cusotmSerialize
+      const result = ctx.cusotmSerialize
         ? response.body
         : await response.json();
       return result as any;
