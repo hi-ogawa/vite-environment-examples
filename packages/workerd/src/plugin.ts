@@ -70,7 +70,7 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
 
         // TODO: stream directly request/response body
         const serovalRequest = await seroval.toJSONAsync(request, {
-          plugins: [serovalPlugins.RequestPlugin],
+          plugins: [await createSerovalRequestPlugin()],
         });
         const serovalResponse = await devEnv.api.eval({
           entry,
@@ -326,4 +326,91 @@ function createSimpleHMRChannel(options: {
       options.post(options.serialize(payload));
     },
   };
+}
+
+// copied from https://github.com/lxsmnsyc/seroval/blob/63003d77889b06b73bab0365d296bcdd029219fb/packages/plugins/web/request.ts#L40
+// to strip off unsupported workerd Request properties
+
+import type { SerovalNode } from "seroval";
+
+async function createSerovalRequestPlugin() {
+  const seroval = await import("seroval");
+  const serovalPlugins = await import("seroval-plugins/web");
+
+  function createRequestOptions(
+    current: Request,
+    body: ArrayBuffer | ReadableStream | null,
+  ): RequestInit {
+    return {
+      body,
+      // cache: current.cache,
+      // credentials: current.credentials,
+      headers: current.headers,
+      integrity: current.integrity,
+      keepalive: current.keepalive,
+      method: current.method,
+      // mode: current.mode,
+      redirect: current.redirect,
+      // referrer: current.referrer,
+      // referrerPolicy: current.referrerPolicy,
+    };
+  }
+
+  interface RequestNode {
+    url: SerovalNode;
+    options: SerovalNode;
+  }
+
+  const RequestPlugin = /* @__PURE__ */ seroval.createPlugin<
+    Request,
+    RequestNode
+  >({
+    tag: "seroval-plugins/web/Request",
+    extends: [
+      serovalPlugins.ReadableStreamPlugin,
+      serovalPlugins.HeadersPlugin,
+    ],
+    test(value) {
+      if (typeof Request === "undefined") {
+        return false;
+      }
+      return value instanceof Request;
+    },
+    parse: {
+      async async(value, ctx) {
+        return {
+          url: await ctx.parse(value.url),
+          options: await ctx.parse(
+            createRequestOptions(
+              value,
+              value.body ? await value.clone().arrayBuffer() : null,
+            ),
+          ),
+        };
+      },
+      stream(value, ctx) {
+        return {
+          url: ctx.parse(value.url),
+          options: ctx.parse(createRequestOptions(value, value.clone().body)),
+        };
+      },
+    },
+    serialize(node, ctx) {
+      return (
+        "new Request(" +
+        ctx.serialize(node.url) +
+        "," +
+        ctx.serialize(node.options) +
+        ")"
+      );
+    },
+    deserialize(node, ctx) {
+      return new Request(
+        ctx.deserialize(node.url) as string,
+        ctx.deserialize(node.options) as RequestInit,
+      );
+    },
+  });
+
+  return RequestPlugin;
 }
