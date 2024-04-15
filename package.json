@@ -9,6 +9,12 @@
     "lint": "prettier -w --cache .",
     "lint-check": "prettier -c --cache ."
   },
+  "dependencies": {
+    "miniflare": "^3.20240404.0",
+    "seroval": "^1.0.5",
+    "seroval-plugins": "^1.0.5",
+    "vite": "6.0.0-alpha.1"
+  },
   "devDependencies": {
     "@hattip/adapter-node": "^0.0.44",
     "@hiogawa/utils": "1.6.4-pre.1",
@@ -17,12 +23,10 @@
     "@types/node": "^20.11.30",
     "@vitejs/plugin-react": "^4.2.1",
     "esbuild": "^0.20.2",
-    "miniflare": "^3.20240404.0",
     "prettier": "^3.2.5",
     "tsup": "^8.0.2",
     "tsx": "^4.7.1",
-    "typescript": "^5.4.3",
-    "vite": "6.0.0-alpha.1"
+    "typescript": "^5.4.3"
   },
   "packageManager": "pnpm@8.15.5+sha256.4b4efa12490e5055d59b9b9fc9438b7d581a6b7af3b5675eb5c5f447cee1a589",
   "volta": {

@@ -37,6 +37,11 @@ export default defineConfig((_env) => ({
             "react/jsx-runtime",
             "react/jsx-dev-runtime",
             "react-dom/server.edge",
+            // [feedback]: esm also needs to be optimized? otherwise I get a following error:
+            //   Error: Vite Internal Error: registerMissingImport is not supported in dev workerd
+            //   at Object.registerMissingImport (file:///home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.1_@types+node@20.11.30/node_modules/vite/dist/node/chunks/dep-gq9_cnPm.js:57557:19)
+            "seroval",
+            "seroval-plugins/web",
           ],
         },
       },

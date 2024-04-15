@@ -14,7 +14,6 @@ import {
   RUNNER_EVAL_PATH,
   type EvalApi,
   type EvalMetadata,
-  jsonEvalSerializer,
 } from "./shared";
 import {
   DevEnvironment,
@@ -66,6 +65,17 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
 
       // implement dispatchFetch based on eval
       const dispatchFetch = async (request: Request): Promise<Response> => {
+        // TODO: serializer can setup outside?
+        const seroval = await import("seroval");
+        const serovalPlugins = await import("seroval-plugins/web");
+
+        if (0) {
+          const requestEncoded = await seroval.toJSONAsync(request, {
+            plugins: [serovalPlugins.RequestPlugin],
+          });
+          requestEncoded;
+        }
+
         const result = await devEnv.api.eval({
           entry,
           data: {
@@ -76,7 +86,19 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
               ? null
               : await request.text(),
           },
-          fn: async ({ mod, data: { url, method, headers, body }, env }) => {
+          fn: async ({
+            mod,
+            data: { url, method, headers, body },
+            env,
+            runner,
+          }) => {
+            const seroval = await runner.import("seroval");
+            const serovalPlugins = await runner.import("seroval-plugins/web");
+            if (0) {
+              console.log(seroval);
+              console.log(serovalPlugins);
+            }
+
             const request = new Request(url, { method, headers, body });
             const response: Response = await mod.default.fetch(request, env);
             return {
@@ -143,8 +165,13 @@ export async function createWorkerdDevEnvironment(
         const devEnv = server.environments["workerd"];
         tinyassert(devEnv);
         const args = await request.json();
-        const result = await devEnv.fetchModule(...(args as [any, any]));
-        return new MiniflareResponse(JSON.stringify(result));
+        try {
+          const result = await devEnv.fetchModule(...(args as [any, any]));
+          return new MiniflareResponse(JSON.stringify(result));
+        } catch (e) {
+          console.error(e);
+          throw e;
+        }
       },
     },
     bindings: {
@@ -241,10 +268,11 @@ export async function createWorkerdDevEnvironment(
       const meta: EvalMetadata = {
         entry: ctx.entry,
         fnString: ctx.fn.toString(),
-        serializerEntry: ctx.serializerEntry,
+        cusotmSerialize: ctx.cusotmSerialize,
       };
-      const serde = ctx.serializer ?? jsonEvalSerializer();
-      const body = await serde.serialize(ctx.data);
+      const body: any = meta.cusotmSerialize
+        ? ctx.data
+        : JSON.stringify(ctx.data as any);
       const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
       const response = await fetch_(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
@@ -256,9 +284,10 @@ export async function createWorkerdDevEnvironment(
         duplex: "half",
       });
       tinyassert(response.ok);
-      tinyassert(response.body);
-      const result = await serde.deserialize(response.body);
-      return result;
+      const result = meta.cusotmSerialize
+        ? response.body
+        : await response.json();
+      return result as any;
     },
   };
 
