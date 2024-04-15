@@ -20,20 +20,19 @@ export type RunnerFetchOptions = {
   entry: string;
 };
 
-const FETCH_OPTIONS_KEY = "__viteFetchOptions";
-
 export function setRunnerFetchOptions(
   headers: Headers,
   options: RunnerFetchOptions,
 ): Headers {
-  headers.set(FETCH_OPTIONS_KEY, encodeURIComponent(JSON.stringify(options)));
+  headers.set("x-vite-fetch", JSON.stringify(options));
   return headers;
 }
 
 export function getRunnerFetchOptions(headers: Headers): RunnerFetchOptions {
-  const raw = headers.get(FETCH_OPTIONS_KEY);
+  const raw = headers.get("x-vite-fetch");
+  headers.delete("x-vite-fetch");
   tinyassert(raw);
-  return JSON.parse(decodeURIComponent(raw));
+  return JSON.parse(raw);
 }
 
 export type EvalFn<In = any, Out = any> = (ctx: {
