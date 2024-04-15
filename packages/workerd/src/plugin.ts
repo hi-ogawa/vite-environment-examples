@@ -68,17 +68,15 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
       const dispatchFetch = async (request: Request): Promise<Response> => {
         const result = await devEnv.api.eval({
           entry,
-          data: [
-            {
-              url: request.url,
-              method: request.method,
-              headers: [...request.headers.entries()],
-              body: ["HEAD", "GET"].includes(request.method)
-                ? null
-                : await request.text(),
-            },
-          ],
-          fn: async ({ mod, data: [{ url, method, headers, body }], env }) => {
+          data: {
+            url: request.url,
+            method: request.method,
+            headers: [...request.headers.entries()],
+            body: ["HEAD", "GET"].includes(request.method)
+              ? null
+              : await request.text(),
+          },
+          fn: async ({ mod, data: { url, method, headers, body }, env }) => {
             const request = new Request(url, { method, headers, body });
             const response: Response = await mod.default.fetch(request, env);
             return {
