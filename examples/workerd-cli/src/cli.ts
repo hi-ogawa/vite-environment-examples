@@ -53,26 +53,20 @@ async function main() {
     if (!cmd.includes("return")) {
       cmd = `return ${cmd}`;
     }
-    const entrySource = /* js */ `
-      async function $$evaluate(env) {
-        ${cmd}
-      }
-      export default {
-        async fetch(request, env) {
-          env = Object.fromEntries(
-            Object.entries(env).filter(([k, v]) => !k.startsWith("__vite"))
-          );
-          const result = await $$evaluate(env);
-          if (typeof result !== "undefined") {
-            console.log(result);
-          }
-          return new Response(null);
-        }
-      }
-    `;
     // TODO: we can invalidate virtual entry after eval
+    const entrySource = `export default async function (env) { ${cmd} }`;
     const entry = "virtual:eval/" + encodeURI(entrySource);
-    await devEnv.api.dispatchFetch(entry, new Request("https://any.local"));
+    await devEnv.api.eval({
+      entry,
+      data: null,
+      fn: async ({ mod, env }) => {
+        const result = await mod.default(env);
+        if (typeof result !== "undefined") {
+          console.log(result);
+        }
+        return null;
+      },
+    });
   }
 
   const replServer = repl.start({

@@ -20,13 +20,6 @@ export type FetchMetadata = {
   entry: string;
 };
 
-export function ejectHeader(headers: Headers, key: string): string {
-  const value = headers.get(key);
-  headers.delete(key);
-  tinyassert(typeof value === "string");
-  return value;
-}
-
 export type EvalFn<In = any, Out = any> = (ctx: {
   mod: any;
   data: In;
