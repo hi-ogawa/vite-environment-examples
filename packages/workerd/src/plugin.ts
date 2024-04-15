@@ -219,6 +219,8 @@ export async function createWorkerdDevEnvironment(
           "x-vite-eval-metadata": JSON.stringify(meta),
         },
         body,
+        // @ts-ignore undici
+        duplex: "half",
       });
       tinyassert(response.ok);
       tinyassert(response.body);

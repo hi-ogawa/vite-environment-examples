@@ -62,6 +62,7 @@ export function jsonEvalSerializer(): EvalSerializer {
       return new ReadableStream<string>({
         start(controller) {
           controller.enqueue(JSON.stringify(data));
+          controller.close();
         },
       }).pipeThrough(new TextEncoderStream());
     },
