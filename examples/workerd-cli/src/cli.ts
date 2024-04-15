@@ -11,16 +11,16 @@ async function main() {
     clearScreen: false,
     plugins: [
       {
-        name: "virtual-repl",
+        name: "virtual-eval",
         resolveId(source, _importer, _options) {
-          if (source.startsWith("virtual:repl/")) {
+          if (source.startsWith("virtual:eval/")) {
             return "\0" + source;
           }
           return;
         },
         load(id, _options) {
-          if (id.startsWith("\0virtual:repl/")) {
-            const cmd = id.slice("\0virtual:repl/".length);
+          if (id.startsWith("\0virtual:eval/")) {
+            const cmd = id.slice("\0virtual:eval/".length);
             return decodeURI(cmd);
           }
           return;
@@ -54,7 +54,7 @@ async function main() {
       cmd = `return ${cmd}`;
     }
     const entrySource = `export default async function(env) { ${cmd} };`;
-    const entry = "virtual:repl/" + encodeURI(entrySource);
+    const entry = "virtual:eval/" + encodeURI(entrySource);
     await devEnv.api.eval(
       entry,
       async function (ctx) {

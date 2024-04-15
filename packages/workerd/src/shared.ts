@@ -49,4 +49,38 @@ export type RunnerEvalContext = {
   args: any[];
 };
 
-export type RunnerEvalFn = (ctx: RunnerEvalContext) => Promise<any>;
+export type RunnerEvalFn = (ctx: RunnerEvalContext) => Promise<any> | any;
+
+// TODO: customize encoding
+export async function encodeEvalRequest(options: RunnerEvalOptions) {
+  return {
+    headers: {
+      "x-vite-eval-metadata": JSON.stringify({
+        entry: options.entry,
+        fnString: options.fnString,
+      }),
+    },
+    body: JSON.stringify(options.args),
+  } satisfies RequestInit;
+}
+
+export async function decodeEvalRequest(
+  request: Request,
+): Promise<RunnerEvalOptions> {
+  const meta = JSON.parse(request.headers.get("x-vite-eval-metadata")!);
+  return {
+    entry: meta.entry,
+    fnString: meta.fnString,
+    args: await request.json(),
+  };
+}
+
+export async function encodeEvalResponse(result: unknown) {
+  return new Response(JSON.stringify({ result }));
+}
+
+export async function decodeEvalResponse(response: Response) {
+  tinyassert(response.ok);
+  const resJson = await response.json<any>();
+  return resJson.result;
+}
