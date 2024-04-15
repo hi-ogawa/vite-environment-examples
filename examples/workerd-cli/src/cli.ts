@@ -53,18 +53,22 @@ async function main() {
     if (!cmd.includes("return")) {
       cmd = `return ${cmd}`;
     }
-    const entrySource = `export default async function(env) { ${cmd} };`;
-    const entry = "virtual:eval/" + encodeURI(entrySource);
-    await devEnv.api.eval(
-      entry,
-      async function (ctx) {
-        const result = await ctx.exports["default"](ctx.env);
-        if (typeof result !== "undefined") {
-          console.log(result);
+    const entrySource = /* js */ `
+      async function $$evaluate(env) {
+        ${cmd}
+      }
+      export default {
+        async fetch(request, env) {
+          const result = await $$evaluate(env);
+          if (typeof result !== "undefined") {
+            console.log(result);
+          }
+          return new Response(null);
         }
-      },
-      [],
-    );
+      }
+    `;
+    const entry = "virtual:eval/" + encodeURI(entrySource);
+    await devEnv.api.dispatchFetch(entry, new Request("https://any.local"));
   }
 
   const replServer = repl.start({
