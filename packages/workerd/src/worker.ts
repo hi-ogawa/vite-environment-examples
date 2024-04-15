@@ -2,11 +2,12 @@ import { objectPickBy, tinyassert } from "@hiogawa/utils";
 import {
   ANY_URL,
   RUNNER_INIT_PATH,
-  getRunnerFetchOptions,
   type RunnerEnv,
   RUNNER_EVAL_PATH,
   type EvalMetadata,
   type EvalFn,
+  ejectHeader,
+  type FetchMetadata,
 } from "./shared";
 import { ModuleRunner } from "vite/module-runner";
 
@@ -44,9 +45,9 @@ export class RunnerObject implements DurableObject {
 
     if (url.pathname === RUNNER_EVAL_PATH) {
       tinyassert(this.#runner);
-      const metaRaw = request.headers.get("x-vite-eval-metadata");
-      tinyassert(metaRaw);
-      const meta = JSON.parse(metaRaw) as EvalMetadata;
+      const meta = JSON.parse(
+        ejectHeader(request.headers, "x-vite-eval"),
+      ) as EvalMetadata;
       const mod = await this.#runner.import(meta.entry);
       const data = await request.json();
       const env = objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite"));
@@ -59,7 +60,9 @@ export class RunnerObject implements DurableObject {
     }
 
     tinyassert(this.#runner);
-    const options = getRunnerFetchOptions(request.headers);
+    const options = JSON.parse(
+      ejectHeader(request.headers, "x-vite-fetch"),
+    ) as FetchMetadata;
     const mod = await this.#runner.import(options.entry);
     const handler = mod.default as ExportedHandler;
     tinyassert(handler.fetch);

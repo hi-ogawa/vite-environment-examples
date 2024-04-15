@@ -16,23 +16,15 @@ export type RunnerEnv = {
   __viteRunner: DurableObject;
 };
 
-export type RunnerFetchOptions = {
+export type FetchMetadata = {
   entry: string;
 };
 
-export function setRunnerFetchOptions(
-  headers: Headers,
-  options: RunnerFetchOptions,
-): Headers {
-  headers.set("x-vite-fetch", JSON.stringify(options));
-  return headers;
-}
-
-export function getRunnerFetchOptions(headers: Headers): RunnerFetchOptions {
-  const raw = headers.get("x-vite-fetch");
-  headers.delete("x-vite-fetch");
-  tinyassert(raw);
-  return JSON.parse(raw);
+export function ejectHeader(headers: Headers, key: string): string {
+  const value = headers.get(key);
+  headers.delete(key);
+  tinyassert(typeof value === "string");
+  return value;
 }
 
 export type EvalFn<In = any, Out = any> = (ctx: {
