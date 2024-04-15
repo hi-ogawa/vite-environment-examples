@@ -1,4 +1,3 @@
-import { tinyassert } from "@hiogawa/utils";
 import type { ModuleRunner } from "vite/module-runner";
 
 export const RUNNER_INIT_PATH = "/__viteInit";
