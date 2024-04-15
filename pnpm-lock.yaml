@@ -7,6 +7,11 @@ settings:
 overrides:
   vite: 6.0.0-alpha.1
 
+patchedDependencies:
+  seroval-plugins@1.0.5:
+    hash: xvfzf4febdrdgqmcuzcdc5z7yq
+    path: patches/seroval-plugins@1.0.5.patch
+
 importers:
 
   .:
@@ -19,7 +24,7 @@ importers:
         version: 1.0.5
       seroval-plugins:
         specifier: ^1.0.5
-        version: 1.0.5(seroval@1.0.5)
+        version: 1.0.5(patch_hash=xvfzf4febdrdgqmcuzcdc5z7yq)(seroval@1.0.5)
       vite:
         specifier: 6.0.0-alpha.1
         version: 6.0.0-alpha.1(@types/node@20.11.30)
@@ -2654,7 +2659,7 @@ packages:
       randombytes: 2.1.0
     dev: false
 
-  /seroval-plugins@1.0.5(seroval@1.0.5):
+  /seroval-plugins@1.0.5(patch_hash=xvfzf4febdrdgqmcuzcdc5z7yq)(seroval@1.0.5):
     resolution: {integrity: sha512-8+pDC1vOedPXjKG7oz8o+iiHrtF2WswaMQJ7CKFpccvSYfrzmvKY9zOJWCg+881722wIHfwkdnRmiiDm9ym+zQ==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -2662,6 +2667,7 @@ packages:
     dependencies:
       seroval: 1.0.5
     dev: false
+    patched: true
 
   /seroval@1.0.5:
     resolution: {integrity: sha512-TM+Z11tHHvQVQKeNlOUonOWnsNM+2IBwZ4vwoi4j3zKzIpc5IDw8WPwCfcc8F17wy6cBcJGbZbFOR0UCuTZHQA==}

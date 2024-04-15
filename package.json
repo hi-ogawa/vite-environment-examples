@@ -35,6 +35,9 @@
   "pnpm": {
     "overrides": {
       "vite": "$vite"
+    },
+    "patchedDependencies": {
+      "seroval-plugins@1.0.5": "patches/seroval-plugins@1.0.5.patch"
     }
   }
 }

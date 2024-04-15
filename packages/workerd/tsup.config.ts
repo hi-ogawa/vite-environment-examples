@@ -12,5 +12,6 @@ export default [
     format: ["esm"],
     platform: "node",
     dts: true,
+    external: ["seroval", "seroval-plugins"],
   }),
 ];

@@ -65,53 +65,38 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
 
       // implement dispatchFetch based on eval
       const dispatchFetch = async (request: Request): Promise<Response> => {
-        // TODO: serializer can setup outside?
         const seroval = await import("seroval");
         const serovalPlugins = await import("seroval-plugins/web");
 
-        if (0) {
-          const requestEncoded = await seroval.toJSONAsync(request, {
-            plugins: [serovalPlugins.RequestPlugin],
-          });
-          requestEncoded;
-        }
-
-        const result = await devEnv.api.eval({
+        // TODO: stream directly request/response body
+        const serovalRequest = await seroval.toJSONAsync(request, {
+          plugins: [serovalPlugins.RequestPlugin],
+        });
+        const serovalResponse = await devEnv.api.eval({
           entry,
-          data: {
-            url: request.url,
-            method: request.method,
-            headers: [...request.headers.entries()],
-            body: ["HEAD", "GET"].includes(request.method)
-              ? null
-              : await request.text(),
-          },
-          fn: async ({
-            mod,
-            data: { url, method, headers, body },
-            env,
-            runner,
-          }) => {
-            const seroval = await runner.import("seroval");
-            const serovalPlugins = await runner.import("seroval-plugins/web");
-            if (0) {
-              console.log(seroval);
-              console.log(serovalPlugins);
-            }
+          data: { serovalRequest },
+          // cusotmSerialize: true,
+          fn: async ({ mod, data: { serovalRequest }, env, runner }) => {
+            const seroval =
+              await runner.import<typeof import("seroval")>("seroval");
+            const serovalPlugins = await runner.import<
+              typeof import("seroval-plugins/web")
+            >("seroval-plugins/web");
 
-            const request = new Request(url, { method, headers, body });
+            const request: Request = await seroval.fromJSON(serovalRequest, {
+              plugins: [serovalPlugins.RequestPlugin],
+            });
             const response: Response = await mod.default.fetch(request, env);
-            return {
-              headers: [...response.headers.entries()],
-              status: response.status,
-              body: await response.text(),
-            };
+            const serovalResponse = await seroval.toJSONAsync(response, {
+              plugins: [serovalPlugins.ResponsePlugin],
+            });
+            return serovalResponse;
           },
         });
-        return new Response(result.body, {
-          status: result.status,
-          headers: result.headers,
+        const response: Response = await seroval.fromJSON(serovalResponse, {
+          plugins: [serovalPlugins.ResponsePlugin],
         });
+        return response;
       };
 
       const nodeMiddleware = createMiddleware(
