@@ -5,7 +5,6 @@ import {
   getRunnerFetchOptions,
   type RunnerEnv,
   RUNNER_EVAL_PATH,
-  type RunnerEvalOptions,
   type RunnerEvalFn,
   decodeEvalRequest,
   encodeEvalResponse,

@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm '--filter=./packages/*' build",
-    "tsc": "tsc -b examples/*/tsconfig.json",
+    "tsc": "tsc -b packages/*/tsconfig.json examples/*/tsconfig.json",
     "tsc-dev": "pnpm tsc --watch --preserveWatchOutput",
     "lint": "prettier -w --cache .",
     "lint-check": "prettier -c --cache ."
