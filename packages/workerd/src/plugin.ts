@@ -1,7 +1,6 @@
 import {
   Miniflare,
   type WorkerOptions,
-  Request as MiniflareRequest,
   Response as MiniflareResponse,
   mergeWorkerOptions,
   type SharedOptions,
@@ -185,20 +184,20 @@ export async function createWorkerdDevEnvironment(
   const api: WorkerdDevApi = {
     // fetch proxy
     dispatchFetch: async (entry, request) => {
-      const req = new MiniflareRequest(request.url, {
+      const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
+      const res = await fetch_(request.url, {
         method: request.method,
         headers: setRunnerFetchOptions(new Headers(request.headers), {
           entry,
         }),
         body: request.body as any,
-        duplex: "half",
         redirect: "manual",
       });
-      const res = await runnerObject.fetch(req);
-      return new Response(res.body as any, {
+      const res_ = res as any as Response; // fix web/undici types
+      return new Response(res_.body, {
         status: res.status,
         statusText: res.statusText,
-        headers: res.headers as any,
+        headers: res_.headers,
       });
     },
 
@@ -210,16 +209,17 @@ export async function createWorkerdDevEnvironment(
         serializerEntry: ctx.serializerEntry,
       };
       const body = await ctx.serializer.serialize(ctx.args);
-      const response = await runnerObject.fetch(ANY_URL + RUNNER_EVAL_PATH, {
+      const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
+      const response = await fetch_(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
         headers: {
           "x-vite-eval-metadata": JSON.stringify(meta),
         },
-        body: body as any,
+        body,
       });
       tinyassert(response.ok);
       tinyassert(response.body);
-      const result = await ctx.serializer.deserialize(response.body as any);
+      const result = await ctx.serializer.deserialize(response.body);
       return result;
     },
   };
