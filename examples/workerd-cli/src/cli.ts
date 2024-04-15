@@ -67,6 +67,7 @@ async function main() {
         }
       }
     `;
+    // TODO: invalidate virtual entry after eval
     const entry = "virtual:eval/" + encodeURI(entrySource);
     await devEnv.api.dispatchFetch(entry, new Request("https://any.local"));
   }
