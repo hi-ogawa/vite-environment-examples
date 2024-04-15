@@ -54,7 +54,7 @@ export class RunnerObject implements DurableObject {
         `() => ${meta.fnString}`,
       )();
       const result = await fn({ mod, data, env, runner: this.#runner });
-      const body = JSON.stringify(result);
+      const body = JSON.stringify(result ?? null);
       return new Response(body);
     }
 

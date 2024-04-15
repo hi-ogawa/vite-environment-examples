@@ -21,15 +21,15 @@ export type FetchMetadata = {
 
 export type EvalFn<In = any, Out = any> = (ctx: {
   mod: any;
-  data: In;
+  data?: In;
   env: any;
   runner: ModuleRunner;
 }) => Promise<Out> | Out;
 
 export type EvalApi = <In = any, Out = any>(request: {
   entry: string;
+  data?: In;
   fn: EvalFn<In, Out>;
-  data: In;
 }) => Promise<Awaited<Out>>;
 
 export type EvalMetadata = {

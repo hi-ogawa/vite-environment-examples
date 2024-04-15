@@ -207,7 +207,7 @@ export async function createWorkerdDevEnvironment(
           fnString: ctx.fn.toString(),
         } satisfies EvalMetadata),
       );
-      const body = JSON.stringify(ctx.data as any);
+      const body = JSON.stringify(ctx.data ?? (null as any));
       const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
       const response = await fetch_(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",

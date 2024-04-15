@@ -58,13 +58,11 @@ async function main() {
     const entry = "virtual:eval/" + encodeURI(entrySource);
     await devEnv.api.eval({
       entry,
-      data: null,
       fn: async ({ mod, env }) => {
         const result = await mod.default(env);
         if (typeof result !== "undefined") {
           console.log(result);
         }
-        return null;
       },
     });
   }
