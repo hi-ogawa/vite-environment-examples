@@ -34,6 +34,8 @@ export default defineConfig((_env) => ({
             "react/jsx-runtime",
             "react/jsx-dev-runtime",
             "react-dom/server.edge",
+            "seroval",
+            "seroval-plugins/web",
           ],
         },
       },
