@@ -36,17 +36,20 @@ export function getRunnerFetchOptions(headers: Headers): RunnerFetchOptions {
   return JSON.parse(decodeURIComponent(raw));
 }
 
-export type RunnerEvalOptions = {
-  entry: string;
-  fnString: string;
-  args: unknown[];
-};
-
-export type RunnerEvalContext = {
+export type EvalFn<In = any, Out = any> = (ctx: {
+  mod: any;
+  data: In;
   env: any;
   runner: ModuleRunner;
-  exports: Record<string, any>;
-  args: any[];
-};
+}) => Promise<Out> | Out;
 
-export type RunnerEvalFn = (ctx: RunnerEvalContext) => Promise<any>;
+export type EvalApi = <In = any, Out = any>(request: {
+  entry: string;
+  fn: EvalFn<In, Out>;
+  data: In;
+}) => Promise<Awaited<Out>>;
+
+export type EvalMetadata = {
+  entry: string;
+  fnString: string;
+};

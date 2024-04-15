@@ -1,7 +1,6 @@
 import {
   Miniflare,
   type WorkerOptions,
-  Request as MiniflareRequest,
   Response as MiniflareResponse,
   mergeWorkerOptions,
   type SharedOptions,
@@ -12,9 +11,9 @@ import {
   ANY_URL,
   RUNNER_INIT_PATH,
   setRunnerFetchOptions,
-  type RunnerEvalOptions,
   RUNNER_EVAL_PATH,
-  type RunnerEvalFn,
+  type EvalApi,
+  type EvalMetadata,
 } from "./shared";
 import {
   DevEnvironment,
@@ -70,9 +69,14 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
   };
 }
 
-export type WorkerdDevEnvironment = Awaited<
-  ReturnType<typeof createWorkerdDevEnvironment>
->;
+export type WorkerdDevEnvironment = DevEnvironment & {
+  api: WorkerdDevApi;
+};
+
+type WorkerdDevApi = {
+  dispatchFetch: (entry: string, request: Request) => Promise<Response>;
+  eval: EvalApi;
+};
 
 export async function createWorkerdDevEnvironment(
   server: ViteDevServer,
@@ -159,55 +163,61 @@ export async function createWorkerdDevEnvironment(
   });
 
   // inheritance to extend dispose
-  class WorkerdDevEnvironment extends DevEnvironment {
+  class WorkerdDevEnvironmentImpl extends DevEnvironment {
     override async close() {
       await super.close();
       await miniflare.dispose();
     }
   }
 
-  const devEnv = new WorkerdDevEnvironment(server, name, { hot });
+  const devEnv = new WorkerdDevEnvironmentImpl(server, name, { hot });
 
   // custom environment api
-  const api = {
+  const api: WorkerdDevApi = {
     // fetch proxy
     async dispatchFetch(entry: string, request: Request) {
-      const req = new MiniflareRequest(request.url, {
+      const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
+      const res = await fetch_(request.url, {
         method: request.method,
         headers: setRunnerFetchOptions(new Headers(request.headers), {
           entry,
         }),
         body: request.body as any,
-        duplex: "half",
         redirect: "manual",
+        // @ts-ignore undici
+        duplex: "half",
       });
-      const res = await runnerObject.fetch(req);
-      return new Response(res.body as any, {
+      return new Response(res.body, {
         status: res.status,
         statusText: res.statusText,
-        headers: res.headers as any,
+        headers: res.headers,
       });
     },
 
     // playwright-like eval interface https://playwright.dev/docs/evaluating
-    // (de)serialization can be customized (currently JSON.stringify/parse)
-    async eval(entry: string, fn: RunnerEvalFn, ...args: any[]): Promise<any> {
-      const res = await runnerObject.fetch(ANY_URL + RUNNER_EVAL_PATH, {
+    eval: async (ctx) => {
+      const meta: EvalMetadata = {
+        entry: ctx.entry,
+        fnString: ctx.fn.toString(),
+      };
+      const body = JSON.stringify(ctx.data as any);
+      const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
+      const response = await fetch_(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
-        body: JSON.stringify({
-          entry,
-          fnString: fn.toString(),
-          args,
-        } satisfies RunnerEvalOptions),
+        headers: {
+          "x-vite-eval-metadata": JSON.stringify(meta),
+        },
+        body,
+        // @ts-ignore undici
+        duplex: "half",
       });
-      tinyassert(res.ok);
-      return (await res.json()) as any;
+      tinyassert(response.ok);
+      const result = await response.json();
+      return result as any;
     },
   };
 
-  // workaround for tsup dts?
-  Object.assign(devEnv, { api });
-  return devEnv as DevEnvironment & { api: typeof api };
+  return Object.assign(devEnv, { api }) as WorkerdDevEnvironment;
 }
 
 // cf.
