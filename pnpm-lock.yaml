@@ -56,6 +56,10 @@ importers:
       react:
         specifier: 18.3.0-canary-6c3b8dbfe-20240226
         version: 18.3.0-canary-6c3b8dbfe-20240226
+    devDependencies:
+      '@types/react':
+        specifier: 18.2.72
+        version: 18.2.72
 
   examples/custom:
     dependencies:
@@ -138,12 +142,6 @@ importers:
       '@hiogawa/vite-plugin-workerd':
         specifier: workspace:*
         version: link:../../packages/workerd
-
-  packages/browser:
-    dependencies:
-      vite:
-        specifier: 6.0.0-alpha.1
-        version: 6.0.0-alpha.1(@types/node@20.11.30)
 
   packages/workerd:
     dependencies:

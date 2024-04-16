@@ -1,14 +1,10 @@
 import { tinyassert } from "@hiogawa/utils";
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
 
-declare let __viteRunnerMeta: {
-  root: string;
-};
-
-async function main() {
+export async function start(options: { root: string }) {
   const runner = new ModuleRunner(
     {
-      root: __viteRunnerMeta.root,
+      root: options.root,
       sourcemapInterceptor: false,
       transport: {
         fetchModule: async (...args) => {
@@ -35,10 +31,9 @@ async function main() {
       const mod = await runner.import(data.entry);
       result = await mod.default();
     } catch (e) {
+      console.error(e);
       result = String(e);
     }
     hot.send("browser-cli:response", result);
   });
 }
-
-main();

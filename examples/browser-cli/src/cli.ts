@@ -11,13 +11,26 @@ const extension = process.env["CLI_EXT"] ?? "tsx";
 
 async function main() {
   const server = await createServer({
+    clearScreen: false,
+    appType: "custom",
     plugins: [vitePluginVirtualEval(), vitePluginBrowserRunner()],
     environments: {
       custom: {
+        nodeCompatible: false,
+        webCompatible: true,
         resolve: {
           noExternal: true,
         },
+        dev: {
+          optimizeDeps: {
+            exclude: ["vite/module-runner"],
+            include: ["react", "react/jsx-dev-runtime"],
+          },
+        },
       },
+    },
+    ssr: {
+      target: "webworker",
     },
   });
   await server.listen();
@@ -114,15 +127,31 @@ function vitePluginBrowserRunner(): Plugin {
         server.middlewares.use(async (req, res, next) => {
           tinyassert(req.url);
           const url = new URL(req.url, "https://any.local");
+
+          // serve html
+          if (url.pathname === "/") {
+            res.setHeader("content-type", "text/html;charset=utf-8");
+            res.end(/* html */ `
+              <script type="module">
+                const { start } = await import("/src/runner");
+                start({
+                  root: ${JSON.stringify(server.config.root)}
+                });
+              </script>
+            `);
+            return;
+          }
+
+          // API endpoint for fetchModule
           if (url.pathname === "/__viteFetchModule") {
             tinyassert(req.method === "POST");
             const stream = nodeStream.Readable.toWeb(req) as ReadableStream;
             const args = JSON.parse(await streamToString(stream));
             const result = await devEnv.fetchModule(...(args as [any, any]));
             res.end(JSON.stringify(result));
-          } else {
-            next();
+            return;
           }
+          next();
         });
       };
     },
