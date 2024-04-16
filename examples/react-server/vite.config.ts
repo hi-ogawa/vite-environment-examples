@@ -25,13 +25,11 @@ export default defineConfig((_env) => ({
   appType: "custom",
   plugins: [
     react(),
+    vitePluginReactServer(),
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
       preview: new URL("./dist/server/index.js", import.meta.url).toString(),
     }),
-    vitePluginReactServer(),
-    vitePluginSilenceDirectiveBuildWarning(),
-    vitePluginServerAction(),
   ],
 
   environments: {
@@ -69,7 +67,7 @@ const manager: ReactServerManager = ((
 ).__VITE_REACT_SERVER_MANAGER ??= new ReactServerManager());
 
 function vitePluginReactServer(): PluginOption {
-  const plugin: Plugin = {
+  const environmentPlugin: Plugin = {
     name: vitePluginReactServer.name,
     config(config, _env) {
       tinyassert(config.environments);
@@ -137,7 +135,12 @@ function vitePluginReactServer(): PluginOption {
     },
   };
 
-  return [plugin, vitePluginUseClient()];
+  return [
+    environmentPlugin,
+    vitePluginUseClient(),
+    vitePluginSilenceDirectiveBuildWarning(),
+    vitePluginServerAction(),
+  ];
 }
 
 function vitePluginUseClient(): PluginOption {
