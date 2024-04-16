@@ -1,8 +1,9 @@
 import { createServer, type Plugin, type ViteDevServer } from "vite";
 import repl from "node:repl";
-import { createManualPromise, tinyassert } from "@hiogawa/utils";
+import { tinyassert } from "@hiogawa/utils";
 import nodeStream from "node:stream";
 import { chromium } from "@playwright/test";
+import type { ModuleRunner } from "vite/module-runner";
 
 const headless = !process.env["CLI_HEADED"];
 const extension = process.env["CLI_EXT"] ?? "tsx";
@@ -42,17 +43,11 @@ async function main() {
   const page = await browser.newPage();
   await page.goto(serverUrl);
 
-  // TODO: redirect console event
-  // page.on("console", async (msg) => {
-  //   const values = [];
-  //   for (const arg of msg.args()) {
-  //     values.push(await arg.jsonValue());
-  //   }
-  //   console.log(...values);
-  // });
+  // expose fetchModule to client
 
   // evaluate repl input
   async function evaluate(cmd: string) {
+    // TODO: parse and inject "return" at the last expression
     if (!cmd.includes("return")) {
       cmd = `return ${cmd}`;
     }
@@ -61,18 +56,19 @@ async function main() {
     const entrySource = `export default async () => { ${cmd} }`;
     const entry = "virtual:eval/" + encodeURI(entrySource);
 
-    // use client websocket to communicate
-    const clientEnv = server.environments.client;
-    const promise = createManualPromise();
-    clientEnv.hot.on("browser-cli:response", promise.resolve);
-    clientEnv.hot.send("browser-cli:request", { entry });
-    try {
-      const result = await promise;
-      if (typeof result !== "undefined") {
-        console.log(result);
+    // run ModuleRunner via page.evaluate as it supports nice serialization
+    const result = await page.evaluate(async (entry) => {
+      const runner: ModuleRunner = (globalThis as any).__runner;
+      try {
+        const mod = await runner.import(entry);
+        return await mod.default();
+      } catch (e) {
+        return e;
       }
-    } finally {
-      clientEnv.hot.off("browser-cli:response", promise.resolve);
+    }, entry);
+
+    if (typeof result !== "undefined") {
+      console.log(result);
     }
   }
 
@@ -144,9 +140,10 @@ function vitePluginBrowserRunner(): Plugin {
             res.end(/* html */ `
               <script type="module">
                 const { start } = await import("/src/runner");
-                start({
+                const runner = await start({
                   root: ${JSON.stringify(server.config.root)}
                 });
+                globalThis.__runner = runner;
               </script>
             `);
             return;

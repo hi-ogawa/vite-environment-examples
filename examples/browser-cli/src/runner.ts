@@ -22,21 +22,5 @@ export async function start(options: { root: string }) {
     new ESModulesEvaluator(),
   );
 
-  tinyassert(import.meta.hot);
-  const hot = import.meta.hot;
-
-  hot.on("browser-cli:request", async (data) => {
-    let result;
-    try {
-      const mod = await runner.import(data.entry);
-      result = await mod.default();
-      if (typeof result !== "undefined") {
-        console.log(result);
-      }
-    } catch (e) {
-      console.error(e);
-      result = String(e);
-    }
-    hot.send("browser-cli:response", result);
-  });
+  return runner;
 }
