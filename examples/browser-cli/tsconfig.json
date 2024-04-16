@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/strictest/tsconfig.json",
-  "include": ["src", "vite.config.ts"],
+  "include": ["src", "vite.config.ts", "e2e"],
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "verbatimModuleSyntax": true,

@@ -6,7 +6,7 @@ import {
   type ViteDevServer,
 } from "vite";
 import repl from "node:repl";
-import { tinyassert } from "@hiogawa/utils";
+import { createManualPromise, tinyassert } from "@hiogawa/utils";
 import nodeStream from "node:stream";
 import { chromium } from "@playwright/test";
 import type { ModuleRunner } from "vite/module-runner";
@@ -48,6 +48,10 @@ async function main() {
   const browser = await chromium.launch({ headless });
   const page = await browser.newPage();
   await page.goto(serverUrl);
+
+  const isReady = createManualPromise<void>();
+  page.exposeFunction("__viteRunnerReady", () => isReady.resolve());
+  await isReady;
 
   // evaluate repl input
   async function evaluate(cmd: string) {
@@ -184,6 +188,7 @@ function vitePluginBrowserRunner(): Plugin {
                   root: ${JSON.stringify(server.config.root)}
                 });
                 globalThis.__runner = runner;
+                globalThis.__viteRunnerReady();
               </script>
             `);
             return;

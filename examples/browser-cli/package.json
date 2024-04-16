@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "cli": "tsx src/cli.ts"
+    "cli": "tsx src/cli.ts",
+    "test": "node --import tsx/esm --test --test-timeout 60000 e2e/*.test.ts"
   },
   "volta": {
     "extends": "../../package.json"
