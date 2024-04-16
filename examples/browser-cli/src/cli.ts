@@ -12,9 +12,11 @@ async function main() {
     clearScreen: false,
     appType: "custom",
     plugins: [vitePluginVirtualEval({ extension }), vitePluginBrowserRunner()],
+    optimizeDeps: {
+      noDiscovery: true,
+    },
     environments: {
       custom: {
-        nodeCompatible: false,
         webCompatible: true,
         resolve: {
           noExternal: true,
@@ -28,9 +30,6 @@ async function main() {
     },
     server: {
       watch: null,
-    },
-    ssr: {
-      target: "webworker",
     },
   });
   await server.listen();
@@ -160,13 +159,6 @@ function vitePluginBrowserRunner(): Plugin {
             const stream = nodeStream.Readable.toWeb(req) as ReadableStream;
             const args = JSON.parse(await streamToString(stream));
             const result = await devEnv.fetchModule(...(args as [any, any]));
-            if ("code" in result) {
-              // TODO: why is it still injected?
-              result.code = result.code.replace(
-                'const __vite_ssr_import_0__ = await __vite_ssr_import__("module", {"importedNames":["createRequire"]});',
-                "const __vite_ssr_import_0__ = { createRequire: () => {} };",
-              );
-            }
             res.end(JSON.stringify(result));
             return;
           }
