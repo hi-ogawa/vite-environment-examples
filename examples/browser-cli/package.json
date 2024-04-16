@@ -1,0 +1,11 @@
+{
+  "name": "@hiogawa/vite-environment-examples-browser-cli",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

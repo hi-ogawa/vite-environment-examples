@@ -51,6 +51,8 @@ importers:
         specifier: 6.0.0-alpha.1
         version: 6.0.0-alpha.1(@types/node@20.11.30)
 
+  examples/browser-cli: {}
+
   examples/custom:
     dependencies:
       react:
@@ -132,6 +134,12 @@ importers:
       '@hiogawa/vite-plugin-workerd':
         specifier: workspace:*
         version: link:../../packages/workerd
+
+  packages/browser:
+    dependencies:
+      vite:
+        specifier: 6.0.0-alpha.1
+        version: 6.0.0-alpha.1(@types/node@20.11.30)
 
   packages/workerd:
     dependencies:
