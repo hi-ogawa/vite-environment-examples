@@ -12,7 +12,7 @@ import { chromium } from "@playwright/test";
 import type { ModuleRunner } from "vite/module-runner";
 
 const headless = !process.env["CLI_HEADED"];
-const extension = process.env["CLI_EXT"] ?? "tsx";
+const extension = process.env["CLI_EXTENSION"] ?? "tsx";
 
 async function main() {
   const server = await createServer({
