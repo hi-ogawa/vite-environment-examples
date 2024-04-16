@@ -6,7 +6,13 @@ export default defineConfig((_env) => ({
     custom: {
       dev: {
         optimizeDeps: {
-          include: ["react", "react/jsx-runtime", "react/jsx-dev-runtime"],
+          include: [
+            "react",
+            "react/jsx-runtime",
+            "react/jsx-dev-runtime",
+            "react-dom",
+            "react-dom/client",
+          ],
         },
       },
     },
