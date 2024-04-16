@@ -24,10 +24,12 @@ async function main() {
         dev: {
           optimizeDeps: {
             exclude: ["vite/module-runner"],
-            include: ["react", "react/jsx-dev-runtime"],
           },
         },
       },
+    },
+    server: {
+      watch: null,
     },
     ssr: {
       target: "webworker",
