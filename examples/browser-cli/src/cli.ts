@@ -1,24 +1,17 @@
-import {
-  createServer,
-  transformWithEsbuild,
-  type Plugin,
-  type ViteDevServer,
-} from "vite";
+import { createServer, type Plugin, type ViteDevServer } from "vite";
 import repl from "node:repl";
 import { createManualPromise, tinyassert } from "@hiogawa/utils";
 import nodeStream from "node:stream";
 import { chromium } from "@playwright/test";
 
 const headless = !process.env["CLI_HEADED"];
-
-// TODO: why jsx not transpiled?
 const extension = process.env["CLI_EXT"] ?? "tsx";
 
 async function main() {
   const server = await createServer({
     clearScreen: false,
     appType: "custom",
-    plugins: [vitePluginVirtualEval(), vitePluginBrowserRunner()],
+    plugins: [vitePluginVirtualEval({ extension }), vitePluginBrowserRunner()],
     environments: {
       custom: {
         nodeCompatible: false,
@@ -66,16 +59,9 @@ async function main() {
       cmd = `return ${cmd}`;
     }
 
-    // manually run esbuild since virtual module doesn't
-    // go through internal esbuild tranform
-    const entrySource = `export default async () => { ${cmd} }`;
-    const transformed = await transformWithEsbuild(
-      entrySource,
-      "virtual:eval." + extension,
-    );
-
     // TODO: invalidate virtual entry after eval
-    const entry = "virtual:eval/" + encodeURI(transformed.code);
+    const entrySource = `export default async () => { ${cmd} }`;
+    const entry = "virtual:eval/" + encodeURI(entrySource);
 
     // use client websocket to communicate
     const clientEnv = server.environments.client;
@@ -109,18 +95,23 @@ async function main() {
   });
 }
 
-function vitePluginVirtualEval(): Plugin {
+function vitePluginVirtualEval({ extension }: { extension: string }): Plugin {
   return {
     name: vitePluginVirtualEval.name,
     resolveId(source, _importer, _options) {
       if (source.startsWith("virtual:eval/")) {
-        return "\0" + source;
+        // avoid "\0" since it's skipped by `createFilter`
+        // including default esbuild transform
+        return "_" + source + "." + extension;
       }
       return;
     },
     load(id, _options) {
-      if (id.startsWith("\0virtual:eval/")) {
-        const encoded = id.slice("\0virtual:eval/".length);
+      if (id.startsWith("_virtual:eval/")) {
+        const encoded = id.slice(
+          "_virtual:eval/".length,
+          -("." + extension).length,
+        );
         return decodeURI(encoded);
       }
       return;
