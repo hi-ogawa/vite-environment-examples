@@ -30,9 +30,13 @@ async function main() {
   const hot = import.meta.hot;
 
   hot.on("browser-cli:request", async (data) => {
-    console.log(data);
-    const mod = await runner.import(data.entry);
-    const result = await mod.default();
+    let result;
+    try {
+      const mod = await runner.import(data.entry);
+      result = await mod.default();
+    } catch (e) {
+      result = String(e);
+    }
     hot.send("browser-cli:response", result);
   });
 }

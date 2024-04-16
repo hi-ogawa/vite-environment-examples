@@ -51,7 +51,11 @@ importers:
         specifier: 6.0.0-alpha.1
         version: 6.0.0-alpha.1(@types/node@20.11.30)
 
-  examples/browser-cli: {}
+  examples/browser-cli:
+    dependencies:
+      react:
+        specifier: 18.3.0-canary-6c3b8dbfe-20240226
+        version: 18.3.0-canary-6c3b8dbfe-20240226
 
   examples/custom:
     dependencies:

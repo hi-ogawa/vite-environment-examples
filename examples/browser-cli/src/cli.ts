@@ -2,6 +2,12 @@ import { createServer, type Plugin, type ViteDevServer } from "vite";
 import repl from "node:repl";
 import { createManualPromise, tinyassert } from "@hiogawa/utils";
 import nodeStream from "node:stream";
+import { chromium } from "@playwright/test";
+
+const headless = !process.env["CLI_HEADED"];
+
+// TODO: why jsx not transpiled?
+const extension = process.env["CLI_EXT"] ?? "tsx";
 
 async function main() {
   const server = await createServer({
@@ -16,10 +22,12 @@ async function main() {
   });
   await server.listen();
 
-  // TODO: use browser driver (playwright? webdriverio?)
-  //       to communicate with client
-  server.printUrls();
-  server.resolvedUrls;
+  const serverUrl = server.resolvedUrls?.local[0];
+  tinyassert(serverUrl);
+
+  const browser = await chromium.launch({ headless });
+  const page = await browser.newPage();
+  await page.goto(serverUrl);
 
   // evaluate command via virtual module
   // so that `import` etc... are transformed by vite
@@ -29,7 +37,8 @@ async function main() {
     }
     // TODO: we can invalidate virtual entry after eval
     const entrySource = `export default async () => { ${cmd} }`;
-    const entry = "virtual:eval/" + encodeURI(entrySource);
+    const entry =
+      "virtual:eval/" + encodeURIComponent(entrySource) + "." + extension;
 
     // use client websocket to communicate
     const clientEnv = server.environments.client;
@@ -38,7 +47,9 @@ async function main() {
     clientEnv.hot.send("browser-cli:request", { entry });
     try {
       const result = await promise;
-      console.log(result);
+      if (typeof result !== "undefined") {
+        console.log(result);
+      }
     } finally {
       clientEnv.hot.off("browser-cli:response", promise.resolve);
     }
@@ -55,8 +66,9 @@ async function main() {
     },
   });
 
-  replServer.on("close", () => {
-    server.close();
+  replServer.on("close", async () => {
+    await browser.close();
+    await server.close();
   });
 }
 
@@ -71,8 +83,11 @@ function vitePluginVirtualEval(): Plugin {
     },
     load(id, _options) {
       if (id.startsWith("\0virtual:eval/")) {
-        const cmd = id.slice("\0virtual:eval/".length);
-        return decodeURI(cmd);
+        const source = id.slice(
+          "\0virtual:eval/".length,
+          -("." + extension).length,
+        );
+        return decodeURIComponent(source);
       }
       return;
     },
