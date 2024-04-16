@@ -1,8 +1,11 @@
-# workerd
+# @hiogawa/vite-plugin-workerd
 
 Vite module runner on Durable Objects.
 
-See [`examples/react-ssr-workerd`](../react-ssr-workerd).
+## examples
+
+- [`examples/react-ssr-workerd`](../react-ssr-workerd)
+- [`examples/workerd-cli`](../workerd-cli)
 
 ## references
 
