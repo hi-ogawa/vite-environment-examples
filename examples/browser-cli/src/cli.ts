@@ -148,28 +148,19 @@ function vitePluginBrowserRunner(): Plugin {
             const stream = nodeStream.Readable.toWeb(req) as ReadableStream;
             const args = JSON.parse(await streamToString(stream));
             const result = await devEnv.fetchModule(...(args as [any, any]));
+            if ("code" in result) {
+              // TODO: why is it still injected?
+              result.code = result.code.replace(
+                'const __vite_ssr_import_0__ = await __vite_ssr_import__("module", {"importedNames":["createRequire"]});',
+                "const __vite_ssr_import_0__ = { createRequire: () => {} };",
+              );
+            }
             res.end(JSON.stringify(result));
             return;
           }
           next();
         });
       };
-    },
-
-    // inject globals to pass runner options
-    transformIndexHtml() {
-      return [
-        {
-          tag: "script",
-          injectTo: "head",
-          attrs: { type: "module" },
-          children: /* js */ `
-            globalThis.__viteRunnerMeta = {
-              root: ${JSON.stringify(server.config.root)}
-            };
-          `,
-        },
-      ];
     },
   };
 }
