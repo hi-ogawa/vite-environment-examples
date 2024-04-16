@@ -3,7 +3,6 @@ import {
   parseAstAsync,
   type Plugin,
   type PluginOption,
-  type ViteDevServer,
 } from "vite";
 import repl from "node:repl";
 import { createManualPromise, tinyassert } from "@hiogawa/utils";
