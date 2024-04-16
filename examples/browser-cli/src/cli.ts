@@ -1,4 +1,9 @@
-import { createServer, type Plugin, type ViteDevServer } from "vite";
+import {
+  createServer,
+  transformWithEsbuild,
+  type Plugin,
+  type ViteDevServer,
+} from "vite";
 import repl from "node:repl";
 import { createManualPromise, tinyassert } from "@hiogawa/utils";
 import nodeStream from "node:stream";
@@ -60,10 +65,17 @@ async function main() {
     if (!cmd.includes("return")) {
       cmd = `return ${cmd}`;
     }
-    // TODO: we can invalidate virtual entry after eval
+
+    // manually run esbuild since virtual module doesn't
+    // go through internal esbuild tranform
     const entrySource = `export default async () => { ${cmd} }`;
-    const entry =
-      "virtual:eval/" + encodeURIComponent(entrySource) + "." + extension;
+    const transformed = await transformWithEsbuild(
+      entrySource,
+      "virtual:eval." + extension,
+    );
+
+    // TODO: invalidate virtual entry after eval
+    const entry = "virtual:eval/" + encodeURI(transformed.code);
 
     // use client websocket to communicate
     const clientEnv = server.environments.client;
@@ -108,11 +120,8 @@ function vitePluginVirtualEval(): Plugin {
     },
     load(id, _options) {
       if (id.startsWith("\0virtual:eval/")) {
-        const source = id.slice(
-          "\0virtual:eval/".length,
-          -("." + extension).length,
-        );
-        return decodeURIComponent(source);
+        const encoded = id.slice("\0virtual:eval/".length);
+        return decodeURI(encoded);
       }
       return;
     },
