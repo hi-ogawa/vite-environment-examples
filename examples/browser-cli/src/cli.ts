@@ -37,7 +37,7 @@ async function main() {
   const serverUrl = server.resolvedUrls?.local[0];
   tinyassert(serverUrl);
 
-  // TODO: page.exposeBinding? to handle fetchModule?
+  // TODO: page.exposeFunction/evaluate to handle fetchModule and send/receive repl event?
   const browser = await chromium.launch({ headless });
   const page = await browser.newPage();
   await page.goto(serverUrl);
@@ -51,8 +51,7 @@ async function main() {
   //   console.log(...values);
   // });
 
-  // evaluate command via virtual module
-  // so that `import` etc... are transformed by vite
+  // evaluate repl input
   async function evaluate(cmd: string) {
     if (!cmd.includes("return")) {
       cmd = `return ${cmd}`;
@@ -139,7 +138,7 @@ function vitePluginBrowserRunner(): Plugin {
           tinyassert(req.url);
           const url = new URL(req.url, "https://any.local");
 
-          // serve html
+          // serve html which starts module runner
           if (url.pathname === "/") {
             res.setHeader("content-type", "text/html;charset=utf-8");
             res.end(/* html */ `
