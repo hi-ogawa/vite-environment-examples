@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "cli": "tsx src/cli.ts"
   },
   "volta": {
     "extends": "../../package.json"

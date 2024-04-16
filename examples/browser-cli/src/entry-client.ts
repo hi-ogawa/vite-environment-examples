@@ -25,12 +25,15 @@ async function main() {
     },
     new ESModulesEvaluator(),
   );
-  const mod = await runner.import("/package.json");
-  console.log(mod);
 
   tinyassert(import.meta.hot);
-  import.meta.hot.on("browser-runner-eval", (data) => {
-    data;
+  const hot = import.meta.hot;
+
+  hot.on("browser-cli:request", async (data) => {
+    console.log(data);
+    const mod = await runner.import(data.entry);
+    const result = await mod.default();
+    hot.send("browser-cli:response", result);
   });
 }
 
