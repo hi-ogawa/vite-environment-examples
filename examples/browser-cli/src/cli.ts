@@ -158,15 +158,9 @@ function vitePluginVirtualEval({
 }
 
 function vitePluginBrowserRunner(): Plugin {
-  let server: ViteDevServer;
-
   return {
     name: vitePluginBrowserRunner.name,
-
-    // API endpoint for fetchModule
-    configureServer(server_) {
-      server = server_;
-
+    configureServer(server) {
       // use custom (or ssr) environment since
       // client.fetchModule doesn't apply ssrTransform,
       // which is necessary for module runner execution.
