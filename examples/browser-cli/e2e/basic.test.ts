@@ -15,5 +15,4 @@ test("basic", async () => {
   await helper.waitFor((out) =>
     out.includes(`> <div style="color: red;">yay</div>`),
   );
-  console.log(helper.stdout);
 });
