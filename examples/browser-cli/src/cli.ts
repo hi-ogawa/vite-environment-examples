@@ -40,9 +40,19 @@ async function main() {
   const serverUrl = server.resolvedUrls?.local[0];
   tinyassert(serverUrl);
 
+  // TODO: page.exposeBinding? to handle fetchModule?
   const browser = await chromium.launch({ headless });
   const page = await browser.newPage();
   await page.goto(serverUrl);
+
+  // TODO: redirect console event
+  // page.on("console", async (msg) => {
+  //   const values = [];
+  //   for (const arg of msg.args()) {
+  //     values.push(await arg.jsonValue());
+  //   }
+  //   console.log(...values);
+  // });
 
   // evaluate command via virtual module
   // so that `import` etc... are transformed by vite

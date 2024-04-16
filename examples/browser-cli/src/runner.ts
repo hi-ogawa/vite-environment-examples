@@ -30,6 +30,9 @@ export async function start(options: { root: string }) {
     try {
       const mod = await runner.import(data.entry);
       result = await mod.default();
+      if (typeof result !== "undefined") {
+        console.log(result);
+      }
     } catch (e) {
       console.error(e);
       result = String(e);
