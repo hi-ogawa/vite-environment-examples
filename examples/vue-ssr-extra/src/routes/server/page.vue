@@ -14,7 +14,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>TODO: Server Counter: {{ store.count }}</div>
+  <div>Server Counter: {{ store.isLoading ? "..." : store.count }}</div>
   <button type="button" @click="store.change(-1)">-1</button>
   <button type="button" @click="store.change(+1)">+1</button>
 </template>

@@ -1,14 +1,18 @@
 import { defineStore } from "pinia";
 
+// TODO: hook into server action?
+import { changeCounter, getCounter } from "./_action";
+
 export const useServerCounter = defineStore("server-counter", {
-  state: () => ({ count: 0 }),
+  state: () => ({ count: 0, isLoading: true }),
   actions: {
-    // TODO: hook into server action?
     async load() {
-      this.count = 1234;
+      this.count = await getCounter();
+      this.isLoading = false;
     },
     async change(delta: number) {
-      this.count += delta;
+      this.count = await changeCounter(delta);
+      this.isLoading = false;
     },
   },
 });
