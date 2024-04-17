@@ -1,3 +1,4 @@
+import "./style.css";
 import { createSSRApp } from "vue";
 import { createWebHistory, createRouter } from "vue-router";
 import { routes } from "./routes";
