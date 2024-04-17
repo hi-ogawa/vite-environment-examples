@@ -47,6 +47,16 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
               createEnvironment: (server, name) =>
                 createWorkerdDevEnvironment(server, name, pluginOptions),
             },
+            build: pluginOptions.entry
+              ? {
+                  ssr: true,
+                  rollupOptions: {
+                    input: {
+                      index: pluginOptions.entry,
+                    },
+                  },
+                }
+              : undefined,
           },
         },
       };

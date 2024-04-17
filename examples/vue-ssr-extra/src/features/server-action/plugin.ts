@@ -9,7 +9,7 @@ const USE_SERVER_RE = /^("use server")|('use server')/;
 
 export function vitePluginServerAction(): PluginOption {
   const transformPlugin: Plugin = {
-    name: vitePluginServerAction.name,
+    name: vitePluginServerAction.name + ":transform",
     transform(code, id, _options) {
       tinyassert(this.environment);
       if (USE_SERVER_RE.test(code)) {
@@ -17,12 +17,13 @@ export function vitePluginServerAction(): PluginOption {
           // TODO: just find exports in examples/vue-ssr-extra/src/routes/server/_action.ts
           const matches = code.matchAll(/export async function (\w*)\(/g);
           const exportNames = [...matches].map((m) => m[1]!);
-          return [
+          const outCode = [
             `import { createServerReference as $$create } from "/src/features/server-action/client";`,
             ...exportNames.map(
               (name) => `export const ${name} = $$create("${id}", "${name}");`,
             ),
           ].join("\n");
+          return { code: outCode, map: null };
         }
       }
       return;
@@ -30,10 +31,8 @@ export function vitePluginServerAction(): PluginOption {
   };
 
   const virtualServerReference = createVirtualPlugin(
-    "server-reference",
+    "server-references",
     async function () {
-      tinyassert(this.environment?.name === "server");
-      tinyassert(this.environment.mode === "build");
       const files = await collectFiles(path.resolve("./src"));
       const ids: string[] = [];
       for (const file of files) {

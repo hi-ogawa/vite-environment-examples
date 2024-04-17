@@ -4,17 +4,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev-workerd": "vite --config vite.config.workerd.ts",
-    "build": "vite build --all",
-    "preview": "vite preview",
+    "build": "vite build --all && bash misc/cloudflare-workers/build.sh",
+    "preview": "cd misc/cloudflare-workers && wrangler dev",
+    "release": "cd misc/cloudflare-workers && wrangler deploy",
     "tsc": "vue-tsc -b",
     "tsc-dev": "vue-tsc -b --watch --preserveWatchOutput",
     "test-e2e": "playwright test",
-    "test-e2e-preview": "E2E_PREVIEW=1 playwright test",
-    "test-e2e-workerd": "E2E_WORKERD=1 playwright test",
-    "cf-build": "SERVER_ENTRY=/src/adapters/workerd.ts pnpm build && bash misc/cloudflare-workers/build.sh",
-    "cf-preview": "cd misc/cloudflare-workers && wrangler dev",
-    "cf-release": "cd misc/cloudflare-workers && wrangler deploy"
+    "test-e2e-preview": "E2E_PREVIEW=1 playwright test"
   },
   "dependencies": {
     "pinia": "^2.1.7",
