@@ -1,0 +1,30 @@
+{
+  "name": "@hiogawa/vite-environment-examples-react-ssr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev-workerd": "vite --config vite.config.workerd.ts",
+    "build": "vite build --all",
+    "preview": "vite preview",
+    "test-e2e": "playwright test",
+    "test-e2e-preview": "E2E_PREVIEW=1 playwright test",
+    "test-e2e-workerd": "E2E_WORKERD=1 playwright test",
+    "vc-build": "SERVER_ENTRY=/src/adapters/vercel-edge.ts pnpm build && bash misc/vercel-edge/build.sh",
+    "vc-release": "vercel deploy --prebuilt misc/vercel-edge --prod"
+  },
+  "dependencies": {
+    "react": "18.3.0-canary-6c3b8dbfe-20240226",
+    "react-dom": "18.3.0-canary-6c3b8dbfe-20240226",
+    "vue": "^3.4.23"
+  },
+  "devDependencies": {
+    "@types/react": "18.2.72",
+    "@types/react-dom": "18.2.22",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vue-tsc": "^2.0.13"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
