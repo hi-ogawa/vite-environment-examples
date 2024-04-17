@@ -9,4 +9,5 @@ pnpm -C examples/react-ssr dev
 pnpm -C examples/react-ssr-workerd dev
 pnpm -C examples/react-server dev
 pnpm -C examples/workerd-cli cli
+pnpm -C examples/vue-ssr dev-workerd
 ```
