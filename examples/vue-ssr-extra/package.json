@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --all && bash misc/cloudflare-workers/build.sh",
-    "preview": "cd misc/cloudflare-workers && wrangler dev",
-    "release": "cd misc/cloudflare-workers && wrangler deploy",
+    "build": "vite build --all && rm -rf dist/client/index.html",
+    "preview": "wrangler dev",
+    "release": "wrangler deploy",
     "tsc": "vue-tsc -b",
     "tsc-dev": "vue-tsc -b --watch --preserveWatchOutput",
     "test-e2e": "playwright test",

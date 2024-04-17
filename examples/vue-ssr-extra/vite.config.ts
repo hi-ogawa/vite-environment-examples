@@ -49,8 +49,6 @@ export default defineConfig((_env) => ({
   builder: {
     async buildEnvironments(builder, build) {
       await build(builder.environments["client"]!);
-      // [feedback] non runtime code resolution ends up as noExternal?
-      //   RollupError: [commonjs--resolver] [plugin vite:resolve] Cannot bundle Node.js built-in "node:fs" imported from "src/features/server-action/plugin.ts". Consider disabling environments.workerd.noExternal or remove the built-in dependency.
       await build(builder.environments["workerd"]!);
     },
   },

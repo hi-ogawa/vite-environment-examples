@@ -5,7 +5,7 @@ import path from "node:path";
 
 // cf. examples/react-server/vite.config.ts
 
-const USE_SERVER_RE = /^("use server")|('use server')/;
+const USE_SERVER_RE = /^("use server"|'use server')/;
 
 export function vitePluginServerAction(): PluginOption {
   const transformPlugin: Plugin = {
@@ -49,7 +49,11 @@ export function vitePluginServerAction(): PluginOption {
     },
   );
 
-  return [transformPlugin, virtualServerReference];
+  return [
+    transformPlugin,
+    virtualServerReference,
+    vitePluginSilenceDirectiveBuildWarning(),
+  ];
 }
 
 async function collectFiles(baseDir: string) {
@@ -89,4 +93,38 @@ function createVirtualPlugin(name: string, load: Plugin["load"]) {
       }
     },
   } satisfies Plugin;
+}
+
+function vitePluginSilenceDirectiveBuildWarning(): Plugin {
+  return {
+    name: vitePluginSilenceDirectiveBuildWarning.name,
+    apply: "build",
+    enforce: "post",
+    config: (config, _env) => ({
+      build: {
+        rollupOptions: {
+          onwarn(warning, defaultHandler) {
+            if (
+              warning.code === "SOURCEMAP_ERROR" &&
+              warning.message.includes("(1:0)")
+            ) {
+              return;
+            }
+            if (
+              warning.code === "MODULE_LEVEL_DIRECTIVE" &&
+              (warning.message.includes(`"use client"`) ||
+                warning.message.includes(`"use server"`))
+            ) {
+              return;
+            }
+            if (config.build?.rollupOptions?.onwarn) {
+              config.build.rollupOptions.onwarn(warning, defaultHandler);
+            } else {
+              defaultHandler(warning);
+            }
+          },
+        },
+      },
+    }),
+  };
 }
