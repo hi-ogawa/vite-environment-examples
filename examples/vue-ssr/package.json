@@ -20,6 +20,7 @@
     "vue": "^3.4.23"
   },
   "devDependencies": {
+    "@hiogawa/vite-plugin-workerd": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "vue-tsc": "^2.0.13"
   },

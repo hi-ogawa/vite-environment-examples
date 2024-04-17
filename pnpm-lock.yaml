@@ -142,6 +142,9 @@ importers:
         specifier: ^3.4.23
         version: 3.4.23(typescript@5.4.3)
     devDependencies:
+      '@hiogawa/vite-plugin-workerd':
+        specifier: workspace:*
+        version: link:../../packages/workerd
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@6.0.0-alpha.2)(vue@3.4.23)
