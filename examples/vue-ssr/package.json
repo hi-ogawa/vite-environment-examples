@@ -11,6 +11,7 @@
     "tsc-dev": "vue-tsc -b --watch --preserveWatchOutput",
     "test-e2e": "playwright test",
     "test-e2e-preview": "E2E_PREVIEW=1 playwright test",
+    "test-e2e-workerd": "E2E_WORKERD=1 playwright test",
     "cf-build": "SERVER_ENTRY=/src/adapters/workerd.ts pnpm build && bash misc/cloudflare-workers/build.sh",
     "cf-preview": "cd misc/cloudflare-workers && wrangler dev",
     "cf-release": "cd misc/cloudflare-workers && wrangler deploy"
