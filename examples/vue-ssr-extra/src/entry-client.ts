@@ -1,7 +1,7 @@
 import { createSSRApp } from "vue";
 import { createWebHistory, createRouter } from "vue-router";
 import { routes } from "./routes";
-import App from "./routes/layout.vue";
+import Root from "./root.vue";
 
 async function main() {
   const router = createRouter({
@@ -9,7 +9,7 @@ async function main() {
     routes,
   });
 
-  const app = createSSRApp(App);
+  const app = createSSRApp(Root);
   app.use(router);
 
   await router.isReady();

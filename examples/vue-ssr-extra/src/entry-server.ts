@@ -2,7 +2,7 @@ import { renderToWebStream } from "vue/server-renderer";
 import { createSSRApp } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { routes } from "./routes";
-import App from "./routes/layout.vue";
+import Root from "./root.vue";
 
 // cf.
 // https://github.com/frandiox/vite-ssr/blob/50461a4e0ebf431fdd96771e069a5e759e275b6b/src/vue/entry-server.ts
@@ -19,7 +19,7 @@ export async function handler(req: Request) {
   router.push(href);
 
   // render app
-  const app = createSSRApp(App);
+  const app = createSSRApp(Root);
   app.use(router);
   await router.isReady();
 
