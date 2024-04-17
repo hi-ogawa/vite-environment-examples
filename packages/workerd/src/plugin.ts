@@ -47,6 +47,16 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
               createEnvironment: (server, name) =>
                 createWorkerdDevEnvironment(server, name, pluginOptions),
             },
+            build: pluginOptions.entry
+              ? {
+                  ssr: true,
+                  rollupOptions: {
+                    input: {
+                      index: pluginOptions.entry,
+                    },
+                  },
+                }
+              : undefined,
           },
         },
       };
@@ -101,8 +111,13 @@ export async function createWorkerdDevEnvironment(
         const devEnv = server.environments["workerd"];
         tinyassert(devEnv);
         const args = await request.json();
-        const result = await devEnv.fetchModule(...(args as [any, any]));
-        return new MiniflareResponse(JSON.stringify(result));
+        try {
+          const result = await devEnv.fetchModule(...(args as [any, any]));
+          return new MiniflareResponse(JSON.stringify(result));
+        } catch (error) {
+          console.error("[fetchModule]", args, error);
+          throw error;
+        }
       },
     },
     bindings: {
@@ -116,6 +131,8 @@ export async function createWorkerdDevEnvironment(
     const wranglerOptions = wrangler.unstable_getMiniflareWorkerOptions(
       pluginOptions.wrangler.configPath,
     );
+    // TODO: could this be useful to not delete?
+    delete wranglerOptions.workerOptions.sitePath;
     runnerWorkerOptions = mergeWorkerOptions(
       wranglerOptions.workerOptions,
       runnerWorkerOptions,

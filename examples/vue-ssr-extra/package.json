@@ -1,0 +1,29 @@
+{
+  "name": "@hiogawa/vite-environment-examples-vue-ssr-extra",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --all && rm -rf dist/client/index.html",
+    "preview": "wrangler dev",
+    "release": "wrangler deploy",
+    "tsc": "vue-tsc -b",
+    "tsc-dev": "vue-tsc -b --watch --preserveWatchOutput",
+    "test-e2e": "playwright test",
+    "test-e2e-preview": "E2E_PREVIEW=1 playwright test"
+  },
+  "dependencies": {
+    "pinia": "^2.1.7",
+    "vue": "^3.4.23",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240405.0",
+    "@hiogawa/vite-plugin-workerd": "workspace:*",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vue-tsc": "^2.0.13"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

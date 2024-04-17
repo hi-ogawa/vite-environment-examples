@@ -1,0 +1,11 @@
+name = "vite-environment-examples-vue-ssr-extra"
+main = "dist/server/index.js"
+assets = "dist/client"
+workers_dev = true
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# npx wrangler kv:namespace create kv
+kv_namespaces = [
+  { binding = "kv", id = "ce1d87089d2d484298e24d09371732a1" }
+]
