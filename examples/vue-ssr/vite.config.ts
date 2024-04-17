@@ -4,6 +4,7 @@ import {
   vitePluginVirtualIndexHtml,
 } from "../react-ssr/vite.config";
 import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
@@ -12,7 +13,7 @@ export default defineConfig((_env) => ({
     vue(),
     vitePluginSsrMiddleware({
       entry: "/src/adapters/node",
-      preview: "./dist/server/index.js",
+      preview: resolve("./dist/server/index.js"),
     }),
     vitePluginVirtualIndexHtml(),
   ],
