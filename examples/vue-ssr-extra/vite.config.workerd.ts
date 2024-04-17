@@ -24,6 +24,11 @@ export default defineConfig((_env) => ({
       resolve: {
         noExternal: true,
       },
+      dev: {
+        optimizeDeps: {
+          include: [],
+        },
+      },
     },
   },
 }));

@@ -1,10 +1,20 @@
 <script setup lang="ts">
-import { ref } from "vue";
-const count = ref(0);
+import { onMounted, onServerPrefetch } from "vue";
+import { useServerCounter } from "./_store";
+
+const store = useServerCounter();
+
+onServerPrefetch(async () => {
+  await store.load();
+});
+
+onMounted(async () => {
+  await store.load();
+});
 </script>
 
 <template>
-  <div>TODO: Server Counter: {{ count }}</div>
-  <button type="button" @click="count--">-1</button>
-  <button type="button" @click="count++">+1</button>
+  <div>TODO: Server Counter: {{ store.count }}</div>
+  <button type="button" @click="store.change(-1)">-1</button>
+  <button type="button" @click="store.change(+1)">+1</button>
 </template>

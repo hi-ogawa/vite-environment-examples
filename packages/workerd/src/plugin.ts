@@ -101,8 +101,13 @@ export async function createWorkerdDevEnvironment(
         const devEnv = server.environments["workerd"];
         tinyassert(devEnv);
         const args = await request.json();
-        const result = await devEnv.fetchModule(...(args as [any, any]));
-        return new MiniflareResponse(JSON.stringify(result));
+        try {
+          const result = await devEnv.fetchModule(...(args as [any, any]));
+          return new MiniflareResponse(JSON.stringify(result));
+        } catch (error) {
+          console.error("[fetchModule]", args, error);
+          throw error;
+        }
       },
     },
     bindings: {
