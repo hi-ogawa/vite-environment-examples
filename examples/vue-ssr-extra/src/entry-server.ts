@@ -1,25 +1,27 @@
 import { renderToWebStream } from "vue/server-renderer";
 import { createSSRApp } from "vue";
-import Page from "./routes/page.vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import Root from "./root.vue";
+import { routes } from "./routes";
+import App from "./routes/layout.vue";
 
 // cf.
 // https://github.com/frandiox/vite-ssr/blob/50461a4e0ebf431fdd96771e069a5e759e275b6b/src/vue/entry-server.ts
 
 export async function handler(req: Request) {
+  const url = new URL(req.url);
+  const href = url.href.slice(url.origin.length);
+
   // setup router
   const router = createRouter({
     history: createMemoryHistory(),
-    routes: [{ path: "/", component: Page }],
+    routes,
   });
-  const url = new URL(req.url);
-  router.push(url.href.slice(url.origin.length));
-  await router.isReady();
+  router.push(href);
 
   // render app
-  const app = createSSRApp(Root);
+  const app = createSSRApp(App);
   app.use(router);
+  await router.isReady();
 
   const ssrStream = renderToWebStream(app);
   const html = (await import("virtual:index-html")).default;

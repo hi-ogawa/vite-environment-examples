@@ -1,20 +1,18 @@
 import { createSSRApp } from "vue";
-import { createPinia } from "pinia";
-import Page from "./routes/page.vue";
 import { createWebHistory, createRouter } from "vue-router";
-import Root from "./root.vue";
+import { routes } from "./routes";
+import App from "./routes/layout.vue";
 
 async function main() {
-  const pinia = createPinia();
   const router = createRouter({
     history: createWebHistory(),
-    routes: [{ path: "/", component: Page }],
+    routes,
   });
-  await router.isReady();
 
-  const app = createSSRApp(Root);
-  app.use(pinia);
+  const app = createSSRApp(App);
   app.use(router);
+
+  await router.isReady();
   app.mount("#root");
 }
 
