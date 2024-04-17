@@ -25,3 +25,6 @@ jobs:
       - run: pnpm -C examples/react-server test-e2e
       - run: pnpm -C examples/react-server build
       - run: pnpm -C examples/react-server test-e2e-preview
+      - run: pnpm -C examples/vue-ssr test-e2e
+      - run: pnpm -C examples/vue-ssr build
+      - run: pnpm -C examples/vue-ssr test-e2e-preview

@@ -11,9 +11,9 @@
     "tsc-dev": "vue-tsc -b --watch --preserveWatchOutput",
     "test-e2e": "playwright test",
     "test-e2e-preview": "E2E_PREVIEW=1 playwright test",
-    "test-e2e-workerd": "E2E_WORKERD=1 playwright test",
-    "vc-build": "SERVER_ENTRY=/src/adapters/vercel-edge.ts pnpm build && bash misc/vercel-edge/build.sh",
-    "vc-release": "vercel deploy --prebuilt misc/vercel-edge --prod"
+    "cf-build": "SERVER_ENTRY=/src/adapters/workerd.ts pnpm build && bash misc/cloudflare-workers/build.sh",
+    "cf-preview": "cd misc/cloudflare-workers && wrangler dev",
+    "cf-release": "cd misc/cloudflare-workers && wrangler deploy"
   },
   "dependencies": {
     "vue": "^3.4.23"

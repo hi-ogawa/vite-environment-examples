@@ -11,7 +11,7 @@ onMounted(() => {
 
 <template>
   <div>hydrated: {{ hydrated }}</div>
-  <div>count: {{ count }}</div>
+  <div>Count: {{ count }}</div>
   <button type="button" @click="count--">-1</button>
   <button type="button" @click="count++">+1</button>
 </template>
