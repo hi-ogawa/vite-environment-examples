@@ -12,7 +12,7 @@ export default defineConfig((_env) => ({
   plugins: [
     vue(),
     vitePluginSsrMiddleware({
-      entry: "/src/adapters/node",
+      entry: process.env["SERVER_ENTRY"] || "/src/adapters/node",
       preview: resolve("./dist/server/index.js"),
     }),
     vitePluginVirtualIndexHtml(),
