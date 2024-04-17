@@ -22,6 +22,7 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240405.0",
     "@hiogawa/vite-plugin-workerd": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "vue-tsc": "^2.0.13"
