@@ -131,6 +131,8 @@ export async function createWorkerdDevEnvironment(
     const wranglerOptions = wrangler.unstable_getMiniflareWorkerOptions(
       pluginOptions.wrangler.configPath,
     );
+    // TODO: could this be useful to not delete?
+    delete wranglerOptions.workerOptions.sitePath;
     runnerWorkerOptions = mergeWorkerOptions(
       wranglerOptions.workerOptions,
       runnerWorkerOptions,
