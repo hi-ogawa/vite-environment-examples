@@ -1,0 +1,30 @@
+{
+  "name": "@hiogawa/vite-environment-examples-react-ssr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev-workerd": "vite --config vite.config.workerd.ts",
+    "build": "vite build --all",
+    "preview": "vite preview",
+    "tsc": "vue-tsc -b",
+    "tsc-dev": "vue-tsc -b --watch --preserveWatchOutput",
+    "test-e2e": "playwright test",
+    "test-e2e-preview": "E2E_PREVIEW=1 playwright test",
+    "test-e2e-workerd": "E2E_WORKERD=1 playwright test",
+    "cf-build": "SERVER_ENTRY=/src/adapters/workerd.ts pnpm build && bash misc/cloudflare-workers/build.sh",
+    "cf-preview": "cd misc/cloudflare-workers && wrangler dev",
+    "cf-release": "cd misc/cloudflare-workers && wrangler deploy"
+  },
+  "dependencies": {
+    "vue": "^3.4.23"
+  },
+  "devDependencies": {
+    "@hiogawa/vite-plugin-workerd": "workspace:*",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vue-tsc": "^2.0.13"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
