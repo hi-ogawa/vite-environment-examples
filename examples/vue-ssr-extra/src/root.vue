@@ -1,17 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUpdated } from "vue";
 
-const hydrated = ref(false);
+const mounted = ref(0);
+const updated = ref(0);
 
 onMounted(() => {
-  hydrated.value = true;
+  mounted.value++;
+});
+onUpdated(() => {
+  updated.value++;
 });
 </script>
 
 <template>
   <h3>Vue example</h3>
   <div style="display: flex; align-items: center; gap: 0.5rem">
-    <pre style="margin: 0">(hydrated: {{ hydrated }})</pre>
+    mounted: {{ mounted }}, updated: {{ mounted }}
     <input placeholder="(test)" />
   </div>
   <nav>
