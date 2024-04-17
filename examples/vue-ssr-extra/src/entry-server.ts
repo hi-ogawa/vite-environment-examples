@@ -4,17 +4,19 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import { routes } from "./routes";
 import Root from "./root.vue";
 import { createPinia } from "pinia";
+import { serverActionHandler } from "./features/server-action/server";
 
-// cf.
-// https://github.com/frandiox/vite-ssr/blob/50461a4e0ebf431fdd96771e069a5e759e275b6b/src/vue/entry-server.ts
+export async function handler(request: Request) {
+  if (request.method === "POST") {
+    return serverActionHandler({ request });
+  }
 
-export async function handler(req: Request) {
   // setup router
   const router = createRouter({
     history: createMemoryHistory(),
     routes,
   });
-  const url = new URL(req.url);
+  const url = new URL(request.url);
   const href = url.href.slice(url.origin.length);
   router.push(href);
 

@@ -1,6 +1,4 @@
 import { defineStore } from "pinia";
-
-// TODO: hook into server action?
 import { changeCounter, getCounter } from "./_action";
 
 export const useServerCounter = defineStore("server-counter", {
