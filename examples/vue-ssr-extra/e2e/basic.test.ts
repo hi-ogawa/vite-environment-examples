@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 test("basic", async ({ page }) => {
   const res = await page.goto("/");
@@ -16,14 +16,21 @@ test("basic", async ({ page }) => {
   await page.getByText("Client Counter: 0").click();
 });
 
-test("server action", async ({ page }) => {
-  const res1 = await page.goto("/");
-  expect(await res1?.text()).toContain("mounted: 0");
-
-  // server counter
+test("server action @js", async ({ page }) => {
+  await page.goto("/");
   await page.getByText("mounted: 1").click();
   await page.getByRole("link", { name: "Counter (server)" }).click();
   await page.waitForURL("/server");
+  await testServerAction(page);
+});
+
+test("server action @nojs", async ({ browser }) => {
+  const page = await browser.newPage({ javaScriptEnabled: false });
+  await page.goto("/server");
+  await testServerAction(page);
+});
+
+async function testServerAction(page: Page) {
   await page.getByText("Server Counter: 0").click();
   await page.getByRole("button", { name: "+" }).click();
   await page.getByText("Server Counter: 1").click();
@@ -31,7 +38,6 @@ test("server action", async ({ page }) => {
   // reload
   const res2 = await page.reload();
   expect(await res2?.text()).toContain("Server Counter: 1");
-  await page.getByText("mounted: 1").click();
   await page.getByRole("button", { name: "-" }).click();
   await page.getByText("Server Counter: 0").click();
-});
+}
