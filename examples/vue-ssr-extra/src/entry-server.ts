@@ -38,5 +38,12 @@ export async function handler(request: Request) {
     "<head>",
     `<head><script>globalThis.__serverPiniaState = ${JSON.stringify(pinia.state.value)}</script>`,
   );
+  // dev only FOUC fix
+  if (import.meta.env.DEV) {
+    html = html.replace(
+      "<head>",
+      `<head><link rel="stylesheet" href="/src/style.css?direct" />`,
+    );
+  }
   return new Response(html, { headers: { "content-type": "text/html" } });
 }

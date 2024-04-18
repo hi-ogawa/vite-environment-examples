@@ -10,6 +10,7 @@ Built on
 - `pinia`
 - `"use server"` convention
 
-## credits
+## references
 
-- https://github.com/frandiox/vite-ssr
+- Original `@hiogawa/react-server` starter demo https://github.com/hi-ogawa/vite-plugins/tree/main/packages/react-server/examples/starter
+- Basic Vite + Vue SSR approach learned from https://github.com/frandiox/vite-ssr
