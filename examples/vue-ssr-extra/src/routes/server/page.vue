@@ -9,15 +9,11 @@ const store = useServerCounter();
 // TODO: suspend?
 onServerPrefetch(async () => {
   store.data = await getCounter();
-  store.isReady = true;
 });
 
 onMounted(async () => {
   // TODO: refetch on stale?
-  if (!store.isReady) {
-    store.data = await getCounter();
-    store.isReady = true;
-  }
+  store.data ??= await getCounter();
 });
 
 // TODO: pending state?
@@ -30,7 +26,7 @@ const formAction = enhanceFormAction(changeCounter, {
 
 <template>
   <Form :action="formAction">
-    <div>Server Counter: {{ store.isReady ? store.data : "..." }}</div>
+    <div>Server Counter: {{ store.data ?? "..." }}</div>
     <button type="submit" name="delta" value="-1">-1</button>
     <button type="submit" name="delta" value="+1">+1</button>
   </Form>
