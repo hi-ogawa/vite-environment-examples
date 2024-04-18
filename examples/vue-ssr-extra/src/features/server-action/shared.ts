@@ -1,5 +1,5 @@
 import { tinyassert } from "@hiogawa/utils";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, ref } from "vue";
 
 export const ACTION_PATH = "/__action";
 
@@ -74,18 +74,17 @@ function submitEventToFormData(e: SubmitEvent) {
   return formData;
 }
 
-export function enhanceFormAction<T>(
-  action: FormAction<T>,
-  options: {
-    onSuccess?: (result: T) => void;
-  },
-): FormAction<void> {
+export function useEnhance<T>(action: FormAction<T>) {
   const meta = action as any as ServerActionMetadata;
+  const status = ref<"idle" | "pending" | "success">("idle");
+  const data = ref<Awaited<T>>();
   const enhanced: FormAction<void> = async (v) => {
-    const result = await action(v);
-    options.onSuccess?.(result);
+    status.value = "pending";
+    data.value = await action(v);
+    status.value = "success";
   };
-  return registerServerReference(enhanced, meta.__id, meta.__name);
+  const newAction = registerServerReference(enhanced, meta.__id, meta.__name);
+  return [newAction, { data, status }] as const;
 }
 
 export function encodeActionRequest(

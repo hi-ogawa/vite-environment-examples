@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onServerPrefetch } from "vue";
+import { onMounted, onServerPrefetch, watch } from "vue";
 import { useServerCounter } from "./_store";
-import { Form, enhanceFormAction } from "../../features/server-action/shared";
+import { Form, useEnhance } from "../../features/server-action/shared";
 import { changeCounter, getCounter } from "./_action";
 
 const store = useServerCounter();
@@ -16,11 +16,12 @@ onMounted(async () => {
   store.data ??= await getCounter();
 });
 
-// TODO: pending state?
-const formAction = enhanceFormAction(changeCounter, {
-  onSuccess(result) {
-    store.data = result;
-  },
+const [formAction, { data, status }] = useEnhance(changeCounter);
+
+watch(data, (data) => {
+  if (typeof data === "number") {
+    store.data = data;
+  }
 });
 </script>
 
@@ -29,5 +30,6 @@ const formAction = enhanceFormAction(changeCounter, {
     <div>Server Counter: {{ store.data ?? "..." }}</div>
     <button type="submit" name="delta" value="-1">-1</button>
     <button type="submit" name="delta" value="+1">+1</button>
+    <span v-if="status === 'pending'">...</span>
   </Form>
 </template>

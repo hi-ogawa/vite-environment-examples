@@ -16,6 +16,9 @@ export default defineConfig((_env) => ({
       miniflare: {
         log: new Log(),
         kvPersist: true,
+        bindings: {
+          SLOW_MO: Number(process.env["SLOW_MO"] || 0),
+        },
       },
       wrangler: {
         configPath: "./wrangler.toml",
