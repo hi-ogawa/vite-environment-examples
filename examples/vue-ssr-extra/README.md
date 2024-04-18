@@ -10,6 +10,18 @@ Built on
 - `pinia`
 - `"use server"` convention
 
+```sh
+# development on Miniflare
+pnpm dev
+
+# preview on wrangler
+pnpm build
+pnpm preview
+
+# deploy to cloudflare workers
+pnpm release
+```
+
 ## references
 
 - Original `@hiogawa/react-server` starter demo https://github.com/hi-ogawa/vite-plugins/tree/main/packages/react-server/examples/starter
