@@ -26,8 +26,9 @@ onUpdated(() => {
       <li>
         <RouterLink to="/client">Counter (client)</RouterLink>
       </li>
-      <li>
+      <li style="display: flex; gap: 0.5rem">
         <RouterLink to="/server">Counter (server)</RouterLink>
+        <a href="/server?__nojs">(disable js)</a>
       </li>
     </ul>
   </nav>
