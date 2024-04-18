@@ -13,14 +13,23 @@ export function vitePluginServerAction(): PluginOption {
     transform(code, id, _options) {
       tinyassert(this.environment);
       if (USE_SERVER_RE.test(code)) {
+        // TODO: just find exports in examples/vue-ssr-extra/src/routes/server/_action.ts
+        const matches = code.matchAll(/export async function (\w*)\(/g);
+        const exportNames = [...matches].map((m) => m[1]!);
         if (this.environment.name === "client") {
-          // TODO: just find exports in examples/vue-ssr-extra/src/routes/server/_action.ts
-          const matches = code.matchAll(/export async function (\w*)\(/g);
-          const exportNames = [...matches].map((m) => m[1]!);
           const outCode = [
             `import { createServerReference as $$create } from "/src/features/server-action/client";`,
             ...exportNames.map(
               (name) => `export const ${name} = $$create("${id}", "${name}");`,
+            ),
+          ].join("\n");
+          return { code: outCode, map: null };
+        } else {
+          const outCode = [
+            code,
+            `import { registerServerReference as $$register } from "/src/features/server-action/shared";`,
+            ...exportNames.map(
+              (name) => `${name} = $$register(${name}, "${id}", "${name}");`,
             ),
           ].join("\n");
           return { code: outCode, map: null };

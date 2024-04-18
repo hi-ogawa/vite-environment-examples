@@ -1,20 +1,35 @@
 <script setup lang="ts">
-import { onMounted, onServerPrefetch } from "vue";
+import { onMounted, onServerPrefetch, watch } from "vue";
 import { useServerCounter } from "./_store";
+import { Form, useEnhance } from "../../features/server-action/shared";
+import { changeCounter, getCounter } from "./_action";
 
 const store = useServerCounter();
 
+// TODO: suspend?
 onServerPrefetch(async () => {
-  await store.load();
+  store.data = await getCounter();
 });
 
 onMounted(async () => {
-  await store.load();
+  // TODO: refetch on stale?
+  store.data ??= await getCounter();
+});
+
+const [formAction, { data, status }] = useEnhance(changeCounter);
+
+watch(data, (data) => {
+  if (typeof data === "number") {
+    store.data = data;
+  }
 });
 </script>
 
 <template>
-  <div>Server Counter: {{ store.isLoading ? "..." : store.count }}</div>
-  <button type="button" @click="store.change(-1)">-1</button>
-  <button type="button" @click="store.change(+1)">+1</button>
+  <Form :action="formAction">
+    <div>Server Counter: {{ store.data ?? "..." }}</div>
+    <button type="submit" name="delta" value="-1">-1</button>
+    <button type="submit" name="delta" value="+1">+1</button>
+    <span v-if="status === 'pending'">...</span>
+  </Form>
 </template>

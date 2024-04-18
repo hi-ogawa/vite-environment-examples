@@ -1,22 +1,34 @@
 import { tinyassert } from "@hiogawa/utils";
-import { ACTION_PATH, type ServerActionPayload } from "./shared";
+import { ACTION_PATH, registerServerReference } from "./shared";
 
 export function createServerReference(id: string, name: string) {
-  return async (...args: unknown[]) => {
-    const payload: ServerActionPayload = {
-      id,
-      name,
-      args,
-    };
+  const action = async (...args: unknown[]) => {
     const res = await fetch(ACTION_PATH, {
       method: "POST",
-      body: JSON.stringify(payload),
-      headers: {
-        "content-type": "application/json",
-      },
+      ...encodeActionPayload(id, name, args),
     });
     tinyassert(res.ok);
     const result = await res.json();
     return result;
   };
+  return registerServerReference(action, id, name);
+}
+
+function encodeActionPayload(
+  id: string,
+  name: string,
+  args: unknown[],
+): RequestInit {
+  if (args.length === 1 && args[0] instanceof FormData) {
+    return {
+      body: args[0],
+    };
+  } else {
+    return {
+      body: JSON.stringify({ id, name, args }),
+      headers: {
+        "content-type": "application/json",
+      },
+    };
+  }
 }
