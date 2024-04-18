@@ -4,8 +4,6 @@ import { Form, useEnhance } from "../../features/server-action/shared";
 import { changeCounter, getCounter } from "./_action";
 
 const store = useServerCounter();
-
-// TODO: tanstack-query-like stale refetch?
 store.data ??= await getCounter();
 
 const [formAction, { status }] = useEnhance(changeCounter, {
