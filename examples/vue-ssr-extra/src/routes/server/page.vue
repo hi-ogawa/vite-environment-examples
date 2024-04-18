@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onServerPrefetch, watch } from "vue";
+import { onMounted, onServerPrefetch } from "vue";
 import { useServerCounter } from "./_store";
 import { Form, useEnhance } from "../../features/server-action/shared";
 import { changeCounter, getCounter } from "./_action";
@@ -16,12 +16,10 @@ onMounted(async () => {
   store.data ??= await getCounter();
 });
 
-const [formAction, { data, status }] = useEnhance(changeCounter);
-
-watch(data, (data) => {
-  if (typeof data === "number") {
+const [formAction, { status }] = useEnhance(changeCounter, {
+  onSuccess(data) {
     store.data = data;
-  }
+  },
 });
 </script>
 

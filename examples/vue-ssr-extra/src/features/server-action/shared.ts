@@ -74,17 +74,22 @@ function submitEventToFormData(e: SubmitEvent) {
   return formData;
 }
 
-export function useEnhance<T>(action: FormAction<T>) {
+export function useEnhance<T>(
+  action: FormAction<T>,
+  options?: {
+    onSuccess: (data: T) => void;
+  },
+) {
   const meta = action as any as ServerActionMetadata;
   const status = ref<"idle" | "pending" | "success">("idle");
-  const data = ref<Awaited<T>>();
   const enhanced: FormAction<void> = async (v) => {
     status.value = "pending";
-    data.value = await action(v);
+    const result = await action(v);
+    options?.onSuccess(result);
     status.value = "success";
   };
   const newAction = registerServerReference(enhanced, meta.__id, meta.__name);
-  return [newAction, { data, status }] as const;
+  return [newAction, { status }] as const;
 }
 
 export function encodeActionRequest(
