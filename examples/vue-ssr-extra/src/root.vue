@@ -10,6 +10,8 @@ onMounted(() => {
 onUpdated(() => {
   updated.value++;
 });
+
+const suspended = ref(false);
 </script>
 
 <template>
@@ -21,6 +23,7 @@ onUpdated(() => {
     >
       GitHub
     </a>
+    <span v-if="suspended">...</span>
   </div>
   <div style="display: flex; align-items: center; gap: 0.5rem">
     mounted: {{ mounted }}, updated: {{ mounted }}
@@ -34,15 +37,17 @@ onUpdated(() => {
       <li>
         <RouterLink to="/client">Counter (client)</RouterLink>
       </li>
-      <li style="display: flex; gap: 0.5rem">
-        <RouterLink to="/server">Counter (server)</RouterLink>
-        <a href="/server?__nojs">(disable js)</a>
+      <li>
+        <span style="display: flex; gap: 0.5rem">
+          <RouterLink to="/server">Counter (server)</RouterLink>
+          <a href="/server?__nojs">(disable js)</a>
+        </span>
       </li>
     </ul>
   </nav>
   <main>
     <RouterView v-slot="{ Component }">
-      <Suspense>
+      <Suspense @pending="suspended = true" @resolve="suspended = false">
         <component :is="Component"></component>
       </Suspense>
     </RouterView>
