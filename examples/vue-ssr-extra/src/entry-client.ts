@@ -5,6 +5,10 @@ import Root from "./root.vue";
 import { createPinia } from "pinia";
 
 async function main() {
+  if (window.location.search.includes("__nojs")) {
+    return;
+  }
+
   const router = createRouter({
     history: createWebHistory(),
     routes,

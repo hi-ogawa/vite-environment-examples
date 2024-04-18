@@ -1,16 +1,16 @@
 import { defineStore } from "pinia";
-import { changeCounter, getCounter } from "./_action";
+import { changeCounter } from "./_action";
+
+type CounterState = {
+  data: number;
+  isReady: boolean;
+};
 
 export const useServerCounter = defineStore("server-counter", {
-  state: () => ({ count: 0, isLoading: true }),
+  state: () => <CounterState>{ data: 0, isReady: false },
   actions: {
-    async load() {
-      this.count = await getCounter();
-      this.isLoading = false;
-    },
     async change(delta: number) {
-      this.count = await changeCounter(delta);
-      this.isLoading = false;
+      this.data = await changeCounter(delta);
     },
   },
 });

@@ -2,6 +2,8 @@
 
 import { env } from "../../env";
 
+// TODO: request context?
+
 export async function getCounter() {
   return Number(await env.kv.get("count"));
 }

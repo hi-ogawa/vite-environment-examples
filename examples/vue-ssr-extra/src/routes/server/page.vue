@@ -1,20 +1,29 @@
 <script setup lang="ts">
 import { onMounted, onServerPrefetch } from "vue";
 import { useServerCounter } from "./_store";
+import { Form } from "../../features/server-action/shared";
+import { getCounter } from "./_action";
 
 const store = useServerCounter();
 
+// TODO: suspend?
 onServerPrefetch(async () => {
-  await store.load();
+  store.data = await getCounter();
 });
 
 onMounted(async () => {
-  await store.load();
+  // TODO: refetch on stale?
+  if (!store.isReady) {
+    store.data = await getCounter();
+    store.isReady = true;
+  }
 });
 </script>
 
 <template>
-  <div>Server Counter: {{ store.isLoading ? "..." : store.count }}</div>
-  <button type="button" @click="store.change(-1)">-1</button>
-  <button type="button" @click="store.change(+1)">+1</button>
+  <Form>
+    <div>Server Counter: {{ store.isReady ? store.data : "..." }}</div>
+    <button name="delta" value="-1">-1</button>
+    <button name="delta" value="+1">+1</button>
+  </Form>
 </template>
