@@ -13,7 +13,15 @@ onUpdated(() => {
 </script>
 
 <template>
-  <h3>Vue example</h3>
+  <div style="display: flex; align-items: baseline; gap: 1rem">
+    <h3 style="margin: 1rem 0">Vue example</h3>
+    <a
+      href="https://github.com/hi-ogawa/vite-environment-examples/tree/main/examples/vue-ssr-extra"
+      target="_blank"
+    >
+      GitHub
+    </a>
+  </div>
   <div style="display: flex; align-items: center; gap: 0.5rem">
     mounted: {{ mounted }}, updated: {{ mounted }}
     <input placeholder="(test)" />
