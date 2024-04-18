@@ -74,6 +74,7 @@ function submitEventToFormData(e: SubmitEvent) {
   return formData;
 }
 
+// TODO: action return value on progressive enhancement?
 export function useEnhance<T>(
   action: FormAction<T>,
   options?: {
