@@ -3,6 +3,7 @@ import { useServerCounter } from "./_store";
 import { Form, useEnhance } from "../../features/server-action/shared";
 import { changeCounter, getCounter } from "./_action";
 
+// TODO: revalidation
 const store = useServerCounter();
 store.data ??= await getCounter();
 
