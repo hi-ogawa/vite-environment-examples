@@ -1,8 +1,12 @@
 import { tinyassert } from "@hiogawa/utils";
-import { ACTION_PATH, type ServerActionPayload } from "./shared";
+import {
+  ACTION_PATH,
+  registerServerReference,
+  type ServerActionPayload,
+} from "./shared";
 
 export function createServerReference(id: string, name: string) {
-  return async (...args: unknown[]) => {
+  const action = async (...args: unknown[]) => {
     const payload: ServerActionPayload = {
       id,
       name,
@@ -19,4 +23,5 @@ export function createServerReference(id: string, name: string) {
     const result = await res.json();
     return result;
   };
+  return registerServerReference(action, id, name);
 }

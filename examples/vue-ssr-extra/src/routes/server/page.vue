@@ -2,7 +2,7 @@
 import { onMounted, onServerPrefetch } from "vue";
 import { useServerCounter } from "./_store";
 import { Form } from "../../features/server-action/shared";
-import { getCounter } from "./_action";
+import { changeCounter2, getCounter } from "./_action";
 
 const store = useServerCounter();
 
@@ -21,7 +21,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Form>
+  <Form :action="changeCounter2">
     <div>Server Counter: {{ store.isReady ? store.data : "..." }}</div>
     <button name="delta" value="-1">-1</button>
     <button name="delta" value="+1">+1</button>
