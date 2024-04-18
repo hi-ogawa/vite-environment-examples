@@ -5,7 +5,7 @@ export const ACTION_PATH = "/__action";
 
 type FormAction<T = any> = (v: FormData) => Promise<T>;
 
-type ServerActionPayload = {
+export type ServerActionPayload = {
   id: string;
   name: string;
   args: unknown[];
@@ -90,44 +90,4 @@ export function useEnhance<T>(
   };
   const newAction = registerServerReference(enhanced, meta.__id, meta.__name);
   return [newAction, { status }] as const;
-}
-
-export function encodeActionRequest(
-  id: string,
-  name: string,
-  args: unknown[],
-): RequestInit {
-  if (args.length === 1 && args[0] instanceof FormData) {
-    return {
-      body: args[0],
-    };
-  } else {
-    return {
-      body: JSON.stringify({ id, name, args } satisfies ServerActionPayload),
-      headers: {
-        "content-type": "application/json",
-      },
-    };
-  }
-}
-
-export async function decodeActionRequest(
-  request: Request,
-): Promise<ServerActionPayload> {
-  const contentType = request.headers.get("content-type");
-  tinyassert(contentType);
-  if (contentType === "application/json") {
-    return request.json();
-  } else {
-    const formData = await request.formData();
-    const id = formData.get("__id");
-    const name = formData.get("__name");
-    tinyassert(typeof id === "string");
-    tinyassert(typeof name === "string");
-    return {
-      id,
-      name,
-      args: [formData],
-    };
-  }
 }

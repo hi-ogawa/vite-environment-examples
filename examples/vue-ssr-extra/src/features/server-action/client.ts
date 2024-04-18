@@ -1,5 +1,9 @@
 import { tinyassert } from "@hiogawa/utils";
-import { ACTION_PATH, registerServerReference } from "./shared";
+import {
+  ACTION_PATH,
+  registerServerReference,
+  type ServerActionPayload,
+} from "./shared";
 
 export function createServerReference(id: string, name: string) {
   const action = async (...args: unknown[]) => {
@@ -25,7 +29,7 @@ function encodeActionPayload(
     };
   } else {
     return {
-      body: JSON.stringify({ id, name, args }),
+      body: JSON.stringify({ id, name, args } satisfies ServerActionPayload),
       headers: {
         "content-type": "application/json",
       },
