@@ -3,15 +3,15 @@ import { defineComponent, h } from "vue";
 
 export const ACTION_PATH = "/__action";
 
-export type FormAction<T = any> = (v: FormData) => Promise<T>;
+type FormAction<T = any> = (v: FormData) => Promise<T>;
 
-export type ServerActionPayload = {
+type ServerActionPayload = {
   id: string;
   name: string;
   args: unknown[];
 };
 
-export type ServerActionMetadata = {
+type ServerActionMetadata = {
   __id: string;
   __name: string;
 };
