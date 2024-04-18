@@ -32,3 +32,4 @@ jobs:
       - run: pnpm -C examples/vue-ssr-extra test-e2e
       - run: pnpm -C examples/vue-ssr-extra build
       - run: pnpm -C examples/vue-ssr-extra test-e2e-preview
+      - run: pnpm -C examples/vue-ssr-extra tsc

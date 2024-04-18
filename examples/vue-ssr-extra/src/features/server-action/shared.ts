@@ -1,5 +1,5 @@
 import { tinyassert } from "@hiogawa/utils";
-import { defineComponent, h, ref } from "vue";
+import { defineComponent, h, ref, type PropType } from "vue";
 
 export const ACTION_PATH = "/__action";
 
@@ -27,7 +27,7 @@ export function registerServerReference<T extends object>(
 export const Form = defineComponent({
   props: {
     action: {
-      type: Function,
+      type: Function as PropType<FormAction>,
       required: true,
     },
   },
@@ -84,6 +84,7 @@ export function useEnhance<T>(
   const status = ref<"idle" | "pending" | "success">("idle");
   const enhanced: FormAction<void> = async (v) => {
     status.value = "pending";
+    // TODO: what if unmounted before finishing action?
     const result = await action(v);
     options?.onSuccess(result);
     status.value = "success";
