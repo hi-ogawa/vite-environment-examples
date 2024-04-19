@@ -41,6 +41,8 @@ export default defineConfig((_env) => ({
       },
       dev: {
         optimizeDeps: {
+          // prevent flaky outdated deps error
+          noDiscovery: true,
           include: [],
         },
       },
