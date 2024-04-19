@@ -1,5 +1,5 @@
 import React from "react";
-import { __global } from "./global";
+import { $__global } from "./global";
 import reactDomServer from "react-dom/server.edge";
 import { injectRscStreamScript } from "./utils/rsc-stream-script";
 import {
@@ -54,7 +54,7 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
 async function importReactServer() {
   let mod: typeof import("./entry-react-server");
   if (import.meta.env.DEV) {
-    mod = (await __global.reactServerRunner.import(
+    mod = (await $__global.reactServerRunner.import(
       "/src/entry-react-server",
     )) as any;
   } else {
@@ -66,7 +66,7 @@ async function importReactServer() {
 async function importHtmlTemplate() {
   if (import.meta.env.DEV) {
     const mod = await import("/index.html?raw");
-    return __global.server.transformIndexHtml("/", mod.default);
+    return $__global.server.transformIndexHtml("/", mod.default);
   } else {
     const mod = await import("/dist/client/index.html?raw");
     return mod.default;

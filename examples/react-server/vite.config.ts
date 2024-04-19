@@ -6,7 +6,7 @@ import {
   createServerModuleRunner,
 } from "vite";
 import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
-import { __global } from "./src/global";
+import { $__global } from "./src/global";
 import react from "@vitejs/plugin-react";
 import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
 import {
@@ -103,15 +103,15 @@ function vitePluginReactServer(): PluginOption {
       const reactServerEnv = server.environments["react-server"];
       tinyassert(reactServerEnv);
       const reactServerRunner = createServerModuleRunner(reactServerEnv);
-      __global.server = server;
-      __global.reactServerRunner = reactServerRunner;
+      $__global.server = server;
+      $__global.reactServerRunner = reactServerRunner;
     },
     hotUpdate(ctx) {
       if (ctx.environment.name === "react-server") {
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
         if (ids.length > 0) {
           const invalidated =
-            __global.reactServerRunner.moduleCache.invalidateDepTree(ids);
+            $__global.reactServerRunner.moduleCache.invalidateDepTree(ids);
           debug("[react-server:hotUpdate]", {
             ids,
             invalidated: [...invalidated],
@@ -120,7 +120,7 @@ function vitePluginReactServer(): PluginOption {
           // but we skip RSC HMR for this case since Client HMR handles it.
           if (!ids.some((id) => manager.clientReferences.has(id))) {
             console.log("[react-server:hmr]", ctx.file);
-            __global.server.environments.client.hot.send({
+            $__global.server.environments.client.hot.send({
               type: "custom",
               event: "react-server:update",
               data: {
