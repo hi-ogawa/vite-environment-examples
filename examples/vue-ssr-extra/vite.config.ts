@@ -41,7 +41,9 @@ export default defineConfig((_env) => ({
       },
       dev: {
         optimizeDeps: {
-          include: ["pinia", "vue-router", "vue"],
+          // prevent flaky outdated deps error
+          noDiscovery: true,
+          include: [],
         },
       },
       build: {
