@@ -2,7 +2,7 @@ import { tinyassert } from "@hiogawa/utils";
 import React from "react";
 import reactDomClient from "react-dom/client";
 import { readRscStreamScript } from "./utils/rsc-stream-script";
-import { initializeWebpackServer } from "./features/use-client/server";
+import { initializeWebpackBrowser } from "./features/use-client/browser";
 import type { StreamData } from "./entry-react-server";
 import { __global } from "./global";
 import { injectActionId } from "./features/server-action/utils";
@@ -12,7 +12,7 @@ async function main() {
     return;
   }
 
-  initializeWebpackServer();
+  initializeWebpackBrowser();
   const { default: reactServerDomClient } = await import(
     "react-server-dom-webpack/client.browser"
   );
