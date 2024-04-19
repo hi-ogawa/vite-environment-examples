@@ -1,20 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onServerPrefetch } from "vue";
 import { useServerCounter } from "./_store";
 import { Form, useEnhance } from "../../features/server-action/shared";
 import { changeCounter, getCounter } from "./_action";
 
+// TODO: revalidation
 const store = useServerCounter();
-
-// TODO: suspend?
-onServerPrefetch(async () => {
-  store.data = await getCounter();
-});
-
-onMounted(async () => {
-  // TODO: refetch on stale?
-  store.data ??= await getCounter();
-});
+store.data ??= await getCounter();
 
 const [formAction, { status }] = useEnhance(changeCounter, {
   onSuccess(data) {
