@@ -4,7 +4,7 @@ import type { CallServerCallback } from "./types";
 
 // quick global hacks...
 
-export const __global: {
+export const $__global: {
   server: ViteDevServer;
   reactServerRunner: ModuleRunner;
   callServer: CallServerCallback;
