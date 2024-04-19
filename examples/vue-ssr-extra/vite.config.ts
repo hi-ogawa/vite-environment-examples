@@ -41,7 +41,7 @@ export default defineConfig((_env) => ({
       },
       dev: {
         optimizeDeps: {
-          include: [],
+          include: ["pinia", "vue-router", "vue"],
         },
       },
       build: {
