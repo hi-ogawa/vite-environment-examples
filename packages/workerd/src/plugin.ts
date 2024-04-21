@@ -20,7 +20,7 @@ import {
   type CustomPayload,
   type HMRChannel,
   type Plugin,
-  type ViteDevServer,
+  type ResolvedConfig,
 } from "vite";
 import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 import type { SourcelessWorkerOptions } from "wrangler";
@@ -44,8 +44,8 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
         environments: {
           workerd: {
             dev: {
-              createEnvironment: (server, name) =>
-                createWorkerdDevEnvironment(server, name, pluginOptions),
+              createEnvironment: (name, config) =>
+                createWorkerdDevEnvironment(name, config, pluginOptions),
             },
             build: pluginOptions.entry
               ? {
@@ -89,8 +89,8 @@ type WorkerdDevApi = {
 };
 
 export async function createWorkerdDevEnvironment(
-  server: ViteDevServer,
   name: string,
+  config: ResolvedConfig,
   pluginOptions: WorkerdEnvironmentOptions,
 ) {
   // setup miniflare with a durable object script to run vite module runner
@@ -108,8 +108,6 @@ export async function createWorkerdDevEnvironment(
     unsafeEvalBinding: "__viteUnsafeEval",
     serviceBindings: {
       __viteFetchModule: async (request) => {
-        const devEnv = server.environments["workerd"];
-        tinyassert(devEnv);
         const args = await request.json();
         try {
           const result = await devEnv.fetchModule(...(args as [any, any]));
@@ -121,7 +119,7 @@ export async function createWorkerdDevEnvironment(
       },
     },
     bindings: {
-      __viteRoot: server.config.root,
+      __viteRoot: config.root,
     },
   };
 
@@ -179,6 +177,7 @@ export async function createWorkerdDevEnvironment(
     deserialize: (v) => JSON.parse(v.data),
   });
 
+  // TODO: move initialization code to `init`?
   // inheritance to extend dispose
   class WorkerdDevEnvironmentImpl extends DevEnvironment {
     override async close() {
@@ -187,7 +186,7 @@ export async function createWorkerdDevEnvironment(
     }
   }
 
-  const devEnv = new WorkerdDevEnvironmentImpl(server, name, { hot });
+  const devEnv = new WorkerdDevEnvironmentImpl(name, config, { hot });
 
   // custom environment api
   const api: WorkerdDevApi = {

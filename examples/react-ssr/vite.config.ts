@@ -88,7 +88,7 @@ export function vitePluginSsrMiddleware({
     },
 
     configureServer(server) {
-      runner = createServerModuleRunner(server.environments.ssr);
+      runner = createServerModuleRunner(server, server.environments.ssr);
 
       const handler: Connect.NextHandleFunction = async (req, res, next) => {
         try {
