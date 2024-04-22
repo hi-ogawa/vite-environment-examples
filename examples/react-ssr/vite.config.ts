@@ -58,18 +58,6 @@ export function vitePluginSsrMiddleware({
   const plugin: Plugin = {
     name: vitePluginSsrMiddleware.name,
 
-    config(config, env) {
-      // [feedback] to be fixed by https://github.com/vitejs/vite/pull/16301
-      if (env.isPreview) {
-        return {
-          build: {
-            outDir: config.environments?.["client"]?.build?.outDir,
-          },
-        };
-      }
-      return;
-    },
-
     configEnvironment(name, _config, _env) {
       if (name === "ssr") {
         return {
