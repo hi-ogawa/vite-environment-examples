@@ -11,6 +11,7 @@ export function vitePluginServerAction(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginServerAction.name + ":transform",
     transform(code, id, _options) {
+      // TOOD: use plugin.create to split plugins?
       tinyassert(this.environment);
       if (USE_SERVER_RE.test(code)) {
         // TODO: just find exports in examples/vue-ssr-extra/src/routes/server/_action.ts
