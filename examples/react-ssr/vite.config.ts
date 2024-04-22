@@ -2,6 +2,7 @@ import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
+import { resolve } from "node:path";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
@@ -10,7 +11,7 @@ export default defineConfig((_env) => ({
     react(),
     vitePluginSsrMiddleware({
       entry: "/src/adapters/node",
-      preview: "./dist/server/index.js",
+      preview: resolve("./dist/server/index.js"),
     }),
     vitePluginVirtualIndexHtml(),
   ],
