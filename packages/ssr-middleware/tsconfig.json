@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/strictest/tsconfig.json",
-  "include": ["src", "vite.config.ts", "e2e", "playwright.config.ts"],
+  "include": ["src", "tsup.config.ts"],
   "compilerOptions": {
     "checkJs": false,
     "exactOptionalPropertyTypes": false,
@@ -9,8 +9,6 @@
     "moduleResolution": "Bundler",
     "module": "ESNext",
     "target": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "types": ["vite/client", "@cloudflare/workers-types/experimental"],
-    "jsx": "react-jsx"
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
   }
 }
