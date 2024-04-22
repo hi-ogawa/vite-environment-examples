@@ -1,9 +1,7 @@
 import { defineConfig } from "vite";
-import {
-  vitePluginSsrMiddleware,
-  vitePluginVirtualIndexHtml,
-} from "../react-ssr/vite.config";
+import { vitePluginVirtualIndexHtml } from "../react-ssr/vite.config";
 import vue from "@vitejs/plugin-vue";
+import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
 import { resolve } from "path";
 
 export default defineConfig((_env) => ({

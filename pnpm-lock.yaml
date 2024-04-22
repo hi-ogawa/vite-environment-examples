@@ -91,6 +91,9 @@ importers:
         specifier: 18.3.0-canary-6c3b8dbfe-20240226
         version: 18.3.0-canary-6c3b8dbfe-20240226(react-dom@18.3.0-canary-6c3b8dbfe-20240226)(react@18.3.0-canary-6c3b8dbfe-20240226)(webpack@5.91.0)
     devDependencies:
+      '@hiogawa/vite-plugin-ssr-middleware-alpha':
+        specifier: workspace:*
+        version: link:../../packages/ssr-middleware
       '@types/react':
         specifier: 18.2.72
         version: 18.2.72
@@ -107,6 +110,9 @@ importers:
         specifier: 18.3.0-canary-6c3b8dbfe-20240226
         version: 18.3.0-canary-6c3b8dbfe-20240226(react@18.3.0-canary-6c3b8dbfe-20240226)
     devDependencies:
+      '@hiogawa/vite-plugin-ssr-middleware-alpha':
+        specifier: workspace:*
+        version: link:../../packages/ssr-middleware
       '@hiogawa/vite-plugin-workerd':
         specifier: workspace:*
         version: link:../../packages/workerd
@@ -145,6 +151,9 @@ importers:
         specifier: ^3.4.23
         version: 3.4.23(typescript@5.4.3)
     devDependencies:
+      '@hiogawa/vite-plugin-ssr-middleware-alpha':
+        specifier: workspace:*
+        version: link:../../packages/ssr-middleware
       '@hiogawa/vite-plugin-workerd':
         specifier: workspace:*
         version: link:../../packages/workerd
@@ -185,6 +194,12 @@ importers:
       '@hiogawa/vite-plugin-workerd':
         specifier: workspace:*
         version: link:../../packages/workerd
+
+  packages/ssr-middleware:
+    dependencies:
+      vite:
+        specifier: 6.0.0-alpha.3
+        version: 6.0.0-alpha.3(@types/node@20.11.30)
 
   packages/workerd:
     dependencies:

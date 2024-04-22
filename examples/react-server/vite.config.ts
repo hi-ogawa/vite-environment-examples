@@ -8,7 +8,7 @@ import {
 import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { $__global } from "./src/global";
 import react from "@vitejs/plugin-react";
-import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
+import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
 import {
   collectFiles,
   createVirtualPlugin,
@@ -16,7 +16,7 @@ import {
   vitePluginSilenceDirectiveBuildWarning,
 } from "./src/features/utils/plugin";
 import fs from "node:fs";
-import path from "node:path";
+import { resolve } from "node:path";
 
 const debug = createDebug("app");
 
@@ -28,7 +28,7 @@ export default defineConfig((_env) => ({
     vitePluginReactServer(),
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
-      preview: new URL("./dist/server/index.js", import.meta.url).toString(),
+      preview: resolve("./dist/server/index.js"),
     }),
   ],
 
@@ -269,7 +269,7 @@ function vitePluginServerAction(): PluginOption {
     async function () {
       tinyassert(this.environment?.name === "react-server");
       tinyassert(this.environment.mode === "build");
-      const files = await collectFiles(path.resolve("./src"));
+      const files = await collectFiles(resolve("./src"));
       const ids: string[] = [];
       for (const file of files) {
         const code = await fs.promises.readFile(file, "utf-8");
