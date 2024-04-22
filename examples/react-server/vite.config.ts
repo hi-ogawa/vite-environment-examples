@@ -8,7 +8,7 @@ import {
 import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { $__global } from "./src/global";
 import react from "@vitejs/plugin-react";
-import { vitePluginSsrMiddleware } from "../react-ssr/vite.config";
+import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
 import {
   collectFiles,
   createVirtualPlugin,
