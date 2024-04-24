@@ -5,13 +5,22 @@ import { serverActionHandler } from "./features/server-action/react-server";
 
 export type StreamData = {
   node: React.ReactNode;
-  actionState?: unknown;
+  actionResult?: unknown;
 };
 
-export async function handler({ request }: { request: Request }) {
-  let actionState: unknown;
+export interface ReactServerHandlerResult {
+  stream: ReadableStream<Uint8Array>;
+  actionResult?: unknown;
+}
+
+export async function handler({
+  request,
+}: {
+  request: Request;
+}): Promise<ReactServerHandlerResult> {
+  let actionResult: unknown;
   if (request.method === "POST") {
-    actionState = await serverActionHandler({ request });
+    actionResult = await serverActionHandler({ request });
   }
 
   const node = <Page />;
@@ -19,10 +28,10 @@ export async function handler({ request }: { request: Request }) {
   const stream = reactServerDomServer.renderToReadableStream<StreamData>(
     {
       node,
-      actionState,
+      actionResult: actionResult,
     },
     createBundlerConfig(),
   );
 
-  return stream;
+  return { stream, actionResult };
 }

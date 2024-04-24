@@ -6,27 +6,30 @@ import {
   createModuleMap,
   initializeWebpackServer,
 } from "./features/use-client/server";
-import type { StreamData } from "./entry-react-server";
+import type {
+  ReactServerHandlerResult,
+  StreamData,
+} from "./entry-react-server";
 
 export async function handler(request: Request) {
   const reactServer = await importReactServer();
-  const rscStream = await reactServer.handler({ request });
+  const result = await reactServer.handler({ request });
   if (new URL(request.url).searchParams.has("__stream")) {
-    return new Response(rscStream, {
+    return new Response(result.stream, {
       headers: { "content-type": "text/x-component; charset=utf-8" },
     });
   }
-  const htmlStream = await renderHtml(rscStream);
+  const htmlStream = await renderHtml(result);
   return new Response(htmlStream, { headers: { "content-type": "text/html" } });
 }
 
-async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
+async function renderHtml(result: ReactServerHandlerResult) {
   initializeWebpackServer();
   const { default: reactServerDomClient } = await import(
     "react-server-dom-webpack/client.edge"
   );
 
-  const [rscStream1, rscStream2] = rscStream.tee();
+  const [rscStream1, rscStream2] = result.stream.tee();
 
   const rscPromise = reactServerDomClient.createFromReadableStream<StreamData>(
     rscStream1,
@@ -42,13 +45,22 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
     return React.use(rscPromise).node;
   }
 
-  const ssrStream = await reactDomServer.renderToReadableStream(<Root />);
+  const ssrStream = await reactDomServer.renderToReadableStream(<Root />, {
+    formState: result.actionResult,
+  });
 
   return ssrStream
     .pipeThrough(new TextDecoderStream())
     .pipeThrough(injectSsr(await importHtmlTemplate()))
     .pipeThrough(injectRscStreamScript(rscStream2))
     .pipeThrough(new TextEncoderStream());
+}
+
+// formState not typed yet
+declare module "react-dom/server" {
+  interface RenderToReadableStreamOptions {
+    formState: unknown;
+  }
 }
 
 async function importReactServer() {
@@ -83,4 +95,10 @@ function injectSsr(html: string) {
       controller.enqueue(post);
     },
   });
+}
+
+declare module "react-dom/client" {
+  interface HydrationOptions {
+    formState: unknown;
+  }
 }

@@ -25,7 +25,7 @@ async function main() {
       { callServer: $__global.callServer },
     );
     $__setStreamData(streamData);
-    return (await streamData).actionState;
+    return (await streamData).actionResult;
   };
 
   const initialStreamData =
@@ -51,8 +51,12 @@ async function main() {
   if (window.location.search.includes("__noHydrate")) {
     reactDomClient.createRoot(rootEl).render(reactRootEl);
   } else {
+    // TODO: can we avoid await? (separate script stream?)
+    const formState = (await initialStreamData).actionResult;
     React.startTransition(() => {
-      reactDomClient.hydrateRoot(rootEl, reactRootEl);
+      reactDomClient.hydrateRoot(rootEl, reactRootEl, {
+        formState,
+      });
     });
   }
 
@@ -65,6 +69,13 @@ async function main() {
       );
       $__setStreamData(streamData);
     });
+  }
+}
+
+// formState not typed yet
+declare module "react-dom/client" {
+  interface HydrationOptions {
+    formState: unknown;
   }
 }
 
