@@ -1,5 +1,5 @@
 import reactServerDomWebpack from "react-server-dom-webpack/server.edge";
-import { tinyassert } from "@hiogawa/utils";
+import { memoize, tinyassert } from "@hiogawa/utils";
 import type { BundlerConfig, ImportManifestEntry } from "../../types";
 
 export function registerServerReference(
@@ -11,6 +11,11 @@ export function registerServerReference(
 }
 
 export async function serverActionHandler({ request }: { request: Request }) {
+  initializeWebpackReactServer();
+  if (import.meta.env.DEV) {
+    serverReferenceImportPromiseCache.clear();
+  }
+
   const url = new URL(request.url);
   let boundAction: Function;
   if (url.searchParams.has("__stream")) {
@@ -77,4 +82,21 @@ function createActionBundlerConfig(): BundlerConfig {
       },
     },
   );
+}
+
+// maybe this is also not necessary anymore
+// (see examples/react-server/src/features/use-client/server.ts)
+const serverReferenceImportPromiseCache = new Map<string, Promise<unknown>>();
+
+const serverReferenceWebpackRequire = memoize(importServerReference, {
+  cache: serverReferenceImportPromiseCache,
+});
+
+function initializeWebpackReactServer() {
+  Object.assign(globalThis, {
+    __vite_react_server_webpack_require__: serverReferenceWebpackRequire,
+    __vite_react_server_webpack_chunk_load__: () => {
+      throw new Error("todo: __webpack_chunk_load__");
+    },
+  });
 }
