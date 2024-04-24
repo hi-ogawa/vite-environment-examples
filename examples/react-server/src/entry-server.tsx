@@ -56,12 +56,6 @@ async function renderHtml(result: ReactServerHandlerResult) {
     .pipeThrough(new TextEncoderStream());
 }
 
-// formState not typed yet
-declare module "react-dom/server" {
-  interface RenderToReadableStreamOptions {
-    formState: unknown;
-  }
-}
 
 async function importReactServer() {
   let mod: typeof import("./entry-react-server");

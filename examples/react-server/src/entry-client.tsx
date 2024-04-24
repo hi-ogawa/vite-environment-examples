@@ -72,11 +72,4 @@ async function main() {
   }
 }
 
-// formState not typed yet
-declare module "react-dom/client" {
-  interface HydrationOptions {
-    formState: unknown;
-  }
-}
-
 main();
