@@ -56,7 +56,6 @@ async function renderHtml(result: ReactServerHandlerResult) {
     .pipeThrough(new TextEncoderStream());
 }
 
-
 async function importReactServer() {
   let mod: typeof import("./entry-react-server");
   if (import.meta.env.DEV) {

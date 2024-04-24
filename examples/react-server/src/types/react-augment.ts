@@ -1,7 +1,6 @@
-import "react-dom/server";
-import "react-dom/client";
+import type {} from "react-dom/server";
+import type {} from "react-dom/client";
 
-// formState not typed yet
 declare module "react-dom/server" {
   interface RenderToReadableStreamOptions {
     formState: unknown;
