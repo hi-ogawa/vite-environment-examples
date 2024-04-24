@@ -3,17 +3,24 @@ import Page from "./routes/page";
 import { createBundlerConfig } from "./features/use-client/react-server";
 import { serverActionHandler } from "./features/server-action/react-server";
 
-export type StreamData = React.ReactNode;
+export type StreamData = {
+  node: React.ReactNode;
+  actionState?: unknown;
+};
 
 export async function handler({ request }: { request: Request }) {
+  let actionState: unknown;
   if (request.method === "POST") {
-    await serverActionHandler({ request });
+    actionState = await serverActionHandler({ request });
   }
 
-  const root = <Page />;
+  const node = <Page />;
 
   const stream = reactServerDomServer.renderToReadableStream<StreamData>(
-    root,
+    {
+      node,
+      actionState,
+    },
     createBundlerConfig(),
   );
 

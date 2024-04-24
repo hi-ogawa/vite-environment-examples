@@ -39,7 +39,7 @@ async function renderHtml(rscStream: ReadableStream<Uint8Array>) {
   );
 
   function Root() {
-    return React.use(rscPromise);
+    return React.use(rscPromise).node;
   }
 
   const ssrStream = await reactDomServer.renderToReadableStream(<Root />);

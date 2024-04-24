@@ -17,7 +17,7 @@ async function main() {
     "react-server-dom-webpack/client.browser"
   );
 
-  $__global.callServer = (id, args) => {
+  $__global.callServer = async (id, args) => {
     tinyassert(args.length === 1);
     tinyassert(args[0] instanceof FormData);
     const body = args[0];
@@ -26,7 +26,8 @@ async function main() {
       fetch("/?__rsc", { method: "POST", body }),
       { callServer: $__global.callServer },
     );
-    __setStreamData(streamData);
+    $__setStreamData(streamData);
+    return (await streamData).actionState;
   };
 
   const initialStreamData =
@@ -35,13 +36,13 @@ async function main() {
       { callServer: $__global.callServer },
     );
 
-  let __setStreamData: (v: Promise<StreamData>) => void;
+  let $__setStreamData: (v: Promise<StreamData>) => void;
 
   function Root() {
     const [streamData, setStreamData] = React.useState(initialStreamData);
     const [_isPending, startTransition] = React.useTransition();
-    __setStreamData = (v) => startTransition(() => setStreamData(v));
-    return React.use(streamData);
+    $__setStreamData = (v) => startTransition(() => setStreamData(v));
+    return React.use(streamData).node;
   }
 
   const reactRootEl = <Root />;
@@ -64,7 +65,7 @@ async function main() {
         fetch("/?__rsc"),
         { callServer: $__global.callServer },
       );
-      __setStreamData(streamData);
+      $__setStreamData(streamData);
     });
   }
 }

@@ -14,7 +14,7 @@ export async function serverActionHandler({ request }: { request: Request }) {
   const formData = await request.formData();
   const actionId = ejectActionId(formData);
   const action = await importServerAction(actionId);
-  await action(formData);
+  return await action(formData);
 }
 
 async function importServerReference(id: string): Promise<unknown> {

@@ -31,4 +31,4 @@ pnpm cf-release
   - [x] react-server
 - [ ] server action
   - [x] basic form action
-  - [ ] `encodeReply/decodeReply/decodeAction/decodeFormState/useActionState`
+  - [ ] `encodeReply/decodeReply/useActionState/decodeAction/decodeFormState`
