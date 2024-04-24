@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { checkAnswer } from "./_action";
 
 export function ClientComponent() {
   const [count, setCount] = React.useState(0);
@@ -20,3 +21,40 @@ export function ClientComponent() {
     </div>
   );
 }
+
+export function UseActionStateDemo() {
+  const useActionState = (React as any).useActionState as ReactUseActionState;
+  const [data, formAction, isPending] = useActionState(checkAnswer, null);
+
+  return (
+    <form action={formAction}>
+      <h4>useActionState</h4>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+        <div>1 + 1 = </div>
+        <input name="answer" placeholder="Answer?" required />
+        <div data-testid="action-state">
+          {isPending ? (
+            "..."
+          ) : data ? (
+            <>
+              {data.message} (tried{" "}
+              {data.count === 1 ? "once" : data.count + " times"})
+            </>
+          ) : null}
+        </div>
+      </div>
+    </form>
+  );
+}
+
+// type is copied from ReactDOM.useFormState
+// https://github.com/facebook/react/pull/28491
+type ReactUseActionState = <State, Payload>(
+  action: (state: Awaited<State>, payload: Payload) => State | Promise<State>,
+  initialState: Awaited<State>,
+  permalink?: string,
+) => [
+  state: Awaited<State>,
+  dispatch: (payload: Payload) => void,
+  isPending: boolean,
+];

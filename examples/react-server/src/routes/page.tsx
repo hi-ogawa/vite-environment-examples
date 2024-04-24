@@ -1,5 +1,5 @@
 import { changeCounter, getCounter } from "./_action";
-import { ClientComponent } from "./_client";
+import { ClientComponent, UseActionStateDemo } from "./_client";
 
 export default function Page() {
   return (
@@ -24,6 +24,7 @@ function ServerActionDemo() {
           +1
         </button>
       </form>
+      <UseActionStateDemo />
     </div>
   );
 }
