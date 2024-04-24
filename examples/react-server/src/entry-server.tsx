@@ -11,7 +11,7 @@ import type { StreamData } from "./entry-react-server";
 export async function handler(request: Request) {
   const reactServer = await importReactServer();
   const rscStream = await reactServer.handler({ request });
-  if (new URL(request.url).searchParams.has("__rsc")) {
+  if (new URL(request.url).searchParams.has("__stream")) {
     return new Response(rscStream, {
       headers: { "content-type": "text/x-component; charset=utf-8" },
     });

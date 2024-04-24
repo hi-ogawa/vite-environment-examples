@@ -5,7 +5,6 @@ import { readRscStreamScript } from "./utils/rsc-stream-script";
 import { initializeWebpackBrowser } from "./features/use-client/browser";
 import type { StreamData } from "./entry-react-server";
 import { $__global } from "./global";
-import { injectActionId } from "./features/server-action/utils";
 
 async function main() {
   if (window.location.search.includes("__nojs")) {
@@ -18,12 +17,11 @@ async function main() {
   );
 
   $__global.callServer = async (id, args) => {
-    tinyassert(args.length === 1);
-    tinyassert(args[0] instanceof FormData);
-    const body = args[0];
-    injectActionId(body, id);
     const streamData = reactServerDomClient.createFromFetch<StreamData>(
-      fetch("/?__rsc", { method: "POST", body }),
+      fetch("/?__stream&__action_id=" + encodeURIComponent(id), {
+        method: "POST",
+        body: await reactServerDomClient.encodeReply(args),
+      }),
       { callServer: $__global.callServer },
     );
     $__setStreamData(streamData);
@@ -62,7 +60,7 @@ async function main() {
     import.meta.hot.on("react-server:update", (e) => {
       console.log("[react-server] hot update", e.file);
       const streamData = reactServerDomClient.createFromFetch<StreamData>(
-        fetch("/?__rsc"),
+        fetch("/?__stream"),
         { callServer: $__global.callServer },
       );
       $__setStreamData(streamData);

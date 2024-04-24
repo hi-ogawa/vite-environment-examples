@@ -1,6 +1,5 @@
 import reactServerDomWebpack from "react-server-dom-webpack/server.edge";
 import { tinyassert } from "@hiogawa/utils";
-import { ejectActionId } from "./utils";
 
 export function registerServerReference(
   action: Function,
@@ -11,10 +10,16 @@ export function registerServerReference(
 }
 
 export async function serverActionHandler({ request }: { request: Request }) {
-  const formData = await request.formData();
-  const actionId = ejectActionId(formData);
+  const url = new URL(request.url);
+  const contentType = request.headers.get("content-type");
+  const body = contentType?.startsWith("multipart/form-data")
+    ? await request.formData()
+    : await request.text();
+  const args = await reactServerDomWebpack.decodeReply(body);
+  const actionId = url.searchParams.get("__action_id");
+  tinyassert(actionId);
   const action = await importServerAction(actionId);
-  return await action(formData);
+  return await action(...args);
 }
 
 async function importServerReference(id: string): Promise<unknown> {
