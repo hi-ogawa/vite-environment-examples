@@ -1,6 +1,6 @@
 # vite-environment-examples
 
-Experimenting with [Vite Environment API](https://github.com/vitejs/vite/pull/16129)
+Experimenting with [Vite Environment API](https://github.com/vitejs/vite/pull/16471)
 
 ```sh
 pnpm i
