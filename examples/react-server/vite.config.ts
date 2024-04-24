@@ -290,6 +290,9 @@ function vitePluginServerAction(): PluginOption {
   const patchPlugin: Plugin = {
     name: "patch-react-server-dom-webpack",
     transform(code, id, _options) {
+      if (this.environment?.name !== "react-server") {
+        return;
+      }
       if (id.includes("react-server-dom-webpack")) {
         // rename webpack markers in react server runtime
         // to avoid conflict with ssr runtime which shares same globals
