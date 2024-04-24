@@ -1,5 +1,8 @@
 # react-server
 
+Porting [`@hiogawa/react-server`](https://github.com/hi-ogawa/vite-plugins/tree/main/packages/react-server) (single process / two Vite servers)
+to Vite 6 environment API (single process / single Vite server)
+
 https://vite-environment-examples-react-server.hiro18181.workers.dev/
 
 ```sh
@@ -26,9 +29,6 @@ pnpm cf-release
 - [x] hmr
   - [x] browser
   - [x] react-server
-- [x] server action
-- [ ] integrate to `@hiogawa/react-server`
-
-## references
-
-- https://github.com/hi-ogawa/vite-plugins/tree/main/packages/react-server
+- [ ] server action
+  - [x] basic form action
+  - [ ] `encodeReply/decodeReply/decodeAction/decodeFormState/useActionState`
