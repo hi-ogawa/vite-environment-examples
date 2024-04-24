@@ -29,6 +29,6 @@ pnpm cf-release
 - [x] hmr
   - [x] browser
   - [x] react-server
-- [ ] server action
+- [x] server action
   - [x] basic form action
-  - [ ] `encodeReply/decodeReply/decodeAction/decodeFormState/useActionState`
+  - [x] `encodeReply/decodeReply/decodeAction/decodeFormState/useActionState`

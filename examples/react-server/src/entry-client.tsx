@@ -5,7 +5,6 @@ import { readRscStreamScript } from "./utils/rsc-stream-script";
 import { initializeWebpackBrowser } from "./features/use-client/browser";
 import type { StreamData } from "./entry-react-server";
 import { $__global } from "./global";
-import { injectActionId } from "./features/server-action/utils";
 
 async function main() {
   if (window.location.search.includes("__nojs")) {
@@ -17,16 +16,16 @@ async function main() {
     "react-server-dom-webpack/client.browser"
   );
 
-  $__global.callServer = (id, args) => {
-    tinyassert(args.length === 1);
-    tinyassert(args[0] instanceof FormData);
-    const body = args[0];
-    injectActionId(body, id);
+  $__global.callServer = async (id, args) => {
     const streamData = reactServerDomClient.createFromFetch<StreamData>(
-      fetch("/?__rsc", { method: "POST", body }),
+      fetch("/?__stream&__action_id=" + encodeURIComponent(id), {
+        method: "POST",
+        body: await reactServerDomClient.encodeReply(args),
+      }),
       { callServer: $__global.callServer },
     );
-    __setStreamData(streamData);
+    $__setStreamData(streamData);
+    return (await streamData).actionResult;
   };
 
   const initialStreamData =
@@ -35,13 +34,13 @@ async function main() {
       { callServer: $__global.callServer },
     );
 
-  let __setStreamData: (v: Promise<StreamData>) => void;
+  let $__setStreamData: (v: Promise<StreamData>) => void;
 
   function Root() {
     const [streamData, setStreamData] = React.useState(initialStreamData);
     const [_isPending, startTransition] = React.useTransition();
-    __setStreamData = (v) => startTransition(() => setStreamData(v));
-    return React.use(streamData);
+    $__setStreamData = (v) => startTransition(() => setStreamData(v));
+    return React.use(streamData).node;
   }
 
   const reactRootEl = <Root />;
@@ -52,8 +51,12 @@ async function main() {
   if (window.location.search.includes("__noHydrate")) {
     reactDomClient.createRoot(rootEl).render(reactRootEl);
   } else {
+    // TODO: can we avoid await? (separate script stream?)
+    const formState = (await initialStreamData).actionResult;
     React.startTransition(() => {
-      reactDomClient.hydrateRoot(rootEl, reactRootEl);
+      reactDomClient.hydrateRoot(rootEl, reactRootEl, {
+        formState,
+      });
     });
   }
 
@@ -61,10 +64,10 @@ async function main() {
     import.meta.hot.on("react-server:update", (e) => {
       console.log("[react-server] hot update", e.file);
       const streamData = reactServerDomClient.createFromFetch<StreamData>(
-        fetch("/?__rsc"),
+        fetch("/?__stream"),
         { callServer: $__global.callServer },
       );
-      __setStreamData(streamData);
+      $__setStreamData(streamData);
     });
   }
 }
