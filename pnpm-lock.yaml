@@ -17,6 +17,9 @@ importers:
       '@hiogawa/utils':
         specifier: 1.6.4-pre.1
         version: 1.6.4-pre.1
+      '@hiogawa/vite-plugin-ssr-middleware':
+        specifier: ^0.0.3
+        version: 0.0.3(vite@6.0.0-alpha.3)
       '@playwright/test':
         specifier: ^1.42.1
         version: 1.42.1
@@ -1118,6 +1121,14 @@ packages:
 
   /@hiogawa/utils@1.6.4-pre.1:
     resolution: {integrity: sha512-L8g6kQuPKJXKoqF1XuFYXXHQ3Z4VXuEX8tlOz/gPO6uP2VQ95JUyONsr93RpVTLc/GGblXY30/YK4r56kJzzgQ==}
+    dev: true
+
+  /@hiogawa/vite-plugin-ssr-middleware@0.0.3(vite@6.0.0-alpha.3):
+    resolution: {integrity: sha512-84bzaAuImty4s4vHjOk5MQMzmDs0W0GP43fOTFhsBfj/MSJCNJ68elmPNZWs57WkIEzcdB4haY/P8Nf4ZGH8Qw==}
+    peerDependencies:
+      vite: 6.0.0-alpha.3
+    dependencies:
+      vite: 6.0.0-alpha.3(@types/node@20.11.30)
     dev: true
 
   /@isaacs/cliui@8.0.2:

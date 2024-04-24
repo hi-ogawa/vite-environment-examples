@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { vitePluginWorkerd } from "@hiogawa/vite-plugin-workerd";
+import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginVirtualIndexHtml } from "../react-ssr/vite.config";
 import { vitePluginServerAction } from "./src/features/server-action/plugin";
 import { Log } from "miniflare";
@@ -11,6 +12,7 @@ export default defineConfig((_env) => ({
   plugins: [
     vue(),
     vitePluginServerAction(),
+    vitePluginLogger(),
     vitePluginWorkerd({
       entry: "/src/adapters/workerd.ts",
       miniflare: {

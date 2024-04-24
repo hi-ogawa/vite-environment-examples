@@ -3,12 +3,14 @@ import react from "@vitejs/plugin-react";
 import { vitePluginWorkerd } from "@hiogawa/vite-plugin-workerd";
 import { vitePluginVirtualIndexHtml } from "../react-ssr/vite.config";
 import { Log } from "miniflare";
+import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
   appType: "custom",
   plugins: [
     react(),
+    vitePluginLogger(),
     vitePluginWorkerd({
       entry: "/src/adapters/workerd.ts",
       miniflare: {

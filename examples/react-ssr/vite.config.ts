@@ -2,6 +2,7 @@ import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
+import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { resolve } from "node:path";
 
 export default defineConfig((_env) => ({
@@ -9,6 +10,7 @@ export default defineConfig((_env) => ({
   appType: "custom",
   plugins: [
     react(),
+    vitePluginLogger(),
     vitePluginSsrMiddleware({
       entry: "/src/adapters/node",
       preview: resolve("./dist/server/index.js"),

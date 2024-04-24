@@ -9,6 +9,7 @@ import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { $__global } from "./src/global";
 import react from "@vitejs/plugin-react";
 import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
+import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import {
   collectFiles,
   createVirtualPlugin,
@@ -26,6 +27,7 @@ export default defineConfig((_env) => ({
   plugins: [
     react(),
     vitePluginReactServer(),
+    vitePluginLogger(),
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
       preview: resolve("./dist/server/index.js"),
