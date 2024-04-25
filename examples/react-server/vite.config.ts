@@ -25,7 +25,7 @@ export default defineConfig((_env) => ({
   clearScreen: false,
   appType: "custom",
   plugins: [
-    react(),
+    !process.env["VITEST"] && react(),
     vitePluginReactServer(),
     vitePluginLogger(),
     vitePluginSsrMiddleware({
@@ -56,6 +56,10 @@ export default defineConfig((_env) => ({
       await build(builder.environments["client"]!);
       await build(builder.environments["ssr"]!);
     },
+  },
+
+  test: {
+    dir: "src",
   },
 }));
 

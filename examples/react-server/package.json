@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "vite build --all",
     "preview": "vite preview",
+    "test": "vitest",
     "test-e2e": "playwright test",
     "test-e2e-preview": "E2E_PREVIEW=1 playwright test",
     "cf-build": "SERVER_ENTRY=/src/adapters/cloudflare-workers.ts pnpm build && bash misc/cloudflare-workers/build.sh",
@@ -20,7 +21,10 @@
   "devDependencies": {
     "@hiogawa/vite-plugin-ssr-middleware-alpha": "workspace:*",
     "@types/react": "18.2.72",
-    "@types/react-dom": "18.2.22"
+    "@types/react-dom": "18.2.22",
+    "@types/react-test-renderer": "^18.0.7",
+    "happy-dom": "^14.7.1",
+    "react-test-renderer": "19.0.0-canary-4c12339ce-20240408"
   },
   "volta": {
     "extends": "../../package.json"
