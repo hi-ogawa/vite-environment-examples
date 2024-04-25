@@ -1,0 +1,81 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`basic 1`] = `
+<body>
+  <div>
+    <h4>
+      Hello Server Component
+    </h4>
+    <div
+      data-testid="server-action"
+    >
+      <h4>
+        Hello Server Action
+      </h4>
+      <form
+        action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')"
+      >
+        <div>
+          Count: 
+          0
+        </div>
+        <button
+          name="value"
+          value="-1"
+        >
+          -1
+        </button>
+        <button
+          name="value"
+          value="1"
+        >
+          +1
+        </button>
+      </form>
+      <form
+        action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')"
+      >
+        <h4>
+          Hello useActionState
+        </h4>
+        <div
+          style="display: flex; align-items: center; gap: 0.3rem;"
+        >
+          <div>
+            1 + 1 = 
+          </div>
+          <input
+            name="answer"
+            placeholder="Answer?"
+            required=""
+          />
+          <div
+            data-testid="action-state"
+          />
+        </div>
+      </form>
+    </div>
+    <div
+      data-testid="client-component"
+    >
+      <h4>
+        Hello Client Component
+      </h4>
+      <div>
+        hydrated: 
+        false
+      </div>
+      <div>
+        Count: 
+        0
+      </div>
+      <button>
+        -1
+      </button>
+      <button>
+        +1
+      </button>
+    </div>
+  </div>
+</body>
+`;
