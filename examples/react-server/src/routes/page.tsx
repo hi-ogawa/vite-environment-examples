@@ -1,7 +1,7 @@
 import { changeCounter, getCounter } from "./_action";
 import { ClientComponent, UseActionStateDemo } from "./_client";
 
-export default function Page() {
+export default async function Page() {
   return (
     <div>
       <h4>Hello Server Component</h4>

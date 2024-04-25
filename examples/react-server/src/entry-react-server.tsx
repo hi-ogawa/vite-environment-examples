@@ -35,3 +35,10 @@ export async function handler({
 
   return { stream, actionResult };
 }
+
+export async function testRender(Comp: React.ComponentType) {
+  return reactServerDomServer.renderToReadableStream(
+    <Comp />,
+    createBundlerConfig(),
+  );
+}

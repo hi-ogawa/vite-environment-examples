@@ -14,7 +14,7 @@ export function ClientComponent() {
   return (
     <div data-testid="client-component">
       <h4>Hello Client Component</h4>
-      <div>hydrated: {String(hydrated)}</div>
+      <div data-hydrated={hydrated}>hydrated: {String(hydrated)}</div>
       <div>Count: {count}</div>
       <button onClick={() => setCount((v) => v - 1)}>-1</button>
       <button onClick={() => setCount((v) => v + 1)}>+1</button>

@@ -18,6 +18,7 @@ import {
 } from "./src/features/utils/plugin";
 import fs from "node:fs";
 import { resolve } from "node:path";
+import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 
 const debug = createDebug("app");
 
@@ -25,13 +26,14 @@ export default defineConfig((_env) => ({
   clearScreen: false,
   appType: "custom",
   plugins: [
-    react(),
+    !process.env["VITEST"] && react(),
     vitePluginReactServer(),
     vitePluginLogger(),
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
       preview: resolve("./dist/server/index.js"),
     }),
+    !!process.env["VITEST"] && vitePluginTestReactServerStream(),
   ],
 
   environments: {
@@ -56,6 +58,10 @@ export default defineConfig((_env) => ({
       await build(builder.environments["client"]!);
       await build(builder.environments["ssr"]!);
     },
+  },
+
+  test: {
+    dir: "src",
   },
 }));
 
