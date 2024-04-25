@@ -61,9 +61,11 @@ exports[`basic 1`] = `
       <h4>
         Hello Client Component
       </h4>
-      <div>
+      <div
+        data-hydrated="true"
+      >
         hydrated: 
-        false
+        true
       </div>
       <div>
         Count: 
@@ -76,6 +78,22 @@ exports[`basic 1`] = `
         +1
       </button>
     </div>
+  </div>
+</body>
+`;
+
+exports[`test async 1`] = `
+<body>
+  <div>
+    <div>
+      hello
+    </div>
+    <pre>
+      {
+  "name": "@hiogawa/vite-environment-examples-react-server",
+  "private": true,
+  "type": "module"
+    </pre>
   </div>
 </body>
 `;

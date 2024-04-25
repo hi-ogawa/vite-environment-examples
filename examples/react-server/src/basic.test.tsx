@@ -1,17 +1,23 @@
-import { test, expect } from "vitest";
+import { test, expect, beforeEach, vi } from "vitest";
 import { initializeWebpackBrowser } from "./features/use-client/browser";
 import React from "react";
 import { createManualPromise } from "@hiogawa/utils";
 import reactDomClient from "react-dom/client";
 import { Window } from "happy-dom";
 
-test("basic", async () => {
-  // happy-dom
+// happy-dom
+beforeEach(() => {
+  const window = new Window({ url: "https://localhost:8080" });
   Object.assign(globalThis, {
-    window: new Window({ url: "https://localhost:8080" }),
+    window,
+    document: window.document,
   });
-  const document = window.document;
+  return () => {
+    window.close();
+  };
+});
 
+async function testRender(page: string) {
   // react client browser
   initializeWebpackBrowser();
   const { default: reactServerDomClient } = await import(
@@ -19,9 +25,7 @@ test("basic", async () => {
   );
 
   // fetch rsc stream via virtual module
-  const testStream = await import(
-    "virtual:test-react-server-stream/src/routes/page"
-  );
+  const testStream = await import("virtual:test-react-server-stream" + page);
   const testNode =
     reactServerDomClient.createFromReadableStream<React.ReactNode>(
       testStream.default,
@@ -39,5 +43,17 @@ test("basic", async () => {
 
   reactDomClient.createRoot(document.body).render(<Root />);
   await mounted;
+}
+
+test("basic", async () => {
+  await testRender("/src/routes/page");
+  await vi.waitUntil(() =>
+    document.body.querySelector(`[data-hydrated="true"]`),
+  );
+  expect(document.body).toMatchSnapshot();
+});
+
+test("test async", async () => {
+  await testRender("/src/routes/test/page");
   expect(document.body).toMatchSnapshot();
 });

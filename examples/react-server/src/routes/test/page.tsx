@@ -1,6 +1,11 @@
-import { sleep } from "@hiogawa/utils";
+import fs from "node:fs";
 
 export default async function Page() {
-  await sleep(300);
-  return <div>hello</div>;
+  const pkg = await fs.promises.readFile("package.json", "utf-8");
+  return (
+    <div>
+      <div>hello</div>
+      <pre>{pkg.slice(0, 100)}</pre>
+    </div>
+  );
 }
