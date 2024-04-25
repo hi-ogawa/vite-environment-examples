@@ -1,1 +1,1 @@
-export function testRender(page: string) {}
+export function testRender(_page: string) {}
