@@ -6,7 +6,7 @@ import type { StreamData } from "./entry-react-server";
 import { $__global } from "./global";
 
 async function main() {
-  if (window.location.search.includes("__nojs")) {
+  if (window.location.search.toLowerCase().includes("__nojs")) {
     return;
   }
 
@@ -44,7 +44,7 @@ async function main() {
 
   const reactRootEl = <Root />;
 
-  if (window.location.search.includes("__noHydrate")) {
+  if (window.location.search.toLowerCase().includes("__nohydrate")) {
     reactDomClient.createRoot(document).render(reactRootEl);
   } else {
     // TODO: can we avoid await? (separate script stream?)
