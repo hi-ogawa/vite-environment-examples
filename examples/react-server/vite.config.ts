@@ -327,7 +327,7 @@ function vitePluginServerAction(): PluginOption {
         code = code.replaceAll("if (isAsyncImport(metadata))", "if (true)");
         code = code.replaceAll("4===a.length", "true");
 
-        return code;
+        return { code, map: null };
       }
       return;
     },
