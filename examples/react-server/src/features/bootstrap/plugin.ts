@@ -46,6 +46,7 @@ export function vitePluginEntryBootstrap(): PluginOption {
         const entry = manifest[ENTRY_CLIENT_BOOTSTRAP];
         tinyassert(entry);
         const css = entry.css ?? [];
+        // preload only direct dynamic import for client references map
         const js =
           entry.dynamicImports
             ?.map((k) => manifest[k]?.file)
