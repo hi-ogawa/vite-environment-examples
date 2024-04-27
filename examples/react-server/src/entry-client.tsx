@@ -1,4 +1,3 @@
-import { tinyassert } from "@hiogawa/utils";
 import React from "react";
 import reactDomClient from "react-dom/client";
 import { readRscStreamScript } from "./utils/rsc-stream-script";
@@ -7,7 +6,7 @@ import type { StreamData } from "./entry-react-server";
 import { $__global } from "./global";
 
 async function main() {
-  if (window.location.search.includes("__nojs")) {
+  if (window.location.search.toLowerCase().includes("__nojs")) {
     return;
   }
 
@@ -45,16 +44,13 @@ async function main() {
 
   const reactRootEl = <Root />;
 
-  const rootEl = document.getElementById("root");
-  tinyassert(rootEl);
-
-  if (window.location.search.includes("__noHydrate")) {
-    reactDomClient.createRoot(rootEl).render(reactRootEl);
+  if (window.location.search.toLowerCase().includes("__nohydrate")) {
+    reactDomClient.createRoot(document).render(reactRootEl);
   } else {
     // TODO: can we avoid await? (separate script stream?)
     const formState = (await initialStreamData).actionResult;
     React.startTransition(() => {
-      reactDomClient.hydrateRoot(rootEl, reactRootEl, {
+      reactDomClient.hydrateRoot(document, reactRootEl, {
         formState,
       });
     });

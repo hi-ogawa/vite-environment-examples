@@ -10,6 +10,7 @@ import type {
   ReactServerHandlerResult,
   StreamData,
 } from "./entry-react-server";
+import { splitFirst } from "@hiogawa/utils";
 
 export async function handler(request: Request) {
   const reactServer = await importReactServer();
@@ -45,14 +46,17 @@ async function renderHtml(result: ReactServerHandlerResult) {
     return React.use(rscPromise).node;
   }
 
+  const ssrAssets = (await import("virtual:ssr-assets")).default;
+
   const ssrStream = await reactDomServer.renderToReadableStream(<Root />, {
     formState: result.actionResult,
+    bootstrapModules: ssrAssets.bootstrapModules,
   });
 
   return ssrStream
     .pipeThrough(new TextDecoderStream())
-    .pipeThrough(injectSsr(await importHtmlTemplate()))
     .pipeThrough(injectRscStreamScript(rscStream2))
+    .pipeThrough(injectToHead(ssrAssets.head))
     .pipeThrough(new TextEncoderStream());
 }
 
@@ -68,30 +72,18 @@ async function importReactServer() {
   return mod;
 }
 
-async function importHtmlTemplate() {
-  if (import.meta.env.DEV) {
-    const mod = await import("/index.html?raw");
-    return $__global.server.transformIndexHtml("/", mod.default);
-  } else {
-    const mod = await import("/dist/client/index.html?raw");
-    return mod.default;
-  }
-}
-
-function injectSsr(html: string) {
-  const [pre, post] = html.split("<!-- SSR -->");
+function injectToHead(data: string) {
+  const marker = "<head>";
+  let done = false;
   return new TransformStream<string, string>({
-    start(controller) {
-      controller.enqueue(pre);
-    },
-    flush(controller) {
-      controller.enqueue(post);
+    transform(chunk, controller) {
+      if (!done && chunk.includes(marker)) {
+        const [pre, post] = splitFirst(chunk, marker);
+        controller.enqueue(pre + marker + data + post);
+        done = true;
+        return;
+      }
+      controller.enqueue(chunk);
     },
   });
-}
-
-declare module "react-dom/client" {
-  interface HydrationOptions {
-    formState: unknown;
-  }
 }
