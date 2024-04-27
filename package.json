@@ -10,8 +10,8 @@
     "lint-check": "pnpm run --sequential /^lint-check:/",
     "lint:prettier": "prettier -w --cache .",
     "lint-check:prettier": "prettier -c --cache .",
-    "lint:isort-ts": "isort-ts --git --fix",
-    "lint-check:isort-ts": "isort-ts --git"
+    "lint:isort-ts": "isort-ts --git --cache --fix",
+    "lint-check:isort-ts": "isort-ts --git --cache"
   },
   "devDependencies": {
     "@hattip/adapter-node": "^0.0.44",
