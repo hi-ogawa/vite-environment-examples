@@ -1,8 +1,8 @@
 import { tinyassert } from "@hiogawa/utils";
 import {
   ACTION_PATH,
-  registerServerReference,
   type ServerActionPayload,
+  registerServerReference,
 } from "./shared";
 
 export function createServerReference(id: string, name: string) {

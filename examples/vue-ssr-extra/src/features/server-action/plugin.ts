@@ -1,7 +1,7 @@
-import { tinyassert } from "@hiogawa/utils";
-import type { Plugin, PluginOption } from "vite";
 import fs from "node:fs";
 import path from "node:path";
+import { tinyassert } from "@hiogawa/utils";
+import type { Plugin, PluginOption } from "vite";
 
 // cf. examples/react-server/vite.config.ts
 

@@ -1,29 +1,29 @@
-import {
-  Miniflare,
-  type WorkerOptions,
-  Response as MiniflareResponse,
-  mergeWorkerOptions,
-  type SharedOptions,
-} from "miniflare";
 import { fileURLToPath } from "url";
+import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 import { DefaultMap, tinyassert } from "@hiogawa/utils";
 import {
-  ANY_URL,
-  RUNNER_INIT_PATH,
-  RUNNER_EVAL_PATH,
-  type EvalApi,
-  type EvalMetadata,
-  type FetchMetadata,
-} from "./shared";
+  Miniflare,
+  Response as MiniflareResponse,
+  type SharedOptions,
+  type WorkerOptions,
+  mergeWorkerOptions,
+} from "miniflare";
 import {
-  DevEnvironment,
   type CustomPayload,
+  DevEnvironment,
   type HMRChannel,
   type Plugin,
   type ResolvedConfig,
 } from "vite";
-import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 import type { SourcelessWorkerOptions } from "wrangler";
+import {
+  ANY_URL,
+  type EvalApi,
+  type EvalMetadata,
+  type FetchMetadata,
+  RUNNER_EVAL_PATH,
+  RUNNER_INIT_PATH,
+} from "./shared";
 
 interface WorkerdPluginOptions extends WorkerdEnvironmentOptions {
   entry?: string;

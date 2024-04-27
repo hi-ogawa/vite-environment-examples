@@ -14,6 +14,9 @@ importers:
       '@hattip/adapter-node':
         specifier: ^0.0.44
         version: 0.0.44
+      '@hiogawa/isort-ts':
+        specifier: 1.1.2
+        version: 1.1.2(prettier@3.2.5)(typescript@5.4.3)
       '@hiogawa/utils':
         specifier: 1.6.4-pre.1
         version: 1.6.4-pre.1
@@ -1129,6 +1132,20 @@ packages:
       '@hattip/headers': 0.0.44
       cac: 6.7.14
       mime-types: 2.1.35
+    dev: true
+
+  /@hiogawa/isort-ts@1.1.2(prettier@3.2.5)(typescript@5.4.3):
+    resolution: {integrity: sha512-UMv5vU/8y/8Xefzycxwst2mCkUQYG1P/2703kAhdf18TrxMZT50fEwTUGMWeFzH2S+Oj+VKC/UOx4NmtGbPpYw==}
+    hasBin: true
+    peerDependencies:
+      prettier: '*'
+      typescript: '*'
+    peerDependenciesMeta:
+      prettier:
+        optional: true
+    dependencies:
+      prettier: 3.2.5
+      typescript: 5.4.3
     dev: true
 
   /@hiogawa/utils@1.6.4-pre.1:

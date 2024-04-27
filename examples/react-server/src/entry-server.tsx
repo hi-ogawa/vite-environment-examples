@@ -1,16 +1,16 @@
+import { splitFirst } from "@hiogawa/utils";
 import React from "react";
-import { $__global } from "./global";
 import reactDomServer from "react-dom/server.edge";
-import { injectRscStreamScript } from "./utils/rsc-stream-script";
-import {
-  createModuleMap,
-  initializeWebpackServer,
-} from "./features/use-client/server";
 import type {
   ReactServerHandlerResult,
   StreamData,
 } from "./entry-react-server";
-import { splitFirst } from "@hiogawa/utils";
+import {
+  createModuleMap,
+  initializeWebpackServer,
+} from "./features/use-client/server";
+import { $__global } from "./global";
+import { injectRscStreamScript } from "./utils/rsc-stream-script";
 
 export async function handler(request: Request) {
   const reactServer = await importReactServer();

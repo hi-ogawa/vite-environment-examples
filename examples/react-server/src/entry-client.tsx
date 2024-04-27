@@ -1,9 +1,9 @@
 import React from "react";
 import reactDomClient from "react-dom/client";
-import { readRscStreamScript } from "./utils/rsc-stream-script";
-import { initializeWebpackBrowser } from "./features/use-client/browser";
 import type { StreamData } from "./entry-react-server";
+import { initializeWebpackBrowser } from "./features/use-client/browser";
 import { $__global } from "./global";
+import { readRscStreamScript } from "./utils/rsc-stream-script";
 
 async function main() {
   if (window.location.search.toLowerCase().includes("__nojs")) {

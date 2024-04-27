@@ -1,8 +1,8 @@
+import { resolve } from "path";
+import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
+import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
 import { vitePluginVirtualIndexHtml } from "../react-ssr/vite.config";
-import vue from "@vitejs/plugin-vue";
-import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
-import { resolve } from "path";
 
 export default defineConfig((_env) => ({
   clearScreen: false,

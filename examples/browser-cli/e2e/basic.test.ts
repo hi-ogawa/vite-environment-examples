@@ -1,5 +1,5 @@
-import test from "node:test";
 import childProcess from "node:child_process";
+import test from "node:test";
 import { createProcessHelper } from "../../workerd-cli/e2e/helper";
 
 test("basic", async () => {

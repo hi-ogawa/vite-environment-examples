@@ -1,5 +1,5 @@
-import reactServerDomWebpack from "react-server-dom-webpack/server.edge";
 import { memoize, tinyassert } from "@hiogawa/utils";
+import reactServerDomWebpack from "react-server-dom-webpack/server.edge";
 import type { BundlerConfig, ImportManifestEntry } from "../../types";
 
 export function registerServerReference(

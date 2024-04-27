@@ -1,9 +1,9 @@
 import "./style.css";
-import { createSSRApp } from "vue";
-import { createWebHistory, createRouter } from "vue-router";
-import { routes } from "./routes";
-import Root from "./root.vue";
 import { createPinia } from "pinia";
+import { createSSRApp } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
+import Root from "./root.vue";
+import { routes } from "./routes";
 
 async function main() {
   if (window.location.search.includes("__nojs")) {

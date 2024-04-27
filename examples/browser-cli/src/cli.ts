@@ -1,13 +1,13 @@
+import repl from "node:repl";
+import nodeStream from "node:stream";
+import { createManualPromise, tinyassert } from "@hiogawa/utils";
+import { chromium } from "@playwright/test";
 import {
-  createServer,
-  parseAstAsync,
   type Plugin,
   type PluginOption,
+  createServer,
+  parseAstAsync,
 } from "vite";
-import repl from "node:repl";
-import { createManualPromise, tinyassert } from "@hiogawa/utils";
-import nodeStream from "node:stream";
-import { chromium } from "@playwright/test";
 import type { ModuleRunner } from "vite/module-runner";
 
 const headless = !process.env["CLI_HEADED"];

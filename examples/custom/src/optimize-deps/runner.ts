@@ -1,9 +1,9 @@
-import { tinyassert } from "@hiogawa/utils";
 import { fileURLToPath } from "url";
+import { tinyassert } from "@hiogawa/utils";
 import {
+  createNodeDevEnvironment,
   createServer,
   createServerModuleRunner,
-  createNodeDevEnvironment,
 } from "vite";
 
 const server = await createServer({

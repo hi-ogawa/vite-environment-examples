@@ -1,4 +1,4 @@
-import { test, type Page, expect } from "@playwright/test";
+import { type Page, expect, test } from "@playwright/test";
 
 test("client-component", async ({ page }) => {
   await page.goto("/");

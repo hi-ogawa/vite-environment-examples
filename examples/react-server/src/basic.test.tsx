@@ -1,9 +1,9 @@
-import { test, expect, beforeEach, vi } from "vitest";
-import { initializeWebpackBrowser } from "./features/use-client/browser";
-import React from "react";
 import { createManualPromise } from "@hiogawa/utils";
-import reactDomClient from "react-dom/client";
 import { Window } from "happy-dom";
+import React from "react";
+import reactDomClient from "react-dom/client";
+import { beforeEach, expect, test, vi } from "vitest";
+import { initializeWebpackBrowser } from "./features/use-client/browser";
 
 // happy-dom
 beforeEach(() => {
