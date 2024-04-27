@@ -1,6 +1,6 @@
 import { tinyassert } from "@hiogawa/utils";
-import type { BundlerConfig, ImportManifestEntry } from "../../types";
 import reactServerDomWebpack from "react-server-dom-webpack/server.edge";
+import type { BundlerConfig, ImportManifestEntry } from "../../types";
 
 // https://github.com/facebook/react/blob/c8a035036d0f257c514b3628e927dd9dd26e5a09/packages/react-server-dom-webpack/src/ReactFlightWebpackReferences.js#L43
 

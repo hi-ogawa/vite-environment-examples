@@ -1,10 +1,10 @@
-import { renderToString } from "vue/server-renderer";
+import { createPinia } from "pinia";
 import { createSSRApp } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import { routes } from "./routes";
-import Root from "./root.vue";
-import { createPinia } from "pinia";
+import { renderToString } from "vue/server-renderer";
 import { serverActionHandler } from "./features/server-action/server";
+import Root from "./root.vue";
+import { routes } from "./routes";
 
 export async function handler(request: Request) {
   if (request.method === "POST") {

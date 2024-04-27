@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import { tinyassert, typedBoolean } from "@hiogawa/utils";
 import type { Manifest, PluginOption, ViteDevServer } from "vite";
-import { createVirtualPlugin } from "../utils/plugin";
 import { $__global } from "../../global";
+import { createVirtualPlugin } from "../utils/plugin";
 
 export const ENTRY_CLIENT_BOOTSTRAP = "virtual:entry-client-bootstrap";
 

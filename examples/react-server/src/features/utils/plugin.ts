@@ -1,6 +1,6 @@
-import { parseAstAsync, type Plugin } from "vite";
 import fs from "node:fs";
 import path from "node:path";
+import { type Plugin, parseAstAsync } from "vite";
 
 export function vitePluginSilenceDirectiveBuildWarning(): Plugin {
   return {
