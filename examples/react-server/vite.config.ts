@@ -19,6 +19,10 @@ import {
 import fs from "node:fs";
 import { resolve } from "node:path";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
+import {
+  ENTRY_CLIENT_BOOTSTRAP,
+  vitePluginEntryBootstrap,
+} from "./src/features/bootstrap/plugin";
 
 const debug = createDebug("app");
 
@@ -42,6 +46,12 @@ export default defineConfig((_env) => ({
         outDir: "dist/client",
         minify: false,
         sourcemap: true,
+        manifest: true,
+        rollupOptions: {
+          input: {
+            index: ENTRY_CLIENT_BOOTSTRAP,
+          },
+        },
       },
     },
     ssr: {
@@ -151,6 +161,7 @@ function vitePluginReactServer(): PluginOption {
     vitePluginUseClient(),
     vitePluginSilenceDirectiveBuildWarning(),
     vitePluginServerAction(),
+    vitePluginEntryBootstrap(),
   ];
 }
 
