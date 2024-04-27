@@ -89,9 +89,3 @@ function injectSsr(html: string) {
     },
   });
 }
-
-declare module "react-dom/client" {
-  interface HydrationOptions {
-    formState: unknown;
-  }
-}
