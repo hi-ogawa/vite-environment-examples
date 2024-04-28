@@ -109,15 +109,9 @@ importers:
       '@types/react-dom':
         specifier: 18.2.22
         version: 18.2.22
-      '@types/react-test-renderer':
-        specifier: ^18.0.7
-        version: 18.0.7
       happy-dom:
         specifier: ^14.7.1
         version: 14.7.1
-      react-test-renderer:
-        specifier: 19.0.0-canary-4c12339ce-20240408
-        version: 19.0.0-canary-4c12339ce-20240408(react@19.0.0-canary-4c12339ce-20240408)
 
   examples/react-ssr:
     dependencies:
@@ -1422,12 +1416,6 @@ packages:
 
   /@types/react-dom@18.2.22:
     resolution: {integrity: sha512-fHkBXPeNtfvri6gdsMYyW+dW7RXFo6Ad09nLFK0VQWR7yGLai/Cyvyj696gbwYvBnhGtevUG9cET0pmUbMtoPQ==}
-    dependencies:
-      '@types/react': 18.2.72
-    dev: true
-
-  /@types/react-test-renderer@18.0.7:
-    resolution: {integrity: sha512-1+ANPOWc6rB3IkSnElhjv6VLlKg2dSv/OWClUyZimbLsQyBn8Js9Vtdsi3UICJ2rIQ3k2la06dkB+C92QfhKmg==}
     dependencies:
       '@types/react': 18.2.72
     dev: true
@@ -2963,10 +2951,6 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-is@19.0.0-canary-4c12339ce-20240408:
-    resolution: {integrity: sha512-/QOVyOc9Xbynb9cE81YErLeXuRacWdXS617ecJukn17VQWVjdEyHYUwHZkGA+REOxgBzRIjaODy74p8L72NKTg==}
-    dev: true
-
   /react-refresh@0.14.0:
     resolution: {integrity: sha512-wViHqhAd8OHeLS/IRMJjTSDHF3U9eWi62F/MledQGPdJGDhodXJ9PBLNGr6WWL7qlH12Mt3TyTpbS+hGXMjCzQ==}
     engines: {node: '>=0.10.0'}
@@ -2987,16 +2971,6 @@ packages:
       webpack: 5.91.0(esbuild@0.20.2)
     dev: false
 
-  /react-test-renderer@19.0.0-canary-4c12339ce-20240408(react@19.0.0-canary-4c12339ce-20240408):
-    resolution: {integrity: sha512-FwPMh2nn0nAsdhwM5tHXJmQCidfDlk2p4te6nYPp/GAQsJMSuR2IyKNsloBkX9kjZxU938CGPWemKMhV79RGWQ==}
-    peerDependencies:
-      react: 19.0.0-canary-4c12339ce-20240408
-    dependencies:
-      react: 19.0.0-canary-4c12339ce-20240408
-      react-is: 19.0.0-canary-4c12339ce-20240408
-      scheduler: 0.25.0-canary-4c12339ce-20240408
-    dev: true
-
   /react@18.3.0-canary-6c3b8dbfe-20240226:
     resolution: {integrity: sha512-3lqR1QguxZql/iOp0VLk+AGHS/fs6xs797znqrzR+XGXrDrP3599eXXGuPtTAVX+47uBJ9IPIEFnKEMu1SCsHA==}
     engines: {node: '>=0.10.0'}
@@ -3007,6 +2981,7 @@ packages:
   /react@19.0.0-canary-4c12339ce-20240408:
     resolution: {integrity: sha512-QdQl76CTAmYrwjxq6fZRDWw2/MHPNxkYQ1xZVir2MbK/wxK62vFAPGr2j/AXs36ADVUq+tUGx4XNmdgnfL4f1Q==}
     engines: {node: '>=0.10.0'}
+    dev: false
 
   /readdirp@3.6.0:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
@@ -3098,6 +3073,7 @@ packages:
 
   /scheduler@0.25.0-canary-4c12339ce-20240408:
     resolution: {integrity: sha512-XGG/Y5q5jeJy+rKp963+nlz81H/eDEMDmwem8QFHkuufjW/IEhM9ha6PO76m9qA6Qr59HVjlTGJ6D1bH1lemeQ==}
+    dev: false
 
   /schema-utils@3.3.0:
     resolution: {integrity: sha512-pN/yOAvcC+5rQ5nERGuwrjLlYvLTbCibnZ1I7B1LaiAz9BRBlE9GMgE/eqV30P7aJQUf7Ddimy/RsbYO/GrVGg==}
