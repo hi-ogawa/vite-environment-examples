@@ -33,8 +33,8 @@ export function vitePluginEntryBootstrap(): PluginOption {
       let ssrAssets: SsrAssets;
       if ($__global.server) {
         let { head } = await getIndexHtmlTransform($__global.server);
-        head = [
-          head,
+        head += [
+          "",
           `<link rel="stylesheet" href="/@id/__x00__${SSR_CSS_ENTRY}" />`,
         ].join("\n");
         ssrAssets = {
