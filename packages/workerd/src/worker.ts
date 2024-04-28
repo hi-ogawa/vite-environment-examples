@@ -1,14 +1,14 @@
 import { objectPickBy, tinyassert } from "@hiogawa/utils";
+import { ModuleRunner } from "vite/module-runner";
 import {
   ANY_URL,
+  type EvalFn,
+  type EvalMetadata,
+  type FetchMetadata,
+  RUNNER_EVAL_PATH,
   RUNNER_INIT_PATH,
   type RunnerEnv,
-  RUNNER_EVAL_PATH,
-  type EvalMetadata,
-  type EvalFn,
-  type FetchMetadata,
 } from "./shared";
-import { ModuleRunner } from "vite/module-runner";
 
 export class RunnerObject implements DurableObject {
   #env: RunnerEnv;

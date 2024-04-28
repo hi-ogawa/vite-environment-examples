@@ -1,24 +1,28 @@
-import {
-  defineConfig,
-  createNodeDevEnvironment,
-  type PluginOption,
-  type Plugin,
-  createServerModuleRunner,
-} from "vite";
+import fs from "node:fs";
+import { resolve } from "node:path";
 import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
-import { $__global } from "./src/global";
-import react from "@vitejs/plugin-react";
-import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
 import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
+import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
+import react from "@vitejs/plugin-react";
+import {
+  type Plugin,
+  type PluginOption,
+  createNodeDevEnvironment,
+  createServerModuleRunner,
+  defineConfig,
+} from "vite";
+import {
+  ENTRY_CLIENT_BOOTSTRAP,
+  vitePluginEntryBootstrap,
+} from "./src/features/bootstrap/plugin";
+import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import {
   collectFiles,
   createVirtualPlugin,
   parseExports,
   vitePluginSilenceDirectiveBuildWarning,
 } from "./src/features/utils/plugin";
-import fs from "node:fs";
-import { resolve } from "node:path";
-import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
+import { $__global } from "./src/global";
 
 const debug = createDebug("app");
 
@@ -42,6 +46,12 @@ export default defineConfig((_env) => ({
         outDir: "dist/client",
         minify: false,
         sourcemap: true,
+        manifest: true,
+        rollupOptions: {
+          input: {
+            index: ENTRY_CLIENT_BOOTSTRAP,
+          },
+        },
       },
     },
     ssr: {
@@ -148,6 +158,7 @@ function vitePluginReactServer(): PluginOption {
     vitePluginUseClient(),
     vitePluginSilenceDirectiveBuildWarning(),
     vitePluginServerAction(),
+    vitePluginEntryBootstrap(),
   ];
 }
 
@@ -313,7 +324,7 @@ function vitePluginServerAction(): PluginOption {
         code = code.replaceAll("if (isAsyncImport(metadata))", "if (true)");
         code = code.replaceAll("4===a.length", "true");
 
-        return code;
+        return { code, map: null };
       }
       return;
     },

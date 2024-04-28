@@ -1,9 +1,9 @@
-import { test, expect, beforeEach, vi } from "vitest";
-import { initializeWebpackBrowser } from "./features/use-client/browser";
-import React from "react";
 import { createManualPromise } from "@hiogawa/utils";
-import reactDomClient from "react-dom/client";
 import { Window } from "happy-dom";
+import React from "react";
+import reactDomClient from "react-dom/client";
+import { beforeEach, expect, test, vi } from "vitest";
+import { initializeWebpackBrowser } from "./features/use-client/browser";
 
 // happy-dom
 beforeEach(() => {
@@ -17,7 +17,7 @@ beforeEach(() => {
   };
 });
 
-async function testRender(page: string) {
+async function testRender(container: reactDomClient.Container, page: string) {
   // react client browser
   initializeWebpackBrowser();
   const { default: reactServerDomClient } = await import(
@@ -41,19 +41,19 @@ async function testRender(page: string) {
     return React.use(testNode);
   }
 
-  reactDomClient.createRoot(document.body).render(<Root />);
+  reactDomClient.createRoot(container).render(<Root />);
   await mounted;
 }
 
 test("basic", async () => {
-  await testRender("/src/routes/page");
+  await testRender(document, "/src/routes/page");
   await vi.waitUntil(() =>
     document.body.querySelector(`[data-hydrated="true"]`),
   );
-  expect(document.body).toMatchSnapshot();
+  expect(document.firstElementChild).toMatchSnapshot();
 });
 
 test("test async", async () => {
-  await testRender("/src/routes/test/page");
-  expect(document.body).toMatchSnapshot();
+  await testRender(document.body, "/src/routes/test/page");
+  expect(document.firstElementChild).toMatchSnapshot();
 });

@@ -1,5 +1,5 @@
-import { renderToWebStream } from "vue/server-renderer";
 import { createSSRApp } from "vue";
+import { renderToWebStream } from "vue/server-renderer";
 import Page from "./routes/page.vue";
 
 export async function handler(_req: Request) {

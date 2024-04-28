@@ -1,9 +1,9 @@
-import { defineConfig, type Plugin, type ViteDevServer } from "vite";
-import react from "@vitejs/plugin-react";
 import fs from "node:fs";
-import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
-import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { resolve } from "node:path";
+import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
+import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
+import react from "@vitejs/plugin-react";
+import { type Plugin, type ViteDevServer, defineConfig } from "vite";
 
 export default defineConfig((_env) => ({
   clearScreen: false,

@@ -1,5 +1,5 @@
 import { tinyassert } from "@hiogawa/utils";
-import { defineComponent, h, ref, type PropType } from "vue";
+import { type PropType, defineComponent, h, ref } from "vue";
 
 export const ACTION_PATH = "/__action";
 

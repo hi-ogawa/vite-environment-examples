@@ -1,8 +1,8 @@
 import {
-  type PluginOption,
-  type Plugin,
-  createServerModuleRunner,
   Connect,
+  type Plugin,
+  type PluginOption,
+  createServerModuleRunner,
 } from "vite";
 
 export function vitePluginSsrMiddleware({

@@ -1,7 +1,7 @@
 import reactServerDomServer from "react-server-dom-webpack/server.edge";
-import Page from "./routes/page";
-import { createBundlerConfig } from "./features/use-client/react-server";
 import { serverActionHandler } from "./features/server-action/react-server";
+import { createBundlerConfig } from "./features/use-client/react-server";
+import Page from "./routes/page";
 
 export type StreamData = {
   node: React.ReactNode;

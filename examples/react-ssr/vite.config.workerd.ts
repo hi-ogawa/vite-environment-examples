@@ -1,8 +1,8 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import { vitePluginWorkerd } from "@hiogawa/vite-plugin-workerd";
-import { vitePluginVirtualIndexHtml } from "./vite.config";
+import react from "@vitejs/plugin-react";
 import { Log } from "miniflare";
+import { defineConfig } from "vite";
+import { vitePluginVirtualIndexHtml } from "./vite.config";
 
 export default defineConfig((_env) => ({
   clearScreen: false,

@@ -1,10 +1,10 @@
-import { createServer } from "vite";
+import repl from "node:repl";
 import {
-  createWorkerdDevEnvironment,
   type WorkerdDevEnvironment,
+  createWorkerdDevEnvironment,
 } from "@hiogawa/vite-plugin-workerd";
 import { Log } from "miniflare";
-import repl from "node:repl";
+import { createServer } from "vite";
 
 async function main() {
   const server = await createServer({

@@ -1,8 +1,8 @@
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
 import { vitePluginWorkerd } from "@hiogawa/vite-plugin-workerd";
-import { vitePluginVirtualIndexHtml } from "../react-ssr/vite.config";
+import vue from "@vitejs/plugin-vue";
 import { Log } from "miniflare";
+import { defineConfig } from "vite";
+import { vitePluginVirtualIndexHtml } from "../react-ssr/vite.config";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
