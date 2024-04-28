@@ -25,7 +25,7 @@ const server = await createServer({
 const environment = server.environments["custom"];
 tinyassert(environment);
 
-const runner = createServerModuleRunner(server, environment);
+const runner = createServerModuleRunner(environment);
 const mod = await runner.import("/entry");
 mod.default();
 

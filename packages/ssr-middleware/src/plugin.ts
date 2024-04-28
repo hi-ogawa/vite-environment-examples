@@ -4,7 +4,6 @@ import {
   type PluginOption,
   createServerModuleRunner,
 } from "vite";
-import type { ModuleRunner } from "vite/module-runner";
 
 export function vitePluginSsrMiddleware({
   entry,
@@ -13,8 +12,6 @@ export function vitePluginSsrMiddleware({
   entry: string;
   preview?: string;
 }): PluginOption {
-  let runner: ModuleRunner;
-
   const plugin: Plugin = {
     name: vitePluginSsrMiddleware.name,
 
@@ -36,7 +33,7 @@ export function vitePluginSsrMiddleware({
     },
 
     configureServer(server) {
-      runner = createServerModuleRunner(server, server.environments.ssr);
+      const runner = createServerModuleRunner(server.environments.ssr);
 
       const handler: Connect.NextHandleFunction = async (req, res, next) => {
         try {

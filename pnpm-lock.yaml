@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  vite: 6.0.0-alpha.3
+  vite: 6.0.0-alpha.6
 
 importers:
 
@@ -22,7 +22,7 @@ importers:
         version: 1.6.4-pre.1
       '@hiogawa/vite-plugin-ssr-middleware':
         specifier: ^0.0.3
-        version: 0.0.3(vite@6.0.0-alpha.3)
+        version: 0.0.3(vite@6.0.0-alpha.6)
       '@playwright/test':
         specifier: ^1.42.1
         version: 1.42.1
@@ -34,7 +34,7 @@ importers:
         version: 20.11.30
       '@vitejs/plugin-react':
         specifier: ^4.2.1
-        version: 4.2.1(vite@6.0.0-alpha.3)
+        version: 4.2.1(vite@6.0.0-alpha.6)
       esbuild:
         specifier: ^0.20.2
         version: 0.20.2
@@ -54,8 +54,8 @@ importers:
         specifier: ^5.4.3
         version: 5.4.3
       vite:
-        specifier: 6.0.0-alpha.3
-        version: 6.0.0-alpha.3(@types/node@20.11.30)
+        specifier: 6.0.0-alpha.6
+        version: 6.0.0-alpha.6(@types/node@20.11.30)
       vitest:
         specifier: ^1.5.1
         version: 1.5.1(@types/node@20.11.30)
@@ -177,7 +177,7 @@ importers:
         version: link:../../packages/workerd
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
-        version: 5.0.4(vite@6.0.0-alpha.3)(vue@3.4.23)
+        version: 5.0.4(vite@6.0.0-alpha.6)(vue@3.4.23)
       vue-tsc:
         specifier: ^2.0.13
         version: 2.0.13(typescript@5.4.3)
@@ -202,7 +202,7 @@ importers:
         version: link:../../packages/workerd
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
-        version: 5.0.4(vite@6.0.0-alpha.3)(vue@3.4.23)
+        version: 5.0.4(vite@6.0.0-alpha.6)(vue@3.4.23)
       vue-tsc:
         specifier: ^2.0.13
         version: 2.0.13(typescript@5.4.3)
@@ -216,8 +216,8 @@ importers:
   packages/ssr-middleware:
     dependencies:
       vite:
-        specifier: 6.0.0-alpha.3
-        version: 6.0.0-alpha.3(@types/node@20.11.30)
+        specifier: 6.0.0-alpha.6
+        version: 6.0.0-alpha.6(@types/node@20.11.30)
 
   packages/workerd:
     dependencies:
@@ -225,8 +225,8 @@ importers:
         specifier: ^3.20240404.0
         version: 3.20240404.0
       vite:
-        specifier: 6.0.0-alpha.3
-        version: 6.0.0-alpha.3(@types/node@20.11.30)
+        specifier: 6.0.0-alpha.6
+        version: 6.0.0-alpha.6(@types/node@20.11.30)
       wrangler:
         specifier: ^3.48.0
         version: 3.48.0(@cloudflare/workers-types@4.20240405.0)
@@ -1152,12 +1152,12 @@ packages:
     resolution: {integrity: sha512-L8g6kQuPKJXKoqF1XuFYXXHQ3Z4VXuEX8tlOz/gPO6uP2VQ95JUyONsr93RpVTLc/GGblXY30/YK4r56kJzzgQ==}
     dev: true
 
-  /@hiogawa/vite-plugin-ssr-middleware@0.0.3(vite@6.0.0-alpha.3):
+  /@hiogawa/vite-plugin-ssr-middleware@0.0.3(vite@6.0.0-alpha.6):
     resolution: {integrity: sha512-84bzaAuImty4s4vHjOk5MQMzmDs0W0GP43fOTFhsBfj/MSJCNJ68elmPNZWs57WkIEzcdB4haY/P8Nf4ZGH8Qw==}
     peerDependencies:
-      vite: 6.0.0-alpha.3
+      vite: 6.0.0-alpha.6
     dependencies:
-      vite: 6.0.0-alpha.3(@types/node@20.11.30)
+      vite: 6.0.0-alpha.6(@types/node@20.11.30)
     dev: true
 
   /@isaacs/cliui@8.0.2:
@@ -1439,30 +1439,30 @@ packages:
       csstype: 3.1.3
     dev: true
 
-  /@vitejs/plugin-react@4.2.1(vite@6.0.0-alpha.3):
+  /@vitejs/plugin-react@4.2.1(vite@6.0.0-alpha.6):
     resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: 6.0.0-alpha.3
+      vite: 6.0.0-alpha.6
     dependencies:
       '@babel/core': 7.24.3
       '@babel/plugin-transform-react-jsx-self': 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.24.3)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 6.0.0-alpha.3(@types/node@20.11.30)
+      vite: 6.0.0-alpha.6(@types/node@20.11.30)
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@vitejs/plugin-vue@5.0.4(vite@6.0.0-alpha.3)(vue@3.4.23):
+  /@vitejs/plugin-vue@5.0.4(vite@6.0.0-alpha.6)(vue@3.4.23):
     resolution: {integrity: sha512-WS3hevEszI6CEVEx28F8RjTX97k3KsrcY6kvTg7+Whm5y3oYvcqzVeGCU3hxSAn4uY2CLCkeokkGKpoctccilQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
-      vite: 6.0.0-alpha.3
+      vite: 6.0.0-alpha.6
       vue: ^3.2.25
     dependencies:
-      vite: 6.0.0-alpha.3(@types/node@20.11.30)
+      vite: 6.0.0-alpha.6(@types/node@20.11.30)
       vue: 3.4.23(typescript@5.4.3)
     dev: true
 
@@ -3491,7 +3491,7 @@ packages:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 6.0.0-alpha.3(@types/node@20.11.30)
+      vite: 6.0.0-alpha.6(@types/node@20.11.30)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -3503,8 +3503,8 @@ packages:
       - terser
     dev: true
 
-  /vite@6.0.0-alpha.3(@types/node@20.11.30):
-    resolution: {integrity: sha512-9AyUOuPF80CW+Jh1iTEVrSOl2miUPzLKCaF8QhgCFoRzB9FB/t8wmKqM3id2Hdg/czcStGU0bXMaOM0CsgWtQw==}
+  /vite@6.0.0-alpha.6(@types/node@20.11.30):
+    resolution: {integrity: sha512-enY4/W2GNJ41fTMXvNeG/3Otfqrao7a1cnBJWxNrxCMpZnUQzQ6Vb248+DT8uVVtGq8GV67SADgt+CVUK5Gpfw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -3581,7 +3581,7 @@ packages:
       strip-literal: 2.1.0
       tinybench: 2.8.0
       tinypool: 0.8.4
-      vite: 6.0.0-alpha.3(@types/node@20.11.30)
+      vite: 6.0.0-alpha.6(@types/node@20.11.30)
       vite-node: 1.5.1(@types/node@20.11.30)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:

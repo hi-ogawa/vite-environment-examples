@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --all && rm -rf dist/client/index.html",
+    "build": "vite build --app && rm -rf dist/client/index.html",
     "preview": "wrangler dev",
     "release": "wrangler deploy",
     "tsc": "vue-tsc -b",

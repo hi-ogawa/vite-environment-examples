@@ -63,10 +63,10 @@ export default defineConfig((_env) => ({
   },
 
   builder: {
-    async buildEnvironments(builder, build) {
-      await build(builder.environments["react-server"]!);
-      await build(builder.environments["client"]!);
-      await build(builder.environments["ssr"]!);
+    async buildApp(builder) {
+      await builder.build(builder.environments["react-server"]!);
+      await builder.build(builder.environments["client"]!);
+      await builder.build(builder.environments["ssr"]!);
     },
   },
 
@@ -120,10 +120,7 @@ function vitePluginReactServer(): PluginOption {
     async configureServer(server) {
       const reactServerEnv = server.environments["react-server"];
       tinyassert(reactServerEnv);
-      const reactServerRunner = createServerModuleRunner(
-        server,
-        reactServerEnv,
-      );
+      const reactServerRunner = createServerModuleRunner(reactServerEnv);
       $__global.server = server;
       $__global.reactServerRunner = reactServerRunner;
     },
