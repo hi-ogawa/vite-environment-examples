@@ -36,10 +36,10 @@ function ServerActionDemo() {
       <h4>Hello Server Action</h4>
       <form action={changeCounter}>
         <div>Count: {getCounter()}</div>
-        <button className="btn" name="value" value={-1}>
+        <button className="server-btn" name="value" value={-1}>
           -1
         </button>
-        <button className="btn" name="value" value={+1}>
+        <button className="server-btn" name="value" value={+1}>
           +1
         </button>
       </form>

@@ -33,12 +33,14 @@ exports[`basic 1`] = `
             0
           </div>
           <button
+            class="server-btn"
             name="value"
             value="-1"
           >
             -1
           </button>
           <button
+            class="server-btn"
             name="value"
             value="1"
           >
@@ -84,10 +86,14 @@ exports[`basic 1`] = `
           Count: 
           0
         </div>
-        <button>
+        <button
+          class="client-btn"
+        >
           -1
         </button>
-        <button>
+        <button
+          class="client-btn"
+        >
           +1
         </button>
       </div>

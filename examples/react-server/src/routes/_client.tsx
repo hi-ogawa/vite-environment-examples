@@ -1,5 +1,6 @@
 "use client";
 
+import "./_client.css";
 import React from "react";
 import { checkAnswer } from "./_action";
 
@@ -16,10 +17,10 @@ export function ClientComponent() {
       <h4>Hello Client Component</h4>
       <div data-hydrated={hydrated}>hydrated: {String(hydrated)}</div>
       <div>Count: {count}</div>
-      <button className="btn" onClick={() => setCount((v) => v - 1)}>
+      <button className="client-btn" onClick={() => setCount((v) => v - 1)}>
         -1
       </button>
-      <button className="btn" onClick={() => setCount((v) => v + 1)}>
+      <button className="client-btn" onClick={() => setCount((v) => v + 1)}>
         +1
       </button>
     </div>
