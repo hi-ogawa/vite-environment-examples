@@ -40,5 +40,8 @@
     "overrides": {
       "vite": "$vite"
     }
+  },
+  "stackblitz": {
+    "startCommand": "pnpm -C packages/ssr-middleware build && pnpm -C examples/react-server dev"
   }
 }

@@ -2,6 +2,8 @@
 
 Experimenting with [Vite Environment API](https://github.com/vitejs/vite/pull/16471)
 
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/https://github.com/hi-ogawa/vite-environment-examples)
+
 ```sh
 pnpm i
 pnpm build
