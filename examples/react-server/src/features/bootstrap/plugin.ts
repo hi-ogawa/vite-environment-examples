@@ -3,7 +3,7 @@ import { tinyassert, typedBoolean } from "@hiogawa/utils";
 import type { Manifest, PluginOption, ViteDevServer } from "vite";
 import { $__global } from "../../global";
 import { createVirtualPlugin } from "../utils/plugin";
-import { SSR_CSS_ENTRY, vitePluginSsrCss } from "./css";
+import { SSR_CSS_ENTRY } from "./css";
 
 export const ENTRY_CLIENT_BOOTSTRAP = "virtual:entry-client-bootstrap";
 
@@ -66,7 +66,6 @@ export function vitePluginEntryBootstrap(): PluginOption {
       }
       return `export default ${JSON.stringify(ssrAssets)}`;
     }),
-    vitePluginSsrCss(),
   ];
 }
 

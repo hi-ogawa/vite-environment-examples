@@ -1,4 +1,5 @@
 import type { DevEnvironment, PluginOption } from "vite";
+import type { ReactServerPluginManager } from "../../../vite.config";
 import { $__global } from "../../global";
 import { createVirtualPlugin } from "../utils/plugin";
 
@@ -9,7 +10,11 @@ import { createVirtualPlugin } from "../utils/plugin";
 
 export const SSR_CSS_ENTRY = "virtual:ssr-css.css";
 
-export function vitePluginSsrCss(): PluginOption {
+export function vitePluginSsrCss({
+  manager,
+}: {
+  manager: ReactServerPluginManager;
+}): PluginOption {
   return [
     {
       name: vitePluginSsrCss.name + ":invalidate",
@@ -32,10 +37,13 @@ export function vitePluginSsrCss(): PluginOption {
       const reactServerEnv = $__global.server.environments["react-server"];
       const styles = await Promise.all([
         `/****** react-server ********/`,
+        // TODO: we don't need this if we proxy server css to client?
         collectStyle(clientEnv, reactServerEnv, ["/src/entry-react-server"]),
         `/****** client **************/`,
-        // TODO: use client references as entries
-        collectStyle(clientEnv, clientEnv, ["/src/entry-client"]),
+        collectStyle(clientEnv, clientEnv, [
+          "/src/entry-client",
+          ...manager.clientReferences,
+        ]),
       ]);
       return styles.join("\n\n");
     }),

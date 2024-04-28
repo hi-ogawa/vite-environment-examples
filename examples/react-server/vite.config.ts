@@ -11,6 +11,7 @@ import {
   createServerModuleRunner,
   defineConfig,
 } from "vite";
+import { vitePluginSsrCss } from "./src/features/bootstrap/css";
 import {
   ENTRY_CLIENT_BOOTSTRAP,
   vitePluginEntryBootstrap,
@@ -82,13 +83,15 @@ export default defineConfig((_env) => ({
 }));
 
 // singleton to pass data through environment build
-class ReactServerManager {
+class ReactServerPluginManager {
   public clientReferences = new Set<string>();
 }
 
-const manager: ReactServerManager = ((
+export type { ReactServerPluginManager };
+
+const manager: ReactServerPluginManager = ((
   globalThis as any
-).__VITE_REACT_SERVER_MANAGER ??= new ReactServerManager());
+).__VITE_REACT_SERVER_MANAGER ??= new ReactServerPluginManager());
 
 function vitePluginReactServer(): PluginOption {
   const environmentPlugin: Plugin = {
@@ -165,6 +168,7 @@ function vitePluginReactServer(): PluginOption {
     vitePluginSilenceDirectiveBuildWarning(),
     vitePluginServerAction(),
     vitePluginEntryBootstrap(),
+    vitePluginSsrCss({ manager }),
   ];
 }
 
