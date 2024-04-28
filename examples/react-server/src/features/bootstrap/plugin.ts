@@ -3,6 +3,7 @@ import { tinyassert, typedBoolean } from "@hiogawa/utils";
 import type { Manifest, PluginOption, ViteDevServer } from "vite";
 import { $__global } from "../../global";
 import { createVirtualPlugin } from "../utils/plugin";
+import { SSR_CSS_ENTRY, vitePluginSsrCss } from "./css";
 
 export const ENTRY_CLIENT_BOOTSTRAP = "virtual:entry-client-bootstrap";
 
@@ -31,7 +32,11 @@ export function vitePluginEntryBootstrap(): PluginOption {
     createVirtualPlugin("ssr-assets", async () => {
       let ssrAssets: SsrAssets;
       if ($__global.server) {
-        const { head } = await getIndexHtmlTransform($__global.server);
+        let { head } = await getIndexHtmlTransform($__global.server);
+        head = [
+          head,
+          `<link rel="stylesheet" href="/@id/__x00__${SSR_CSS_ENTRY}" />`,
+        ].join("\n");
         ssrAssets = {
           head,
           bootstrapModules: ["/@id/__x00__" + ENTRY_CLIENT_BOOTSTRAP],
@@ -56,12 +61,13 @@ export function vitePluginEntryBootstrap(): PluginOption {
           ...js.map((href) => `<link rel="modulepreload" href="/${href}" />`),
         ].join("\n");
         ssrAssets = {
-          bootstrapModules: [`/${entry.file}`],
           head,
+          bootstrapModules: [`/${entry.file}`],
         };
       }
       return `export default ${JSON.stringify(ssrAssets)}`;
     }),
+    vitePluginSsrCss(),
   ];
 }
 

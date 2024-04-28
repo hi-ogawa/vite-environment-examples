@@ -42,6 +42,12 @@ export default defineConfig((_env) => ({
 
   environments: {
     client: {
+      dev: {
+        optimizeDeps: {
+          // [feedback] no optimizeDeps.entries for initial scan?
+          // entries: []
+        },
+      },
       build: {
         outDir: "dist/client",
         minify: false,
