@@ -18,7 +18,6 @@ export function vitePluginSsrCss(): PluginOption {
           if (req.url === `/@id/__x00__${SSR_CSS_ENTRY}`) {
             const { moduleGraph } = $__global.server.environments["client"];
             const mod = moduleGraph.getModuleById(`\0${SSR_CSS_ENTRY}?direct`);
-            console.log("[invalidateModule]", [req.url, !!mod]);
             if (mod) {
               moduleGraph.invalidateModule(mod);
             }
