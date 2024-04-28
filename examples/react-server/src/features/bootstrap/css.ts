@@ -34,6 +34,7 @@ export function vitePluginSsrCss(): PluginOption {
         `/****** react-server ********/`,
         collectStyle(clientEnv, reactServerEnv, ["/src/entry-react-server"]),
         `/****** client **************/`,
+        // TODO: use client references as entries
         collectStyle(clientEnv, clientEnv, ["/src/entry-client"]),
       ]);
       return styles.join("\n\n");
