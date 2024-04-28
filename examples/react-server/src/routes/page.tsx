@@ -1,3 +1,4 @@
+import "./_server.css";
 import { changeCounter, getCounter } from "./_action";
 import { ClientComponent, UseActionStateDemo } from "./_client";
 
@@ -35,10 +36,10 @@ function ServerActionDemo() {
       <h4>Hello Server Action</h4>
       <form action={changeCounter}>
         <div>Count: {getCounter()}</div>
-        <button name="value" value={-1}>
+        <button className="btn" name="value" value={-1}>
           -1
         </button>
-        <button name="value" value={+1}>
+        <button className="btn" name="value" value={+1}>
           +1
         </button>
       </form>

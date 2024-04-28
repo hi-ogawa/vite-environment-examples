@@ -18,6 +18,7 @@ export function vitePluginSsrCss(): PluginOption {
           if (req.url === `/@id/__x00__${SSR_CSS_ENTRY}`) {
             const { moduleGraph } = $__global.server.environments["client"];
             const mod = moduleGraph.getModuleById(`\0${SSR_CSS_ENTRY}?direct`);
+            console.log("[invalidateModule]", [req.url, !!mod]);
             if (mod) {
               moduleGraph.invalidateModule(mod);
             }
@@ -27,26 +28,29 @@ export function vitePluginSsrCss(): PluginOption {
       },
     },
     createVirtualPlugin("ssr-css.css?direct", async () => {
+      // collect css in react-server module graph, but evaluate css in client
+      const clientEnv = $__global.server.environments["client"];
+      const reactServerEnv = $__global.server.environments["react-server"];
       const styles = await Promise.all([
         `/****** react-server ********/`,
-        collectStyle($__global.server.environments["react-server"], [
-          "/src/entry-react-server",
-        ]),
+        collectStyle(clientEnv, reactServerEnv, ["/src/entry-react-server"]),
         `/****** client **************/`,
-        collectStyle($__global.server.environments["client"], [
-          "/src/entry-client",
-        ]),
+        collectStyle(clientEnv, clientEnv, ["/src/entry-client"]),
       ]);
       return styles.join("\n\n");
     }),
   ];
 }
 
-async function collectStyle(server: DevEnvironment, entries: string[]) {
-  const urls = await collectStyleUrls(server, entries);
+async function collectStyle(
+  cssEnv: DevEnvironment,
+  moduleEnv: DevEnvironment,
+  entries: string[],
+) {
+  const urls = await collectStyleUrls(moduleEnv, entries);
   const codes = await Promise.all(
     urls.map(async (url) => {
-      const res = await server.transformRequest(url + "?direct");
+      const res = await cssEnv.transformRequest(url + "?direct");
       return [`/*** ${url} ***/`, res?.code];
     }),
   );
@@ -54,18 +58,18 @@ async function collectStyle(server: DevEnvironment, entries: string[]) {
 }
 
 async function collectStyleUrls(
-  server: DevEnvironment,
+  devEnv: DevEnvironment,
   entries: string[],
 ): Promise<string[]> {
   const visited = new Set<string>();
 
   async function traverse(url: string) {
-    const [, id] = await server.moduleGraph.resolveUrl(url);
+    const [, id] = await devEnv.moduleGraph.resolveUrl(url);
     if (visited.has(id)) {
       return;
     }
     visited.add(id);
-    const mod = server.moduleGraph.getModuleById(id);
+    const mod = devEnv.moduleGraph.getModuleById(id);
     if (!mod) {
       return;
     }
@@ -75,7 +79,7 @@ async function collectStyleUrls(
   }
 
   // ensure vite's import analysis is ready _only_ for top entries to not go too aggresive
-  await Promise.all(entries.map((e) => server.transformRequest(e)));
+  await Promise.all(entries.map((e) => devEnv.transformRequest(e)));
 
   // traverse
   await Promise.all(entries.map((url) => traverse(url)));
