@@ -34,25 +34,59 @@ export function vitePluginUnocssReactServer(): PluginOption {
   return [
     {
       name: vitePluginUnocssReactServer.name,
+      sharedDuringBuild: true,
+
+      // extract tokens by intercepting transform
       transform(code, id, _options) {
         if (ctx.filter(code, id)) {
           ctx.extract(code, id);
         }
       },
+
+      // hmr
       async configureServer(server) {
         const debounced = debounce(() => onUpdate(server), 50);
         ctx.onInvalidate(debounced);
         ctx.onReload(debounced);
       },
-      // TODO
-      sharedDuringBuild: true,
-      renderChunk() {},
     },
-    createVirtualPlugin("unocss.css", async () => {
-      await ctx.flushTasks();
-      const result = await ctx.uno.generate(ctx.tokens);
-      return result.css;
-    }),
+    {
+      name: vitePluginUnocssReactServer.name + ":create",
+      sharedDuringBuild: true,
+
+      // [feedback] `create` plugin cannot have `transform` together?
+      create(environment) {
+        if (environment.mode === "dev") {
+          // virtual module directly transformed
+          return [
+            createVirtualPlugin("unocss.css", async () => {
+              await ctx.flushTasks();
+              const result = await ctx.uno.generate(ctx.tokens);
+              return result.css;
+            }),
+          ];
+        }
+        if (environment.mode === "build") {
+          // virtual module processed during renderChunk
+          let found = false;
+          return [
+            createVirtualPlugin("unocss.css", async () => {
+              found = true;
+              return "/* todo: unocss.css */";
+            }),
+            {
+              name: vitePluginUnocssReactServer.name + ":render",
+              renderChunk(_code, chunk, _options) {
+                if (found) {
+                  console.log("[unocss:renderChunk]", chunk.moduleIds);
+                }
+              },
+            },
+          ];
+        }
+        return;
+      },
+    },
   ];
 }
 
