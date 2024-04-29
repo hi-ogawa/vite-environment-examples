@@ -2,6 +2,7 @@
 
 .server-btn {
   background-color: rgb(220, 220, 255);
+  cursor: pointer;
   font-size: 1rem;
   font-family: inherit;
   border: none;

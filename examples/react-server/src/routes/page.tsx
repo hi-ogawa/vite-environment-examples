@@ -1,6 +1,7 @@
 import "./_server.css";
 import { changeCounter, getCounter } from "./_action";
 import { ClientComponent, UseActionStateDemo } from "./_client";
+import { SharedComponent } from "./_shared";
 
 export default async function Layout() {
   return (
@@ -24,6 +25,7 @@ async function Page() {
   return (
     <div>
       <h4>Hello Server Component</h4>
+      <SharedComponent message="server" />
       <ServerActionDemo />
       <ClientComponent />
     </div>

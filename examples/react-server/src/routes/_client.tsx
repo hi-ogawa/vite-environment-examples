@@ -3,6 +3,7 @@
 import "./_client.css";
 import React from "react";
 import { checkAnswer } from "./_action";
+import { SharedComponent } from "./_shared";
 
 export function ClientComponent() {
   const [count, setCount] = React.useState(0);
@@ -15,6 +16,7 @@ export function ClientComponent() {
   return (
     <div data-testid="client-component">
       <h4>Hello Client Component</h4>
+      <SharedComponent message="client" />
       <div data-hydrated={hydrated}>hydrated: {String(hydrated)}</div>
       <div>Count: {count}</div>
       <button className="client-btn" onClick={() => setCount((v) => v - 1)}>
