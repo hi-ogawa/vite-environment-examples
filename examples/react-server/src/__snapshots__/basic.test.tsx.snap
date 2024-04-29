@@ -19,6 +19,11 @@ exports[`basic 1`] = `
       <h4>
         Hello Server Component
       </h4>
+      <div>
+        Shared Component (
+        server
+        )
+      </div>
       <div
         data-testid="server-action"
       >
@@ -77,6 +82,11 @@ exports[`basic 1`] = `
         <h4>
           Hello Client Component
         </h4>
+        <div>
+          Shared Component (
+          client
+          )
+        </div>
         <div
           data-hydrated="true"
         >
