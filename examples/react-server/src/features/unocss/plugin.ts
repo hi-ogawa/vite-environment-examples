@@ -17,7 +17,7 @@ export function vitePluginUnocssReactServer(): Plugin {
     create(environment) {
       const plugins: Plugin[] = [];
 
-      // (dev, build) [all envs]
+      // [dev, build]
       // extract tokens by intercepting transform
       plugins.push({
         name: vitePluginUnocssReactServer.name + ":extract",
@@ -28,19 +28,27 @@ export function vitePluginUnocssReactServer(): Plugin {
         },
       });
 
-      // (dev) [client]
-      // HMR
-      if (environment.mode === "dev" && environment.name === "client") {
-        tinyassert(environment instanceof DevEnvironment);
-        const devEnv = environment;
+      // [dev]
+      if (environment.mode === "dev") {
+        // transform virtual module directly
+        plugins.push(
+          createVirtualPlugin("unocss.css", async () => {
+            await ctx.flushTasks();
+            const result = await ctx.uno.generate(ctx.tokens);
+            return result.css;
+          }),
+        );
+
+        // HMR
         function hotUpdate() {
-          const mod = invalidateModuleById(devEnv, "\0virtual:unocss.css");
+          tinyassert(environment instanceof DevEnvironment);
+          const mod = invalidateModuleById(environment, "\0virtual:unocss.css");
           if (mod) {
-            devEnv.hot.send({
+            environment.hot.send({
               type: "update",
               updates: [
                 {
-                  type: "js-update",
+                  type: `${mod.type}-update`,
                   path: "/@id/__x00__virtual:unocss.css",
                   acceptedPath: "/@id/__x00__virtual:unocss.css",
                   timestamp: Date.now(),
@@ -54,19 +62,7 @@ export function vitePluginUnocssReactServer(): Plugin {
         ctx.onReload(debounced);
       }
 
-      // (dev) [all envs]
-      // transform virtual module directly
-      if (environment.mode === "dev") {
-        plugins.push(
-          createVirtualPlugin("unocss.css", async () => {
-            await ctx.flushTasks();
-            const result = await ctx.uno.generate(ctx.tokens);
-            return result.css;
-          }),
-        );
-      }
-
-      // (build) [all envs]
+      // [build]
       // transform virtual module during renderChunk
       if (environment.mode === "build") {
         const cssPlugins = environment.config.plugins.filter(
