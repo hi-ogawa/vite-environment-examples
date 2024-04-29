@@ -8,11 +8,11 @@ import { createVirtualPlugin } from "../utils/plugin";
 // https://github.com/unocss/unocss/tree/47eafba27619ed26579df60fe3fdeb6122b5093c/packages/vite/src/modes/global
 // https://github.com/tailwindlabs/tailwindcss/blob/719c0d488378002ff752e8dc7199c843930bb296/packages/%40tailwindcss-vite/src/index.ts
 
-export function vitePluginUnocssReactServer(): Plugin {
+export function vitePluginSharedUnocss(): Plugin {
   const ctx = getUnocssContext();
 
   return {
-    name: vitePluginUnocssReactServer.name + ":create",
+    name: vitePluginSharedUnocss.name,
     sharedDuringBuild: true,
     create(environment) {
       const plugins: Plugin[] = [];
@@ -20,13 +20,16 @@ export function vitePluginUnocssReactServer(): Plugin {
       // [dev, build]
       // extract tokens by intercepting transform
       plugins.push({
-        name: vitePluginUnocssReactServer.name + ":extract",
+        name: vitePluginSharedUnocss.name + ":extract",
         transform(code, id) {
           if (ctx.filter(code, id)) {
             ctx.extract(code, id);
           }
         },
       });
+
+      // Following plugins are naturally applied to environments which imports "virtual:unocss.css".
+      // So, even though we only need to handle `environment.name === "client"` case, such restriction is not necessary.
 
       // [dev]
       if (environment.mode === "dev") {
@@ -70,9 +73,9 @@ export function vitePluginUnocssReactServer(): Plugin {
         );
 
         plugins.push(
-          createVirtualPlugin("unocss.css", () => "/*** todo: unocss ***/"),
+          createVirtualPlugin("unocss.css", () => "/*** tmp unocss ***/"),
           {
-            name: vitePluginUnocssReactServer.name + ":render",
+            name: vitePluginSharedUnocss.name + ":render",
             async renderChunk(_code, chunk, _options) {
               if (chunk.moduleIds.includes("\0virtual:unocss.css")) {
                 await ctx.flushTasks();
@@ -102,7 +105,7 @@ export function vitePluginUnocssReactServer(): Plugin {
   };
 }
 
-// create DIY plugin by grabbing unocss instance
+// grab internal unocss instance
 function getUnocssContext() {
   const plugins = vitePluginUnocss();
   const plugin = plugins.find((p) => p.name === "unocss:api");
