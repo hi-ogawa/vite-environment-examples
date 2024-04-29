@@ -3,8 +3,8 @@ import { tinyassert } from "@hiogawa/utils";
 import type { DevEnvironment, Manifest, PluginOption } from "vite";
 import type { ReactServerPluginManager } from "../../../vite.config";
 import { $__global } from "../../global";
+import { ENTRY_CLIENT_BOOTSTRAP } from "../bootstrap/plugin";
 import { createVirtualPlugin } from "../utils/plugin";
-import { ENTRY_CLIENT_BOOTSTRAP } from "./plugin";
 
 const VIRTUAL_SSR_CSS = "virtual:ssr-css.css";
 export const VIRTUAL_COPY_SERVER_CSS = "virtual:copy-server-css.js";

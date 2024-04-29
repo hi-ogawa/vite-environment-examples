@@ -11,11 +11,11 @@ import {
   createServerModuleRunner,
   defineConfig,
 } from "vite";
-import { vitePluginServerCss } from "./src/features/bootstrap/css";
 import {
   ENTRY_CLIENT_BOOTSTRAP,
   vitePluginEntryBootstrap,
 } from "./src/features/bootstrap/plugin";
+import { vitePluginServerCss } from "./src/features/style/plugin";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import {
   collectFiles,
