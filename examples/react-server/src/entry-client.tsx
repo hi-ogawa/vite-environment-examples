@@ -1,3 +1,4 @@
+import "virtual:unocss.css";
 import React from "react";
 import reactDomClient from "react-dom/client";
 import type { StreamData } from "./entry-react-server";

@@ -24,8 +24,8 @@ export function vitePluginServerCss({
         server.middlewares.use((req, _res, next) => {
           if (req.url === `/@id/__x00__${VIRTUAL_SSR_CSS}`) {
             const env = $__global.server.environments["client"];
-            invalidateModule(env, `\0${VIRTUAL_SSR_CSS}?direct`);
-            invalidateModule(env, `\0${VIRTUAL_COPY_SERVER_CSS}`);
+            invalidateModuleById(env, `\0${VIRTUAL_SSR_CSS}?direct`);
+            invalidateModuleById(env, `\0${VIRTUAL_COPY_SERVER_CSS}`);
           }
           next();
         });
@@ -60,8 +60,9 @@ export function vitePluginServerCss({
         },
       },
     },
-    createVirtualPlugin(VIRTUAL_SSR_CSS.slice(8) + "?direct", async () => {
+    createVirtualPlugin(VIRTUAL_SSR_CSS.slice(8), async (id) => {
       tinyassert($__global.server);
+      tinyassert(id.includes("?direct"));
       return collectStyle($__global.server.environments["client"], [
         ENTRY_CLIENT_BOOTSTRAP,
         // TODO: split css per-route?
@@ -99,11 +100,12 @@ export function vitePluginServerCss({
   ];
 }
 
-function invalidateModule(server: DevEnvironment, id: string) {
+export function invalidateModuleById(server: DevEnvironment, id: string) {
   const mod = server.moduleGraph.getModuleById(id);
   if (mod) {
     server.moduleGraph.invalidateModule(mod);
   }
+  return mod;
 }
 
 async function collectStyle(server: DevEnvironment, entries: string[]) {
