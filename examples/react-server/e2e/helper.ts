@@ -1,4 +1,5 @@
 import fs from "fs";
+import { sleep } from "@hiogawa/utils";
 import { type Page, expect, test } from "@playwright/test";
 
 export const testNoJs = test.extend({
@@ -44,7 +45,7 @@ export async function createReloadChecker(page: Page) {
   }
 
   async function check() {
-    // TODO: wait for network idle?
+    await sleep(300);
     await expect(page.locator(`meta[name="x-reload-check"]`)).toBeAttached({
       timeout: 1,
     });
