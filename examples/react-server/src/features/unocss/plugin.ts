@@ -88,14 +88,12 @@ export function vitePluginSharedUnocss(): Plugin {
               if (chunk.moduleIds.includes("\0virtual:unocss.css")) {
                 await ctx.flushTasks();
                 let { css } = await ctx.uno.generate(ctx.tokens);
-                // [feedback] environment in renderChunk context?
-                const pluginCtx = { ...this, environment };
                 for (const plugin of cssPlugins) {
                   tinyassert(typeof plugin.transform === "function");
-                  const result = await plugin.transform.apply(
-                    pluginCtx as any,
-                    [css, "\0virtual:unocss.css"],
-                  );
+                  const result = await plugin.transform.apply(this as any, [
+                    css,
+                    "\0virtual:unocss.css",
+                  ]);
                   tinyassert(
                     objectHas(result, "code") &&
                       typeof result.code === "string",
