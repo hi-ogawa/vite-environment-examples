@@ -1,14 +1,14 @@
 import { type Page, expect, test } from "@playwright/test";
 import {
   createEditor,
-  createNoReloadChecker,
+  createReloadChecker,
   testNoJs,
-  useNoPageErrorChecker,
+  usePageErrorChecker,
   waitForHydration,
 } from "./helper";
 
 test("client-component", async ({ page }) => {
-  useNoPageErrorChecker(page);
+  usePageErrorChecker(page);
   await page.goto("/");
   await waitForHydration(page);
   await page.getByTestId("client-component").getByText("Count: 0").click();
@@ -20,14 +20,14 @@ test("client-component", async ({ page }) => {
 });
 
 test("server-action @js", async ({ page }) => {
-  useNoPageErrorChecker(page);
+  usePageErrorChecker(page);
   await page.goto("/");
   await waitForHydration(page);
   await testServerAction(page);
 });
 
 testNoJs("server-action @nojs", async ({ page }) => {
-  useNoPageErrorChecker(page);
+  usePageErrorChecker(page);
   await page.goto("/");
   await testServerAction(page);
 });
@@ -47,14 +47,14 @@ async function testServerAction(page: Page) {
 }
 
 test("useActionState @js", async ({ page }) => {
-  useNoPageErrorChecker(page);
+  usePageErrorChecker(page);
   await page.goto("/");
   await waitForHydration(page);
   await testUseActionState(page, { js: true });
 });
 
 testNoJs("useActionState @nojs", async ({ page }) => {
-  useNoPageErrorChecker(page);
+  usePageErrorChecker(page);
   await page.goto("/");
   await testUseActionState(page, { js: false });
 });
@@ -75,14 +75,14 @@ async function testUseActionState(page: Page, options: { js: boolean }) {
 }
 
 test("css basic @js", async ({ page }) => {
-  useNoPageErrorChecker(page);
+  usePageErrorChecker(page);
   await page.goto("/");
   await waitForHydration(page);
   await testCssBasic(page);
 });
 
 testNoJs("css basic @nojs", async ({ page }) => {
-  useNoPageErrorChecker(page);
+  usePageErrorChecker(page);
   await page.goto("/");
   await testCssBasic(page);
 });
@@ -97,12 +97,12 @@ async function testCssBasic(page: Page) {
 }
 
 test("css hmr server @dev", async ({ page }) => {
-  useNoPageErrorChecker(page);
+  usePageErrorChecker(page);
   await page.goto("/");
   await waitForHydration(page);
 
   await using editor = await createEditor("src/routes/_server.css");
-  await using _ = await createNoReloadChecker(page);
+  await using _ = await createReloadChecker(page);
 
   await expect(
     page.getByTestId("server-action").getByRole("button", { name: "+" }),
@@ -122,12 +122,12 @@ test("css hmr server @dev", async ({ page }) => {
 });
 
 test("css hmr client @dev", async ({ page }) => {
-  useNoPageErrorChecker(page);
+  usePageErrorChecker(page);
   await page.goto("/");
   await waitForHydration(page);
 
   await using editor = await createEditor("src/routes/_client.css");
-  await using _ = await createNoReloadChecker(page);
+  await using _ = await createReloadChecker(page);
 
   await expect(
     page.getByTestId("client-component").getByRole("button", { name: "+" }),

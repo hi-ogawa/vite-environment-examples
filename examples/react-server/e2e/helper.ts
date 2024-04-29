@@ -14,7 +14,7 @@ test.afterEach(({ page }) => {
   }
 });
 
-export function useNoPageErrorChecker(page: Page) {
+export function usePageErrorChecker(page: Page) {
   const pageErrors: Error[] = [];
   pageErrorsMap.set(page, pageErrors);
   page.on("pageerror", (e) => pageErrors.push(e));
@@ -34,7 +34,7 @@ export async function createEditor(filepath: string) {
   };
 }
 
-export async function createNoReloadChecker(page: Page) {
+export async function createReloadChecker(page: Page) {
   async function reset() {
     await page.evaluate(() => {
       const el = document.createElement("meta");
