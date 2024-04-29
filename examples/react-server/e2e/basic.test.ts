@@ -19,6 +19,46 @@ test("client-component", async ({ page }) => {
   await page.getByTestId("client-component").getByText("Count: 1").click();
 });
 
+test("client hmr @dev", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/");
+  await waitForHydration(page);
+
+  await using editor = await createEditor("src/routes/_client.tsx");
+  await using _ = await createReloadChecker(page);
+
+  await page.getByRole("heading", { name: "Hello Client Component" }).click();
+  await editor.edit((s) =>
+    s.replace("Hello Client Component", "Hello [EDIT] Client Component"),
+  );
+  await page
+    .getByRole("heading", { name: "Hello [EDIT] Client Component" })
+    .click();
+});
+
+test("server hmr @dev", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/");
+  await waitForHydration(page);
+
+  await using editor = await createEditor("src/routes/page.tsx");
+  await using _ = await createReloadChecker(page);
+
+  await page.getByRole("heading", { name: "Hello Server Component" }).click();
+  await editor.edit((s) =>
+    s.replace("Hello Server Component", "Hello [EDIT] Server Component"),
+  );
+  await page
+    .getByRole("heading", { name: "Hello [EDIT] Server Component" })
+    .click();
+});
+
+test("shared hmr @dev", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/");
+  await waitForHydration(page);
+});
+
 test("server-action @js", async ({ page }) => {
   usePageErrorChecker(page);
   await page.goto("/");
