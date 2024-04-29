@@ -36,14 +36,14 @@ export function vitePluginUnocssReactServer(): PluginOption {
       name: vitePluginUnocssReactServer.name,
       sharedDuringBuild: true,
 
-      // extract tokens by intercepting transform
+      // (dev, build) extract tokens by intercepting transform
       transform(code, id, _options) {
         if (ctx.filter(code, id)) {
           ctx.extract(code, id);
         }
       },
 
-      // hmr
+      // (dev) hmr
       async configureServer(server) {
         const debounced = debounce(() => onUpdate(server), 50);
         ctx.onInvalidate(debounced);
@@ -57,7 +57,7 @@ export function vitePluginUnocssReactServer(): PluginOption {
       // [feedback] `create` plugin cannot have `transform` together?
       create(environment) {
         if (environment.mode === "dev") {
-          // virtual module directly transformed
+          // (dev) virtual module directly transformed
           return [
             createVirtualPlugin("unocss.css", async () => {
               await ctx.flushTasks();
@@ -67,7 +67,7 @@ export function vitePluginUnocssReactServer(): PluginOption {
           ];
         }
         if (environment.mode === "build") {
-          // virtual module processed during renderChunk
+          // (build) virtual module processed during renderChunk
           let found = false;
           return [
             createVirtualPlugin("unocss.css", async () => {
