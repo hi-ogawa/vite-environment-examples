@@ -1,6 +1,8 @@
 import { type Page, expect, test } from "@playwright/test";
+import { testNoJs, usePageErrorChecker } from "./helper";
 
 test("client-component", async ({ page }) => {
+  usePageErrorChecker(page);
   await page.goto("/");
   await page.getByText("hydrated: true").click();
   await page.getByTestId("client-component").getByText("Count: 0").click();
@@ -12,13 +14,14 @@ test("client-component", async ({ page }) => {
 });
 
 test("server-action @js", async ({ page }) => {
+  usePageErrorChecker(page);
   await page.goto("/");
   await page.getByText("hydrated: true").click();
   await testServerAction(page);
 });
 
-test("server-action @nojs", async ({ browser }) => {
-  const page = await browser.newPage({ javaScriptEnabled: false });
+testNoJs("server-action @nojs", async ({ page }) => {
+  usePageErrorChecker(page);
   await page.goto("/");
   await testServerAction(page);
 });
@@ -38,13 +41,14 @@ async function testServerAction(page: Page) {
 }
 
 test("useActionState @js", async ({ page }) => {
+  usePageErrorChecker(page);
   await page.goto("/");
   await page.getByText("hydrated: true").click();
   await testUseActionState(page, { js: true });
 });
 
-test("useActionState @nojs", async ({ browser }) => {
-  const page = await browser.newPage({ javaScriptEnabled: false });
+testNoJs("useActionState @nojs", async ({ page }) => {
+  usePageErrorChecker(page);
   await page.goto("/");
   await testUseActionState(page, { js: false });
 });
@@ -62,4 +66,26 @@ async function testUseActionState(page: Page, options: { js: boolean }) {
   await page.getByPlaceholder("Answer?").fill("2");
   await page.getByPlaceholder("Answer?").press("Enter");
   await page.getByText("Correct! (tried 2 times)").click();
+}
+
+test("css basic @js", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/");
+  await page.getByText("hydrated: true").click();
+  await testCssBasic(page);
+});
+
+testNoJs("css basic @nojs", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/");
+  await testCssBasic(page);
+});
+
+async function testCssBasic(page: Page) {
+  await expect(
+    page.getByTestId("server-action").getByRole("button", { name: "+" }),
+  ).toHaveCSS("background-color", "rgb(221, 221, 255)");
+  await expect(
+    page.getByTestId("client-component").getByRole("button", { name: "+" }),
+  ).toHaveCSS("background-color", "rgb(255, 221, 221)");
 }
