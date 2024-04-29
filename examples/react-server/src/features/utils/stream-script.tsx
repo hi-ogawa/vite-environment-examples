@@ -3,7 +3,7 @@
 // https://github.com/vercel/next.js/blob/1c5aa7fa09cc5503c621c534fc40065cbd2aefcb/packages/next/src/client/app-index.tsx#L110-L113
 // https://github.com/devongovett/rsc-html-stream/
 
-export function injectRscStreamScript(stream: ReadableStream<Uint8Array>) {
+export function injectStreamScript(stream: ReadableStream<Uint8Array>) {
   const search = "</body>";
   return new TransformStream<string, string>({
     async transform(chunk, controller) {
@@ -32,7 +32,7 @@ export function injectRscStreamScript(stream: ReadableStream<Uint8Array>) {
   });
 }
 
-export function readRscStreamScript() {
+export function readStreamScript() {
   return new ReadableStream<string>({
     start(controller) {
       const chunks: string[] = ((globalThis as any).__$stream ||= []);

@@ -9,7 +9,7 @@ import {
   createModuleMap,
   initializeWebpackServer,
 } from "./features/use-client/server";
-import { injectRscStreamScript } from "./features/utils/stream-script";
+import { injectStreamScript } from "./features/utils/stream-script";
 import { $__global } from "./global";
 
 export async function handler(request: Request) {
@@ -55,7 +55,7 @@ async function renderHtml(result: ReactServerHandlerResult) {
 
   return ssrStream
     .pipeThrough(new TextDecoderStream())
-    .pipeThrough(injectRscStreamScript(rscStream2))
+    .pipeThrough(injectStreamScript(rscStream2))
     .pipeThrough(injectToHead(ssrAssets.head))
     .pipeThrough(new TextEncoderStream());
 }
