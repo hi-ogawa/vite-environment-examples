@@ -60,6 +60,7 @@ exports[`basic 1`] = `
               1 + 1 = 
             </div>
             <input
+              class="client-input"
               name="answer"
               placeholder="Answer?"
               required=""
