@@ -1,4 +1,4 @@
-import { debounce, tinyassert } from "@hiogawa/utils";
+import { debounce, objectHas, tinyassert } from "@hiogawa/utils";
 import vitePluginUnocss, { type UnocssVitePluginAPI } from "@unocss/vite";
 import type { PluginOption, ViteDevServer } from "vite";
 import { invalidateModuleById } from "../style/plugin";
@@ -36,6 +36,8 @@ export function vitePluginUnocssReactServer(): PluginOption {
       name: vitePluginUnocssReactServer.name,
       sharedDuringBuild: true,
 
+      // TODO: move these two `create` version below
+
       // (dev, build) extract tokens by intercepting transform
       transform(code, id, _options) {
         if (ctx.filter(code, id)) {
@@ -56,8 +58,8 @@ export function vitePluginUnocssReactServer(): PluginOption {
 
       // [feedback] `create` plugin cannot have `transform` together?
       create(environment) {
+        // (dev) virtual module directly transformed
         if (environment.mode === "dev") {
-          // (dev) virtual module directly transformed
           return [
             createVirtualPlugin("unocss.css", async () => {
               await ctx.flushTasks();
@@ -66,19 +68,34 @@ export function vitePluginUnocssReactServer(): PluginOption {
             }),
           ];
         }
+
+        // (build) virtual module transformed during renderChunk
         if (environment.mode === "build") {
-          // (build) virtual module processed during renderChunk
-          let found = false;
+          const plugins = environment.config.plugins.filter(
+            (p) => p.name === "vite:css" || p.name === "vite:css-post",
+          );
           return [
-            createVirtualPlugin("unocss.css", async () => {
-              found = true;
-              return "/* todo: unocss.css */";
-            }),
+            createVirtualPlugin("unocss.css", () => "/*** todo: unocss ***/"),
             {
               name: vitePluginUnocssReactServer.name + ":render",
-              renderChunk(_code, chunk, _options) {
-                if (found) {
-                  console.log("[unocss:renderChunk]", chunk.moduleIds);
+              async renderChunk(_code, chunk, _options) {
+                if (chunk.moduleIds.includes("\0virtual:unocss.css")) {
+                  await ctx.flushTasks();
+                  let { css } = await ctx.uno.generate(ctx.tokens);
+                  // [feedback] environment in renderChunk context?
+                  const pluginCtx = { ...this, environment };
+                  for (const plugin of plugins) {
+                    tinyassert(typeof plugin.transform === "function");
+                    const result = await plugin.transform.apply(
+                      pluginCtx as any,
+                      [css, "\0virtual:unocss.css"],
+                    );
+                    tinyassert(
+                      objectHas(result, "code") &&
+                        typeof result.code === "string",
+                    );
+                    css = result.code;
+                  }
                 }
               },
             },
