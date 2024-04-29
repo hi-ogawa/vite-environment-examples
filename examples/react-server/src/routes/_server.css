@@ -1,7 +1,7 @@
 /* based on https://github.com/remix-run/remix/blob/4a23e6e3a861238ea5ad285c7d436102bdd43564/templates/remix-tutorial/app/app.css#L32 */
 
 .server-btn {
-  background-color: #ddf;
+  background-color: rgb(220, 220, 255);
   font-size: 1rem;
   font-family: inherit;
   border: none;

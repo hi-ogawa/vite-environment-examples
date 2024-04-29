@@ -1,3 +1,4 @@
+import fs from "fs";
 import { type Page, expect, test } from "@playwright/test";
 
 export const testNoJs = test.extend({
@@ -17,4 +18,22 @@ export function usePageErrorChecker(page: Page) {
   const pageErrors: Error[] = [];
   pageErrorsMap.set(page, pageErrors);
   page.on("pageerror", (e) => pageErrors.push(e));
+}
+
+export async function createFileEditor(filepath: string) {
+  let init = await fs.promises.readFile(filepath, "utf-8");
+  let data = init;
+  return {
+    async edit(editFn: (data: string) => Promise<string> | string) {
+      data = await editFn(data);
+      await fs.promises.writeFile(filepath, data);
+    },
+    async [Symbol.asyncDispose]() {
+      await fs.promises.writeFile(filepath, init);
+    },
+  };
+}
+
+export async function waitForHydration(page: Page) {
+  await page.getByText("hydrated: true").click();
 }
