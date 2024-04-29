@@ -12,7 +12,6 @@ export function vitePluginUnocssReactServer(): PluginOption {
   const ctx = getUnocssContext();
 
   function onUpdate(server: ViteDevServer) {
-    console.log("[unocss:onUpdate]");
     const mod = invalidateModuleById(
       server.environments.client,
       "\0virtual:unocss.css",
@@ -50,8 +49,7 @@ export function vitePluginUnocssReactServer(): PluginOption {
       sharedDuringBuild: true,
       renderChunk() {},
     },
-    createVirtualPlugin("unocss.css", async (id) => {
-      console.log("[virtual:unocss.css]", { id });
+    createVirtualPlugin("unocss.css", async () => {
       await ctx.flushTasks();
       const result = await ctx.uno.generate(ctx.tokens);
       return result.css;
