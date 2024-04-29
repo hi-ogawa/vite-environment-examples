@@ -9,8 +9,8 @@ import {
   createModuleMap,
   initializeWebpackServer,
 } from "./features/use-client/server";
+import { injectRscStreamScript } from "./features/utils/stream-script";
 import { $__global } from "./global";
-import { injectRscStreamScript } from "./utils/rsc-stream-script";
 
 export async function handler(request: Request) {
   const reactServer = await importReactServer();
