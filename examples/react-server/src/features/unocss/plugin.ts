@@ -8,6 +8,11 @@ import { createVirtualPlugin } from "../utils/plugin";
 // https://github.com/unocss/unocss/tree/47eafba27619ed26579df60fe3fdeb6122b5093c/packages/vite/src/modes/global
 // https://github.com/tailwindlabs/tailwindcss/blob/719c0d488378002ff752e8dc7199c843930bb296/packages/%40tailwindcss-vite/src/index.ts
 
+// TODO:
+// - content hash not changing?
+// - unocss transform plugin?
+// - non global mode?
+
 export function vitePluginSharedUnocss(): Plugin {
   const ctx = getUnocssContext();
 
