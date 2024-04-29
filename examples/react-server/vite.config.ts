@@ -15,6 +15,7 @@ import {
   ENTRY_CLIENT_BOOTSTRAP,
   vitePluginEntryBootstrap,
 } from "./src/features/bootstrap/plugin";
+import { vitePluginServerCss } from "./src/features/style/plugin";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import {
   collectFiles,
@@ -42,6 +43,12 @@ export default defineConfig((_env) => ({
 
   environments: {
     client: {
+      dev: {
+        optimizeDeps: {
+          // [feedback] no optimizeDeps.entries for initial scan?
+          // entries: []
+        },
+      },
       build: {
         outDir: "dist/client",
         minify: false,
@@ -76,13 +83,15 @@ export default defineConfig((_env) => ({
 }));
 
 // singleton to pass data through environment build
-class ReactServerManager {
+class ReactServerPluginManager {
   public clientReferences = new Set<string>();
 }
 
-const manager: ReactServerManager = ((
+export type { ReactServerPluginManager };
+
+const manager: ReactServerPluginManager = ((
   globalThis as any
-).__VITE_REACT_SERVER_MANAGER ??= new ReactServerManager());
+).__VITE_REACT_SERVER_MANAGER ??= new ReactServerPluginManager());
 
 function vitePluginReactServer(): PluginOption {
   const environmentPlugin: Plugin = {
@@ -109,6 +118,8 @@ function vitePluginReactServer(): PluginOption {
           outDir: "dist/react-server",
           sourcemap: true,
           ssr: true,
+          emitAssets: true,
+          manifest: true,
           rollupOptions: {
             input: {
               index: "/src/entry-react-server",
@@ -159,6 +170,7 @@ function vitePluginReactServer(): PluginOption {
     vitePluginSilenceDirectiveBuildWarning(),
     vitePluginServerAction(),
     vitePluginEntryBootstrap(),
+    vitePluginServerCss({ manager }),
   ];
 }
 

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { tinyassert, typedBoolean } from "@hiogawa/utils";
 import type { Manifest, PluginOption, ViteDevServer } from "vite";
 import { $__global } from "../../global";
+import { VIRTUAL_COPY_SERVER_CSS } from "../style/plugin";
 import { createVirtualPlugin } from "../utils/plugin";
 
 export const ENTRY_CLIENT_BOOTSTRAP = "virtual:entry-client-bootstrap";
@@ -17,6 +18,7 @@ export function vitePluginEntryBootstrap(): PluginOption {
       if ($__global.server) {
         // wrapper entry to ensure client entry runs after vite/react inititialization
         return `
+          import "${VIRTUAL_COPY_SERVER_CSS}";
           for (let i = 0; !window.__vite_plugin_react_preamble_installed__; i++) {
             await new Promise(resolve => setTimeout(resolve, 10 * (2 ** i)));
           }
@@ -24,6 +26,7 @@ export function vitePluginEntryBootstrap(): PluginOption {
         `;
       } else {
         return `
+          import "${VIRTUAL_COPY_SERVER_CSS}";
           import "/src/entry-client";
         `;
       }
@@ -43,9 +46,10 @@ export function vitePluginEntryBootstrap(): PluginOption {
             "utf-8",
           ),
         );
+        // TODO: split css per-route?
+        const css = Object.values(manifest).flatMap((v) => v.css ?? []);
         const entry = manifest[ENTRY_CLIENT_BOOTSTRAP];
         tinyassert(entry);
-        const css = entry.css ?? [];
         // preload only direct dynamic import for client references map
         const js =
           entry.dynamicImports
@@ -56,8 +60,8 @@ export function vitePluginEntryBootstrap(): PluginOption {
           ...js.map((href) => `<link rel="modulepreload" href="/${href}" />`),
         ].join("\n");
         ssrAssets = {
-          bootstrapModules: [`/${entry.file}`],
           head,
+          bootstrapModules: [`/${entry.file}`],
         };
       }
       return `export default ${JSON.stringify(ssrAssets)}`;
