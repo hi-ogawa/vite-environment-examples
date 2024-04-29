@@ -1,64 +1,116 @@
-import type { DevEnvironment, PluginOption } from "vite";
+import fs from "node:fs";
+import { tinyassert } from "@hiogawa/utils";
+import type { DevEnvironment, Manifest, PluginOption } from "vite";
 import type { ReactServerPluginManager } from "../../../vite.config";
 import { $__global } from "../../global";
 import { createVirtualPlugin } from "../utils/plugin";
+import { ENTRY_CLIENT_BOOTSTRAP } from "./plugin";
 
-//
-// environment api port of
-// https://github.com/hi-ogawa/vite-plugins/tree/main/packages/ssr-css
-//
+export const VIRTUAL_SSR_CSS = "virtual:ssr-css.css";
+export const VIRTUAL_COPY_SERVER_CSS = "virtual:copy-server-css.js";
 
-export const SSR_CSS_ENTRY = "virtual:ssr-css.css";
-
-export function vitePluginSsrCss({
+export function vitePluginServerCss({
   manager,
 }: {
   manager: ReactServerPluginManager;
 }): PluginOption {
   return [
+    //
+    // same idea as https://github.com/hi-ogawa/vite-plugins/tree/main/packages/ssr-css
+    //
     {
-      name: vitePluginSsrCss.name + ":invalidate",
+      name: vitePluginServerCss.name + ":invalidate",
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
-          if (req.url === `/@id/__x00__${SSR_CSS_ENTRY}`) {
-            const { moduleGraph } = $__global.server.environments["client"];
-            const mod = moduleGraph.getModuleById(`\0${SSR_CSS_ENTRY}?direct`);
-            if (mod) {
-              moduleGraph.invalidateModule(mod);
-            }
+          if (req.url === `/@id/__x00__${VIRTUAL_SSR_CSS}`) {
+            const env = $__global.server.environments["client"];
+            invalidateModule(env, `\0${VIRTUAL_SSR_CSS}?direct`);
+            invalidateModule(env, `\0${VIRTUAL_COPY_SERVER_CSS}`);
           }
           next();
         });
       },
+      transformIndexHtml: {
+        handler: async () => {
+          return [
+            {
+              tag: "link",
+              injectTo: "head",
+              attrs: {
+                rel: "stylesheet",
+                href: `/@id/__x00__${VIRTUAL_SSR_CSS}`,
+                "data-ssr-css": true,
+              },
+            },
+            {
+              tag: "script",
+              injectTo: "head",
+              attrs: { type: "module" },
+              children: /* js */ `
+                import { createHotContext } from "/@vite/client";
+                const hot = createHotContext("/__clear_ssr_css");
+                hot.on("vite:afterUpdate", () => {
+                  document
+                    .querySelectorAll("[data-ssr-css]")
+                    .forEach(node => node.remove());
+                });
+              `,
+            },
+          ];
+        },
+      },
     },
-    createVirtualPlugin("ssr-css.css?direct", async () => {
-      // collect css in react-server module graph, but evaluate css in client
-      const clientEnv = $__global.server.environments["client"];
-      const reactServerEnv = $__global.server.environments["react-server"];
-      const styles = await Promise.all([
-        `/****** react-server ********/`,
-        // TODO: we don't need this if we proxy server css to client?
-        collectStyle(clientEnv, reactServerEnv, ["/src/entry-react-server"]),
-        `/****** client **************/`,
-        collectStyle(clientEnv, clientEnv, [
-          "/src/entry-client",
-          ...manager.clientReferences,
-        ]),
+    createVirtualPlugin(VIRTUAL_SSR_CSS.slice(8) + "?direct", async () => {
+      tinyassert($__global.server);
+      return collectStyle($__global.server.environments["client"], [
+        ENTRY_CLIENT_BOOTSTRAP,
+        // TODO: split css per-route?
+        ...manager.clientReferences,
       ]);
-      return styles.join("\n\n");
+    }),
+    //
+    // virtual module to copy css imports from server to client
+    //
+    createVirtualPlugin(VIRTUAL_COPY_SERVER_CSS.slice(8), async () => {
+      if ($__global.server) {
+        const urls = await collectStyleUrls(
+          $__global.server.environments["react-server"],
+          ["/src/entry-react-server"],
+        );
+        return [
+          ...urls.map((url) => `import "${url}"`),
+          `if (import.meta.hot) { import.meta.hot.accept() }`,
+        ].join("\n");
+      } else {
+        const manifest: Manifest = JSON.parse(
+          await fs.promises.readFile(
+            "dist/react-server/.vite/manifest.json",
+            "utf-8",
+          ),
+        );
+        // TODO: split css per-route?
+        const code = Object.values(manifest)
+          .flatMap((v) => v.css ?? [])
+          .map((file) => `import "/dist/react-server/${file}"`)
+          .join("\n");
+        return code;
+      }
     }),
   ];
 }
 
-async function collectStyle(
-  cssEnv: DevEnvironment,
-  moduleEnv: DevEnvironment,
-  entries: string[],
-) {
-  const urls = await collectStyleUrls(moduleEnv, entries);
+function invalidateModule(server: DevEnvironment, id: string) {
+  const mod = server.moduleGraph.getModuleById(id);
+  if (mod) {
+    server.moduleGraph.invalidateModule(mod);
+  }
+}
+
+async function collectStyle(server: DevEnvironment, entries: string[]) {
+  const urls = await collectStyleUrls(server, entries);
   const codes = await Promise.all(
     urls.map(async (url) => {
-      const res = await cssEnv.transformRequest(url + "?direct");
+      const res = await server.transformRequest(url + "?direct");
       return [`/*** ${url} ***/`, res?.code];
     }),
   );
@@ -66,18 +118,18 @@ async function collectStyle(
 }
 
 async function collectStyleUrls(
-  devEnv: DevEnvironment,
+  server: DevEnvironment,
   entries: string[],
 ): Promise<string[]> {
   const visited = new Set<string>();
 
   async function traverse(url: string) {
-    const [, id] = await devEnv.moduleGraph.resolveUrl(url);
+    const [, id] = await server.moduleGraph.resolveUrl(url);
     if (visited.has(id)) {
       return;
     }
     visited.add(id);
-    const mod = devEnv.moduleGraph.getModuleById(id);
+    const mod = server.moduleGraph.getModuleById(id);
     if (!mod) {
       return;
     }
@@ -87,7 +139,7 @@ async function collectStyleUrls(
   }
 
   // ensure vite's import analysis is ready _only_ for top entries to not go too aggresive
-  await Promise.all(entries.map((e) => devEnv.transformRequest(e)));
+  await Promise.all(entries.map((e) => server.transformRequest(e)));
 
   // traverse
   await Promise.all(entries.map((url) => traverse(url)));

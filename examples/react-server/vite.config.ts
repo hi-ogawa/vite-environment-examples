@@ -11,7 +11,7 @@ import {
   createServerModuleRunner,
   defineConfig,
 } from "vite";
-import { vitePluginSsrCss } from "./src/features/bootstrap/css";
+import { vitePluginServerCss } from "./src/features/bootstrap/css";
 import {
   ENTRY_CLIENT_BOOTSTRAP,
   vitePluginEntryBootstrap,
@@ -118,6 +118,8 @@ function vitePluginReactServer(): PluginOption {
           outDir: "dist/react-server",
           sourcemap: true,
           ssr: true,
+          emitAssets: true,
+          manifest: true,
           rollupOptions: {
             input: {
               index: "/src/entry-react-server",
@@ -168,7 +170,7 @@ function vitePluginReactServer(): PluginOption {
     vitePluginSilenceDirectiveBuildWarning(),
     vitePluginServerAction(),
     vitePluginEntryBootstrap(),
-    vitePluginSsrCss({ manager }),
+    vitePluginServerCss({ manager }),
   ];
 }
 
