@@ -44,6 +44,7 @@ export async function createReloadChecker(page: Page) {
   }
 
   async function check() {
+    // TODO: wait for network idle?
     await expect(page.locator(`meta[name="x-reload-check"]`)).toBeAttached({
       timeout: 1,
     });

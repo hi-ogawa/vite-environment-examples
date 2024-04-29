@@ -57,6 +57,17 @@ test("shared hmr @dev", async ({ page }) => {
   usePageErrorChecker(page);
   await page.goto("/");
   await waitForHydration(page);
+
+  await using editor = await createEditor("src/routes/_shared.tsx");
+  await using _ = await createReloadChecker(page);
+
+  await page.getByText("Shared Component (server)").click();
+  await page.getByText("Shared Component (client)").click();
+  await editor.edit((s) =>
+    s.replace("Shared Component", "Shared [EDIT] Component"),
+  );
+  await page.getByText("Shared [EDIT] Component (server)").click();
+  await page.getByText("Shared [EDIT] Component (client)").click();
 });
 
 test("server-action @js", async ({ page }) => {
