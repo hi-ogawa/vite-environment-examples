@@ -95,7 +95,7 @@ async function testCssBasic(page: Page) {
   ).toHaveCSS("background-color", "rgb(255, 220, 220)");
 }
 
-test("css hmr server", async ({ page }) => {
+test("css hmr server @dev", async ({ page }) => {
   usePageErrorChecker(page);
   await page.goto("/");
   await waitForHydration(page);
