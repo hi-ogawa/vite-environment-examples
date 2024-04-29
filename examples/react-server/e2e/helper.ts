@@ -14,13 +14,13 @@ test.afterEach(({ page }) => {
   }
 });
 
-export function usePageErrorChecker(page: Page) {
+export function useNoPageErrorChecker(page: Page) {
   const pageErrors: Error[] = [];
   pageErrorsMap.set(page, pageErrors);
   page.on("pageerror", (e) => pageErrors.push(e));
 }
 
-export async function createFileEditor(filepath: string) {
+export async function createEditor(filepath: string) {
   let init = await fs.promises.readFile(filepath, "utf-8");
   let data = init;
   return {
@@ -31,6 +31,30 @@ export async function createFileEditor(filepath: string) {
     async [Symbol.asyncDispose]() {
       await fs.promises.writeFile(filepath, init);
     },
+  };
+}
+
+export async function createNoReloadChecker(page: Page) {
+  async function reset() {
+    await page.evaluate(() => {
+      const el = document.createElement("meta");
+      el.setAttribute("name", "x-reload-check");
+      document.head.append(el);
+    });
+  }
+
+  async function check() {
+    await expect(page.locator(`meta[name="x-reload-check"]`)).toBeAttached({
+      timeout: 1,
+    });
+  }
+
+  await reset();
+
+  return {
+    check,
+    reset,
+    [Symbol.asyncDispose]: check,
   };
 }
 
