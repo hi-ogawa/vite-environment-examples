@@ -28,8 +28,10 @@ export function vitePluginSharedUnocss(): Plugin {
         },
       });
 
-      // Following plugins are naturally applied to environments which imports "virtual:unocss.css".
-      // So, even though we only need to handle `environment.name === "client"` case, such restriction is not necessary.
+      // Following plugins are naturally applied to environments
+      // which imports "virtual:unocss.css".
+      // So, even though we only need to handle "client" environment case,
+      // such artificial restriction is not necessary.
 
       // [dev]
       if (environment.mode === "dev") {
