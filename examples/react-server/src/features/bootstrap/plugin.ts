@@ -3,7 +3,7 @@ import { tinyassert, typedBoolean } from "@hiogawa/utils";
 import type { Manifest, PluginOption, ViteDevServer } from "vite";
 import { $__global } from "../../global";
 import { createVirtualPlugin } from "../utils/plugin";
-import { VIRTUAL_COPY_SERVER_CSS, VIRTUAL_SSR_CSS } from "./css";
+import { VIRTUAL_COPY_SERVER_CSS } from "./css";
 
 export const ENTRY_CLIENT_BOOTSTRAP = "virtual:entry-client-bootstrap";
 

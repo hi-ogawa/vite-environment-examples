@@ -6,7 +6,7 @@ import { $__global } from "../../global";
 import { createVirtualPlugin } from "../utils/plugin";
 import { ENTRY_CLIENT_BOOTSTRAP } from "./plugin";
 
-export const VIRTUAL_SSR_CSS = "virtual:ssr-css.css";
+const VIRTUAL_SSR_CSS = "virtual:ssr-css.css";
 export const VIRTUAL_COPY_SERVER_CSS = "virtual:copy-server-css.js";
 
 export function vitePluginServerCss({
