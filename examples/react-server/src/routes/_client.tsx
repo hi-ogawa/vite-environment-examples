@@ -36,7 +36,12 @@ export function UseActionStateDemo() {
       <h4>Hello useActionState</h4>
       <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
         <div>1 + 1 = </div>
-        <input name="answer" placeholder="Answer?" required />
+        <input
+          className="client-input"
+          name="answer"
+          placeholder="Answer?"
+          required
+        />
         <div data-testid="action-state">
           {isPending ? (
             "..."
