@@ -1,7 +1,7 @@
 import { debounce, objectHas, tinyassert } from "@hiogawa/utils";
 import vitePluginUnocss, { type UnocssVitePluginAPI } from "@unocss/vite";
 import { DevEnvironment, type Plugin } from "vite";
-import { invalidateModuleById } from "../style/plugin";
+import { invalidateModule } from "../style/plugin";
 import { createVirtualPlugin } from "../utils/plugin";
 
 // cf.
@@ -47,7 +47,7 @@ export function vitePluginSharedUnocss(): Plugin {
         // HMR
         function hotUpdate() {
           tinyassert(environment instanceof DevEnvironment);
-          const mod = invalidateModuleById(environment, "\0virtual:unocss.css");
+          const mod = invalidateModule(environment, "\0virtual:unocss.css");
           if (mod) {
             environment.hot.send({
               type: "update",
