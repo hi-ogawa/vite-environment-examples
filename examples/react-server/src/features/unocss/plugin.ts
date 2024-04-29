@@ -40,7 +40,6 @@ export function vitePluginUnocssReactServer(): PluginOption {
         }
       },
       async configureServer(server) {
-        await ctx.uno.generate([], { preflights: true });
         const debounced = debounce(() => onUpdate(server), 50);
         ctx.onInvalidate(debounced);
         ctx.onReload(debounced);

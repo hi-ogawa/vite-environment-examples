@@ -17,7 +17,7 @@ export function ClientComponent() {
     <div data-testid="client-component">
       <h4>Hello Client Component</h4>
       <SharedComponent message="client" />
-      <div className="flex justify-center w-36 bg-[rgb(255,220,220)] m-1 p-1">
+      <div className="flex justify-center w-36 m-1 p-1 bg-[rgb(255,220,220)]">
         unocss (client)
       </div>
       <div data-hydrated={hydrated}>hydrated: {String(hydrated)}</div>
