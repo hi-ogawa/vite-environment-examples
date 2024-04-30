@@ -25,7 +25,7 @@ exports[`basic 1`] = `
         )
       </div>
       <div
-        class="flex justify-center w-36 m-1 p-1 bg-[rgb(220,220,255)]"
+        class="flex justify-center w-36 m-1 p-1 important:bg-[rgb(220,220,255)]"
       >
         unocss (server)
       </div>
@@ -93,7 +93,7 @@ exports[`basic 1`] = `
           )
         </div>
         <div
-          class="flex justify-center w-36 m-1 p-1 bg-[rgb(255,220,220)]"
+          class="flex justify-center w-36 m-1 p-1 important:bg-[rgb(255,220,220)]"
         >
           unocss (client)
         </div>
