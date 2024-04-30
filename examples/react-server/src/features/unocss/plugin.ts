@@ -12,6 +12,7 @@ import { createVirtualPlugin } from "../utils/plugin";
 // - content hash not changing?
 // - unocss transform plugin?
 // - non global mode?
+// - source map?
 
 export function vitePluginSharedUnocss(): Plugin {
   const ctx = getUnocssContext();
