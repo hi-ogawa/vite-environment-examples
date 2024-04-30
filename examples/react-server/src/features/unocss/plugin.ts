@@ -29,7 +29,7 @@ export function vitePluginSharedUnocss(): Plugin {
         name: vitePluginSharedUnocss.name + ":extract",
         transform(code, id) {
           if (ctx.filter(code, id)) {
-            ctx.extract(code, id);
+            ctx.tasks.push(ctx.extract(code, id));
           }
         },
       });
