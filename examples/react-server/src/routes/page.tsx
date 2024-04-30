@@ -26,6 +26,9 @@ async function Page() {
     <div>
       <h4>Hello Server Component</h4>
       <SharedComponent message="server" />
+      <div className="flex justify-center w-36 m-1 p-1 bg-[rgb(220,220,255)]">
+        unocss (server)
+      </div>
       <ServerActionDemo />
       <ClientComponent />
     </div>

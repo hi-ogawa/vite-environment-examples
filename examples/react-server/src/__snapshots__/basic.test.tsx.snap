@@ -25,6 +25,11 @@ exports[`basic 1`] = `
         )
       </div>
       <div
+        class="flex justify-center w-36 m-1 p-1 bg-[rgb(220,220,255)]"
+      >
+        unocss (server)
+      </div>
+      <div
         data-testid="server-action"
       >
         <h4>
@@ -86,6 +91,11 @@ exports[`basic 1`] = `
           Shared Component (
           client
           )
+        </div>
+        <div
+          class="flex justify-center w-36 m-1 p-1 bg-[rgb(255,220,220)]"
+        >
+          unocss (client)
         </div>
         <div
           data-hydrated="true"

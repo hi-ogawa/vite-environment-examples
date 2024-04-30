@@ -60,8 +60,9 @@ export function vitePluginServerCss({
         },
       },
     },
-    createVirtualPlugin(VIRTUAL_SSR_CSS.slice(8) + "?direct", async () => {
+    createVirtualPlugin(VIRTUAL_SSR_CSS.slice(8), async (id) => {
       tinyassert($__global.server);
+      tinyassert(id.includes("?direct"));
       return collectStyle($__global.server.environments["client"], [
         ENTRY_CLIENT_BOOTSTRAP,
         // TODO: split css per-route?
@@ -99,11 +100,12 @@ export function vitePluginServerCss({
   ];
 }
 
-function invalidateModule(server: DevEnvironment, id: string) {
+export function invalidateModule(server: DevEnvironment, id: string) {
   const mod = server.moduleGraph.getModuleById(id);
   if (mod) {
     server.moduleGraph.invalidateModule(mod);
   }
+  return mod;
 }
 
 async function collectStyle(server: DevEnvironment, entries: string[]) {

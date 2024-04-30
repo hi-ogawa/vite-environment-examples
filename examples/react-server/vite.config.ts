@@ -17,6 +17,7 @@ import {
 } from "./src/features/bootstrap/plugin";
 import { vitePluginServerCss } from "./src/features/style/plugin";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
+import { vitePluginSharedUnocss } from "./src/features/unocss/plugin";
 import {
   collectFiles,
   createVirtualPlugin,
@@ -33,6 +34,7 @@ export default defineConfig((_env) => ({
   plugins: [
     !process.env["VITEST"] && react(),
     vitePluginReactServer(),
+    vitePluginSharedUnocss(),
     vitePluginLogger(),
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",

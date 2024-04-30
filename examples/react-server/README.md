@@ -35,4 +35,5 @@ pnpm cf-release
 - [x] css
   - [x] client
   - [x] server
+  - [x] unocss
   - [ ] code split

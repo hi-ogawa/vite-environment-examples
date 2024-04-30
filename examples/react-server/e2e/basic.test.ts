@@ -196,3 +196,61 @@ test("css hmr client @dev", async ({ page }) => {
     page.getByTestId("client-component").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(255, 123, 123)");
 });
+
+test("unocss basic @js", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/");
+  await waitForHydration(page);
+  await testUnocssBasic(page);
+});
+
+testNoJs("unocss basic @nojs @build", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/");
+  await testUnocssBasic(page);
+});
+
+async function testUnocssBasic(page: Page) {
+  await expect(page.getByText("unocss (server)")).toHaveCSS(
+    "background-color",
+    "rgb(220, 220, 255)",
+  );
+  await expect(page.getByText("unocss (client)")).toHaveCSS(
+    "background-color",
+    "rgb(255, 220, 220)",
+  );
+}
+
+test("unocss hmr @dev", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/");
+  await waitForHydration(page);
+
+  await using serverFile = await createEditor("src/routes/page.tsx");
+  await using clientFile = await createEditor("src/routes/_client.tsx");
+  await using _ = await createReloadChecker(page);
+
+  await expect(page.getByText("unocss (server)")).toHaveCSS(
+    "background-color",
+    "rgb(220, 220, 255)",
+  );
+  await serverFile.edit((s) =>
+    s.replace("rgb(220,220,255)", "rgb(199,199,255)"),
+  );
+  await expect(page.getByText("unocss (server)")).toHaveCSS(
+    "background-color",
+    "rgb(199, 199, 255)",
+  );
+
+  await expect(page.getByText("unocss (client)")).toHaveCSS(
+    "background-color",
+    "rgb(255, 220, 220)",
+  );
+  await clientFile.edit((s) =>
+    s.replace("rgb(255,220,220)", "rgb(255,199,199)"),
+  );
+  await expect(page.getByText("unocss (client)")).toHaveCSS(
+    "background-color",
+    "rgb(255, 199, 199)",
+  );
+});
