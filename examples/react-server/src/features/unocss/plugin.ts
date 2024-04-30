@@ -8,20 +8,21 @@ import { createVirtualPlugin } from "../utils/plugin";
 // https://github.com/unocss/unocss/tree/47eafba27619ed26579df60fe3fdeb6122b5093c/packages/vite/src/modes/global
 // https://github.com/tailwindlabs/tailwindcss/blob/719c0d488378002ff752e8dc7199c843930bb296/packages/%40tailwindcss-vite/src/index.ts
 
-// TODO:
-// - content hash not changing?
-// - unocss transform plugin?
-// - non global mode?
-// - source map?
-
 export function vitePluginSharedUnocss(): Plugin {
-  const ctx = getUnocssContext();
+  // reuse original plugin to grab internal unocss instance and transform plugins
+  const originPlugins = vitePluginUnocss();
+  const transformPlugins = originPlugins.filter((p) =>
+    p.name.startsWith("unocss:transformers:"),
+  );
+  const apiPlugin = originPlugins.find((p) => p.name === "unocss:api");
+  tinyassert(apiPlugin);
+  const ctx = (apiPlugin.api as UnocssVitePluginAPI).getContext();
 
   return {
     name: vitePluginSharedUnocss.name,
     sharedDuringBuild: true,
     create(environment) {
-      const plugins: Plugin[] = [];
+      const plugins: Plugin[] = [...transformPlugins];
 
       // [dev, build]
       // extract tokens by intercepting transform
@@ -109,12 +110,4 @@ export function vitePluginSharedUnocss(): Plugin {
       return plugins;
     },
   };
-}
-
-// grab internal unocss instance
-function getUnocssContext() {
-  const plugins = vitePluginUnocss();
-  const plugin = plugins.find((p) => p.name === "unocss:api");
-  tinyassert(plugin);
-  return (plugin.api as UnocssVitePluginAPI).getContext();
 }
