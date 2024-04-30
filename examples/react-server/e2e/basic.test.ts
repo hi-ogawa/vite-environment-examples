@@ -156,15 +156,11 @@ test("css hmr server @dev", async ({ page }) => {
   await expect(
     page.getByTestId("server-action").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(220, 220, 255)");
-  editor.edit((data) =>
-    data.replace("rgb(220, 220, 255)", "rgb(199, 199, 255)"),
-  );
+  editor.edit((s) => s.replace("rgb(220, 220, 255)", "rgb(199, 199, 255)"));
   await expect(
     page.getByTestId("server-action").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(199, 199, 255)");
-  editor.edit((data) =>
-    data.replace("rgb(199, 199, 255)", "rgb(123, 123, 255)"),
-  );
+  editor.edit((s) => s.replace("rgb(199, 199, 255)", "rgb(123, 123, 255)"));
   await expect(
     page.getByTestId("server-action").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(123, 123, 255)");
@@ -181,15 +177,11 @@ test("css hmr client @dev", async ({ page }) => {
   await expect(
     page.getByTestId("client-component").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(255, 220, 220)");
-  editor.edit((data) =>
-    data.replace("rgb(255, 220, 220)", "rgb(255, 199, 199)"),
-  );
+  editor.edit((s) => s.replace("rgb(255, 220, 220)", "rgb(255, 199, 199)"));
   await expect(
     page.getByTestId("client-component").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(255, 199, 199)");
-  editor.edit((data) =>
-    data.replace("rgb(255, 199, 199)", "rgb(255, 123, 123)"),
-  );
+  editor.edit((s) => s.replace("rgb(255, 199, 199)", "rgb(255, 123, 123)"));
   await expect(
     page.getByTestId("client-component").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(255, 123, 123)");
