@@ -21,16 +21,16 @@ export function usePageErrorChecker(page: Page) {
   page.on("pageerror", (e) => pageErrors.push(e));
 }
 
-export async function createEditor(filepath: string) {
-  let init = await fs.promises.readFile(filepath, "utf-8");
+export function createEditor(filepath: string) {
+  let init = fs.readFileSync(filepath, "utf-8");
   let data = init;
   return {
-    async edit(editFn: (data: string) => Promise<string> | string) {
-      data = await editFn(data);
-      await fs.promises.writeFile(filepath, data);
+    edit(editFn: (data: string) => string) {
+      data = editFn(data);
+      fs.writeFileSync(filepath, data);
     },
-    async [Symbol.asyncDispose]() {
-      await fs.promises.writeFile(filepath, init);
+    [Symbol.dispose]() {
+      fs.writeFileSync(filepath, init);
     },
   };
 }

@@ -24,7 +24,7 @@ test("client hmr @dev", async ({ page }) => {
   await page.goto("/");
   await waitForHydration(page);
 
-  await using editor = await createEditor("src/routes/_client.tsx");
+  using editor = createEditor("src/routes/_client.tsx");
   await using _ = await createReloadChecker(page);
 
   await page.getByRole("heading", { name: "Hello Client Component" }).click();
@@ -41,11 +41,11 @@ test("server hmr @dev", async ({ page }) => {
   await page.goto("/");
   await waitForHydration(page);
 
-  await using editor = await createEditor("src/routes/page.tsx");
+  using editor = createEditor("src/routes/page.tsx");
   await using _ = await createReloadChecker(page);
 
   await page.getByRole("heading", { name: "Hello Server Component" }).click();
-  await editor.edit((s) =>
+  editor.edit((s) =>
     s.replace("Hello Server Component", "Hello [EDIT] Server Component"),
   );
   await page
@@ -58,14 +58,12 @@ test("shared hmr @dev", async ({ page }) => {
   await page.goto("/");
   await waitForHydration(page);
 
-  await using editor = await createEditor("src/routes/_shared.tsx");
+  using editor = createEditor("src/routes/_shared.tsx");
   await using _ = await createReloadChecker(page);
 
   await page.getByText("Shared Component (server)").click();
   await page.getByText("Shared Component (client)").click();
-  await editor.edit((s) =>
-    s.replace("Shared Component", "Shared [EDIT] Component"),
-  );
+  editor.edit((s) => s.replace("Shared Component", "Shared [EDIT] Component"));
   await page.getByText("Shared [EDIT] Component (server)").click();
   await page.getByText("Shared [EDIT] Component (client)").click();
 });
@@ -152,19 +150,19 @@ test("css hmr server @dev", async ({ page }) => {
   await page.goto("/");
   await waitForHydration(page);
 
-  await using editor = await createEditor("src/routes/_server.css");
+  using editor = createEditor("src/routes/_server.css");
   await using _ = await createReloadChecker(page);
 
   await expect(
     page.getByTestId("server-action").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(220, 220, 255)");
-  await editor.edit((data) =>
+  editor.edit((data) =>
     data.replace("rgb(220, 220, 255)", "rgb(199, 199, 255)"),
   );
   await expect(
     page.getByTestId("server-action").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(199, 199, 255)");
-  await editor.edit((data) =>
+  editor.edit((data) =>
     data.replace("rgb(199, 199, 255)", "rgb(123, 123, 255)"),
   );
   await expect(
@@ -177,19 +175,19 @@ test("css hmr client @dev", async ({ page }) => {
   await page.goto("/");
   await waitForHydration(page);
 
-  await using editor = await createEditor("src/routes/_client.css");
+  using editor = createEditor("src/routes/_client.css");
   await using _ = await createReloadChecker(page);
 
   await expect(
     page.getByTestId("client-component").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(255, 220, 220)");
-  await editor.edit((data) =>
+  editor.edit((data) =>
     data.replace("rgb(255, 220, 220)", "rgb(255, 199, 199)"),
   );
   await expect(
     page.getByTestId("client-component").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(255, 199, 199)");
-  await editor.edit((data) =>
+  editor.edit((data) =>
     data.replace("rgb(255, 199, 199)", "rgb(255, 123, 123)"),
   );
   await expect(
@@ -226,17 +224,15 @@ test("unocss hmr @dev", async ({ page }) => {
   await page.goto("/");
   await waitForHydration(page);
 
-  await using serverFile = await createEditor("src/routes/page.tsx");
-  await using clientFile = await createEditor("src/routes/_client.tsx");
+  using serverFile = createEditor("src/routes/page.tsx");
+  using clientFile = createEditor("src/routes/_client.tsx");
   await using _ = await createReloadChecker(page);
 
   await expect(page.getByText("unocss (server)")).toHaveCSS(
     "background-color",
     "rgb(220, 220, 255)",
   );
-  await serverFile.edit((s) =>
-    s.replace("rgb(220,220,255)", "rgb(199,199,255)"),
-  );
+  serverFile.edit((s) => s.replace("rgb(220,220,255)", "rgb(199,199,255)"));
   await expect(page.getByText("unocss (server)")).toHaveCSS(
     "background-color",
     "rgb(199, 199, 255)",
@@ -246,9 +242,7 @@ test("unocss hmr @dev", async ({ page }) => {
     "background-color",
     "rgb(255, 220, 220)",
   );
-  await clientFile.edit((s) =>
-    s.replace("rgb(255,220,220)", "rgb(255,199,199)"),
-  );
+  clientFile.edit((s) => s.replace("rgb(255,220,220)", "rgb(255,199,199)"));
   await expect(page.getByText("unocss (client)")).toHaveCSS(
     "background-color",
     "rgb(255, 199, 199)",
