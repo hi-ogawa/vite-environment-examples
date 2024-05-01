@@ -57,7 +57,7 @@ export function UseActionStateDemo() {
   const [data, formAction, isPending] = React.useActionState(checkAnswer, null);
 
   return (
-    <form action={formAction}>
+    <form {...useNoRequestFormReset(formAction)}>
       <h4>Hello useActionState</h4>
       <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
         <div>1 + 1 = </div>
@@ -80,4 +80,24 @@ export function UseActionStateDemo() {
       </div>
     </form>
   );
+}
+
+// https://github.com/facebook/react/pull/28809
+function useNoRequestFormReset(
+  action: React.DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS["functions"],
+): Pick<JSX.IntrinsicElements["form"], "action" | "onSubmit"> {
+  const hydrated = React.useSyncExternalStore(
+    React.useCallback(() => () => {}, []),
+    () => true,
+    () => false,
+  );
+  if (hydrated) {
+    return {
+      onSubmit(e) {
+        e.preventDefault();
+        action(new FormData(e.currentTarget));
+      },
+    };
+  }
+  return { action };
 }
