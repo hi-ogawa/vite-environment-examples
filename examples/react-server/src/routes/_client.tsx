@@ -1,6 +1,7 @@
 "use client";
 
 import "./_client.css";
+import { tinyassert } from "@hiogawa/utils";
 import React from "react";
 import { checkAnswer } from "./_action";
 import { SharedComponent } from "./_shared";
@@ -20,7 +21,10 @@ export function ClientComponent() {
       <div className="flex justify-center w-36 m-1 p-1 important:(bg-[rgb(255,220,220)])">
         unocss (client)
       </div>
-      <div data-hydrated={hydrated}>hydrated: {String(hydrated)}</div>
+      <div>
+        <div data-hydrated={hydrated}>[hydrated: {String(hydrated)}]</div>
+        <EffectCount />
+      </div>
       <div>Count: {count}</div>
       <button className="client-btn" onClick={() => setCount((v) => v - 1)}>
         -1
@@ -28,6 +32,23 @@ export function ClientComponent() {
       <button className="client-btn" onClick={() => setCount((v) => v + 1)}>
         +1
       </button>
+    </div>
+  );
+}
+
+export function EffectCount() {
+  const elRef = React.useRef<HTMLElement>(null);
+  const countRef = React.useRef(0);
+
+  React.useEffect(() => {
+    countRef.current++;
+    tinyassert(elRef.current);
+    elRef.current.textContent = String(countRef.current);
+  });
+
+  return (
+    <div>
+      [effect: <span ref={elRef}>0</span>]
     </div>
   );
 }
