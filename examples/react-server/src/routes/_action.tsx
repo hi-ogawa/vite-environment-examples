@@ -14,6 +14,7 @@ export function changeCounter(formData: FormData) {
 
 type CheckAnswerState = {
   message: string;
+  answer?: number;
   count: number;
 };
 
@@ -24,5 +25,5 @@ export async function checkAnswer(
   await sleep(500);
   const answer = Number(formData.get("answer"));
   const message = answer === 2 ? "Correct!" : "Wrong!";
-  return { message, count: (prev?.count ?? 0) + 1 };
+  return { message, answer, count: (prev?.count ?? 0) + 1 };
 }
