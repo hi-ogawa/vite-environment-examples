@@ -57,7 +57,9 @@ exports[`basic 1`] = `
             +1
           </button>
         </form>
-        <form>
+        <form
+          action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')"
+        >
           <h4>
             Hello useActionState
           </h4>

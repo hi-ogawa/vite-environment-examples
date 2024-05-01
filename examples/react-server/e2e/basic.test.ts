@@ -28,7 +28,7 @@ test("client hmr @dev", async ({ page }) => {
   await using _ = await createReloadChecker(page);
 
   await page.getByRole("heading", { name: "Hello Client Component" }).click();
-  await editor.edit((s) =>
+  editor.edit((s) =>
     s.replace("Hello Client Component", "Hello [EDIT] Client Component"),
   );
   await page
@@ -68,14 +68,14 @@ test("shared hmr @dev", async ({ page }) => {
   await page.getByText("Shared [EDIT] Component (client)").click();
 });
 
-test("server-action @js", async ({ page }) => {
+test("server action @js", async ({ page }) => {
   usePageErrorChecker(page);
   await page.goto("/");
   await waitForHydration(page);
   await testServerAction(page);
 });
 
-testNoJs("server-action @nojs", async ({ page }) => {
+testNoJs("server action @nojs", async ({ page }) => {
   usePageErrorChecker(page);
   await page.goto("/");
   await testServerAction(page);
@@ -115,9 +115,7 @@ async function testUseActionState(page: Page, options: { js: boolean }) {
     await expect(page.getByTestId("action-state")).toHaveText("...");
   }
   await page.getByText("Wrong! (tried once)").click();
-  await expect(page.getByPlaceholder("Answer?")).toHaveValue(
-    options.js ? "3" : "",
-  );
+  await expect(page.getByPlaceholder("Answer?")).toHaveValue("3");
   await page.getByPlaceholder("Answer?").fill("2");
   await page.getByPlaceholder("Answer?").press("Enter");
   await page.getByText("Correct! (tried 2 times)").click();
