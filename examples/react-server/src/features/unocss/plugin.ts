@@ -1,6 +1,6 @@
 import { debounce, objectHas, tinyassert } from "@hiogawa/utils";
 import vitePluginUnocss, { type UnocssVitePluginAPI } from "@unocss/vite";
-import { DevEnvironment, type Plugin } from "vite";
+import { DevEnvironment, type Plugin, type PluginOption } from "vite";
 import { invalidateModule } from "../style/plugin";
 import { createVirtualPlugin } from "../utils/plugin";
 
@@ -11,29 +11,37 @@ import { createVirtualPlugin } from "../utils/plugin";
 // TODO:
 // reading `uno.config.ts` is adding more than 1 sec on startup time. is it normal?
 
-export function vitePluginSharedUnocss(): Plugin {
+export function vitePluginSharedUnocss(): PluginOption {
   // reuse original plugin to grab internal unocss instance and transform plugins
-  const originPlugins = vitePluginUnocss();
-  const transformPlugins = originPlugins.filter((p) =>
-    p.name.startsWith("unocss:transformers:"),
-  );
-  const apiPlugin = originPlugins.find((p) => p.name === "unocss:api");
+  const originalPlugins = vitePluginUnocss();
+  const apiPlugin = originalPlugins.find((p) => p.name === "unocss:api");
   tinyassert(apiPlugin);
   const ctx = (apiPlugin.api as UnocssVitePluginAPI).getContext();
 
-  return {
+  // reuse unocss transform plugins with sharedDuringBuild
+  const transformPlugins = originalPlugins
+    .filter((plugin) => plugin.name.startsWith("unocss:transformers:"))
+    .map((plugin) => ({
+      ...plugin,
+      sharedDuringBuild: true,
+    }));
+
+  const mainPlugin: Plugin = {
     name: vitePluginSharedUnocss.name,
     sharedDuringBuild: true,
 
     // extract tokens by intercepting transform
-    transform(code, id) {
-      if (ctx.filter(code, id)) {
-        ctx.tasks.push(ctx.extract(code, id));
-      }
+    transform: {
+      order: "post",
+      handler(code, id) {
+        if (ctx.filter(code, id)) {
+          ctx.tasks.push(ctx.extract(code, id));
+        }
+      },
     },
 
     create(environment) {
-      const plugins: Plugin[] = [...transformPlugins];
+      const plugins: Plugin[] = [];
 
       // Following plugins are applied only to the environments
       // which import "virtual:unocss.css".
@@ -46,6 +54,7 @@ export function vitePluginSharedUnocss(): Plugin {
         plugins.push(
           createVirtualPlugin("unocss.css", async () => {
             await ctx.flushTasks();
+            // console.log("[uno.generate]", ctx.tokens)
             const result = await ctx.uno.generate(ctx.tokens);
             return result.css;
           }),
@@ -55,6 +64,7 @@ export function vitePluginSharedUnocss(): Plugin {
         function hotUpdate() {
           tinyassert(environment instanceof DevEnvironment);
           const mod = invalidateModule(environment, "\0virtual:unocss.css");
+          console.log("[hotUpdate]", [environment.name, !!mod]);
           if (mod) {
             environment.hot.send({
               type: "update",
@@ -110,4 +120,6 @@ export function vitePluginSharedUnocss(): Plugin {
       return plugins;
     },
   };
+
+  return [...transformPlugins, mainPlugin];
 }
