@@ -54,7 +54,6 @@ export function vitePluginSharedUnocss(): PluginOption {
         plugins.push(
           createVirtualPlugin("unocss.css", async () => {
             await ctx.flushTasks();
-            // console.log("[uno.generate]", ctx.tokens)
             const result = await ctx.uno.generate(ctx.tokens);
             return result.css;
           }),
@@ -64,7 +63,6 @@ export function vitePluginSharedUnocss(): PluginOption {
         function hotUpdate() {
           tinyassert(environment instanceof DevEnvironment);
           const mod = invalidateModule(environment, "\0virtual:unocss.css");
-          console.log("[hotUpdate]", [environment.name, !!mod]);
           if (mod) {
             environment.hot.send({
               type: "update",
