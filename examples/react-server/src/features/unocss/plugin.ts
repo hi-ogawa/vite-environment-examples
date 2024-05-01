@@ -8,6 +8,9 @@ import { createVirtualPlugin } from "../utils/plugin";
 // https://github.com/unocss/unocss/tree/47eafba27619ed26579df60fe3fdeb6122b5093c/packages/vite/src/modes/global
 // https://github.com/tailwindlabs/tailwindcss/blob/719c0d488378002ff752e8dc7199c843930bb296/packages/%40tailwindcss-vite/src/index.ts
 
+// TODO:
+// reading `uno.config.ts` is adding more than 1 sec on startup time. is it normal?
+
 export function vitePluginSharedUnocss(): Plugin {
   // reuse original plugin to grab internal unocss instance and transform plugins
   const originPlugins = vitePluginUnocss();
@@ -21,21 +24,18 @@ export function vitePluginSharedUnocss(): Plugin {
   return {
     name: vitePluginSharedUnocss.name,
     sharedDuringBuild: true,
+
+    // extract tokens by intercepting transform
+    transform(code, id) {
+      if (ctx.filter(code, id)) {
+        ctx.tasks.push(ctx.extract(code, id));
+      }
+    },
+
     create(environment) {
       const plugins: Plugin[] = [...transformPlugins];
 
-      // [dev, build]
-      // extract tokens by intercepting transform
-      plugins.push({
-        name: vitePluginSharedUnocss.name + ":extract",
-        transform(code, id) {
-          if (ctx.filter(code, id)) {
-            ctx.tasks.push(ctx.extract(code, id));
-          }
-        },
-      });
-
-      // Following plugins are naturally applied to the environments
+      // Following plugins are applied only to the environments
       // which import "virtual:unocss.css".
       // So, even though we only need to handle "client" environment case,
       // such artificial restriction is not necessary.
