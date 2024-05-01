@@ -82,11 +82,11 @@ importers:
         version: 18.3.0-canary-6c3b8dbfe-20240226(react@18.3.0-canary-6c3b8dbfe-20240226)
     devDependencies:
       '@types/react':
-        specifier: 18.2.72
-        version: 18.2.72
+        specifier: 18.3.1
+        version: 18.3.1
       '@types/react-dom':
-        specifier: 18.2.22
-        version: 18.2.22
+        specifier: 18.3.0
+        version: 18.3.0
 
   examples/react-server:
     dependencies:
@@ -104,11 +104,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ssr-middleware
       '@types/react':
-        specifier: 18.2.72
-        version: 18.2.72
+        specifier: 18.3.1
+        version: 18.3.1
       '@types/react-dom':
-        specifier: 18.2.22
-        version: 18.2.22
+        specifier: 18.3.0
+        version: 18.3.0
       '@unocss/vite':
         specifier: ^0.59.4
         version: 0.59.4(vite@6.0.0-alpha.7)
@@ -135,11 +135,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/workerd
       '@types/react':
-        specifier: 18.2.72
-        version: 18.2.72
+        specifier: 18.3.1
+        version: 18.3.1
       '@types/react-dom':
-        specifier: 18.2.22
-        version: 18.2.22
+        specifier: 18.3.0
+        version: 18.3.0
 
   examples/react-ssr-workerd:
     dependencies:
@@ -157,11 +157,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/workerd
       '@types/react':
-        specifier: 18.2.72
-        version: 18.2.72
+        specifier: 18.3.1
+        version: 18.3.1
       '@types/react-dom':
-        specifier: 18.2.22
-        version: 18.2.22
+        specifier: 18.3.0
+        version: 18.3.0
 
   examples/vue-ssr:
     dependencies:
@@ -1650,14 +1650,14 @@ packages:
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
     dev: true
 
-  /@types/react-dom@18.2.22:
-    resolution: {integrity: sha512-fHkBXPeNtfvri6gdsMYyW+dW7RXFo6Ad09nLFK0VQWR7yGLai/Cyvyj696gbwYvBnhGtevUG9cET0pmUbMtoPQ==}
+  /@types/react-dom@18.3.0:
+    resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
     dependencies:
-      '@types/react': 18.2.72
+      '@types/react': 18.3.1
     dev: true
 
-  /@types/react@18.2.72:
-    resolution: {integrity: sha512-/e7GWxGzXQF7OJAua7UAYqYi/4VpXEfbGtmYQcAQwP3SjjjAXfybTf/JK5S+SaetB/ChXl8Y2g1hCsj7jDXxcg==}
+  /@types/react@18.3.1:
+    resolution: {integrity: sha512-V0kuGBX3+prX+DQ/7r2qsv1NsdfnCLnTgnRJ1pYnxykBhGMz+qj+box5lq7XsO5mtZsBqpjwwTu/7wszPfMBcw==}
     dependencies:
       '@types/prop-types': 15.7.12
       csstype: 3.1.3

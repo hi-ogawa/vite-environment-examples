@@ -33,8 +33,7 @@ export function ClientComponent() {
 }
 
 export function UseActionStateDemo() {
-  const useActionState = (React as any).useActionState as ReactUseActionState;
-  const [data, formAction, isPending] = useActionState(checkAnswer, null);
+  const [data, formAction, isPending] = React.useActionState(checkAnswer, null);
 
   return (
     <form action={formAction}>
@@ -61,15 +60,3 @@ export function UseActionStateDemo() {
     </form>
   );
 }
-
-// type is copied from ReactDOM.useFormState
-// https://github.com/facebook/react/pull/28491
-type ReactUseActionState = <State, Payload>(
-  action: (state: Awaited<State>, payload: Payload) => State | Promise<State>,
-  initialState: Awaited<State>,
-  permalink?: string,
-) => [
-  state: Awaited<State>,
-  dispatch: (payload: Payload) => void,
-  isPending: boolean,
-];
