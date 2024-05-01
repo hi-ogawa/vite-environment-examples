@@ -58,7 +58,13 @@ export function UseActionStateDemo() {
 
   return (
     <form action={formAction}>
-      <h4>Hello useActionState</h4>
+      <h4
+        ref={React.useCallback((el: any) => {
+          console.log("[h4.ref]", !!el);
+        }, [])}
+      >
+        Hello useActionState
+      </h4>
       <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
         <div>1 + 1 = </div>
         <input
@@ -66,6 +72,9 @@ export function UseActionStateDemo() {
           name="answer"
           placeholder="Answer?"
           required
+          ref={React.useCallback((el: any) => {
+            console.log("[input.ref]", !!el);
+          }, [])}
         />
         <div data-testid="action-state">
           {isPending ? (
