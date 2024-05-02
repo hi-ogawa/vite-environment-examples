@@ -24,7 +24,7 @@ export function vitePluginSharedUnocss(): PluginOption {
   tinyassert(apiPlugin);
   const ctx = (apiPlugin.api as UnocssVitePluginAPI).getContext();
 
-  const transformPlugins = vitePluginUnocss().filter((plugin) =>
+  const transformPlugins = originalPlugins.filter((plugin) =>
     plugin.name.startsWith("unocss:transformers:"),
   );
 
