@@ -4,6 +4,7 @@ import {
   type BoundedPlugin,
   type BoundedPluginConstructor,
   DevEnvironment,
+  type Plugin,
   type PluginOption,
 } from "vite";
 import { invalidateModule } from "../style/plugin";
@@ -17,40 +18,30 @@ import { createVirtualPlugin } from "../utils/plugin";
 // reading `uno.config.ts` is adding more than 1 sec on startup time. is it normal?
 
 export function vitePluginSharedUnocss(): PluginOption {
-  // reuse original plugins with sharedDuringBuild
-  const originalPlugins = vitePluginUnocss()
-    .filter(
-      (plugin) =>
-        plugin.name === "unocss:api" ||
-        plugin.name.startsWith("unocss:transformers:"),
-    )
-    .map((plugin) => ({
-      ...plugin,
-      sharedDuringBuild: true,
-    }));
+  // reuse original plugin to grab internal unocss instance and transform plugins
+  const originalPlugins = vitePluginUnocss();
+  const apiPlugin = originalPlugins.find((p) => p.name === "unocss:api");
+  tinyassert(apiPlugin);
+  const ctx = (apiPlugin.api as UnocssVitePluginAPI).getContext();
 
+  const transformPlugins = vitePluginUnocss().filter((plugin) =>
+    plugin.name.startsWith("unocss:transformers:"),
+  );
+
+  const extractPlugin: Plugin = {
+    name: vitePluginSharedUnocss.name + ":extract",
+    transform(code, id) {
+      if (ctx.filter(code, id)) {
+        ctx.tasks.push(ctx.extract(code, id));
+      }
+    },
+  };
+
+  // In our case, we only need to expose virtual css to "client" environment.
+  // However, we don't need such restriction since following plugins kick in
+  // only on the environments which actually import "virtual:unocss.css".
   const environmentPlugin: BoundedPluginConstructor = (environment) => {
-    const apiPlugin = environment.config.plugins.find(
-      (plugin) => plugin.name === "unocss:api",
-    );
-    tinyassert(apiPlugin);
-    const ctx = (apiPlugin.api as UnocssVitePluginAPI).getContext();
-
-    const plugins: BoundedPlugin[] = [
-      {
-        name: vitePluginSharedUnocss.name + ":extract",
-        transform(code, id) {
-          if (ctx.filter(code, id)) {
-            ctx.tasks.push(ctx.extract(code, id));
-          }
-        },
-      },
-    ];
-
-    // Following plugins are applied only to the environments
-    // which import "virtual:unocss.css".
-    // So, even though we only need to handle "client" environment case,
-    // such artificial restriction is not necessary.
+    const plugins: BoundedPlugin[] = [];
 
     // [dev]
     // transform virtual module directly and HMR is triggered as more tokens are discovered
@@ -122,5 +113,10 @@ export function vitePluginSharedUnocss(): PluginOption {
     return plugins;
   };
 
-  return [originalPlugins, environmentPlugin];
+  return [...transformPlugins, extractPlugin, environmentPlugin].map(
+    (plugin) => {
+      plugin.sharedDuringBuild = true;
+      return plugin;
+    },
+  );
 }
