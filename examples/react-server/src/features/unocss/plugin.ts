@@ -4,7 +4,6 @@ import {
   type BoundedPlugin,
   type BoundedPluginConstructor,
   DevEnvironment,
-  type Plugin,
   type PluginOption,
 } from "vite";
 import { invalidateModule } from "../style/plugin";
@@ -18,37 +17,35 @@ import { createVirtualPlugin } from "../utils/plugin";
 // reading `uno.config.ts` is adding more than 1 sec on startup time. is it normal?
 
 export function vitePluginSharedUnocss(): PluginOption {
-  // reuse original plugin to grab internal unocss instance and transform plugins
-  const originalPlugins = vitePluginUnocss();
-  const apiPlugin = originalPlugins.find((p) => p.name === "unocss:api");
-  tinyassert(apiPlugin);
-  const ctx = (apiPlugin.api as UnocssVitePluginAPI).getContext();
-
-  // reuse unocss transform plugins with sharedDuringBuild
-  const transformPlugins = originalPlugins
-    .filter((plugin) => plugin.name.startsWith("unocss:transformers:"))
+  // reuse original plugins with sharedDuringBuild
+  const originalPlugins = vitePluginUnocss()
+    .filter(
+      (plugin) =>
+        plugin.name === "unocss:api" ||
+        plugin.name.startsWith("unocss:transformers:"),
+    )
     .map((plugin) => ({
       ...plugin,
       sharedDuringBuild: true,
     }));
 
-  const extractPlugin: Plugin = {
-    name: vitePluginSharedUnocss.name + ":extract",
-    sharedDuringBuild: true,
-    transform(code, id) {
-      if (ctx.filter(code, id)) {
-        ctx.tasks.push(ctx.extract(code, id));
-      }
-    },
-  };
-
-  // [feedback]
-  // can we access singleton `ctx` in the outer scope during build
-  // just like sharedDuringBuild plugin can?
   const environmentPlugin: BoundedPluginConstructor = (environment) => {
-    console.log("[vitePluginSharedUnocss:environment]", environment.name);
+    const apiPlugin = environment.config.plugins.find(
+      (plugin) => plugin.name === "unocss:api",
+    );
+    tinyassert(apiPlugin);
+    const ctx = (apiPlugin.api as UnocssVitePluginAPI).getContext();
 
-    const plugins: BoundedPlugin[] = [];
+    const plugins: BoundedPlugin[] = [
+      {
+        name: vitePluginSharedUnocss.name + ":extract",
+        transform(code, id) {
+          if (ctx.filter(code, id)) {
+            ctx.tasks.push(ctx.extract(code, id));
+          }
+        },
+      },
+    ];
 
     // Following plugins are applied only to the environments
     // which import "virtual:unocss.css".
@@ -56,7 +53,7 @@ export function vitePluginSharedUnocss(): PluginOption {
     // such artificial restriction is not necessary.
 
     // [dev]
-    // transform virtual module directly and HMR is triggered as more tokens are extracted
+    // transform virtual module directly and HMR is triggered as more tokens are discovered
     if (environment.mode === "dev") {
       // transform virtual module directly
       plugins.push(
@@ -125,5 +122,5 @@ export function vitePluginSharedUnocss(): PluginOption {
     return plugins;
   };
 
-  return [...transformPlugins, extractPlugin, environmentPlugin];
+  return [originalPlugins, environmentPlugin];
 }
