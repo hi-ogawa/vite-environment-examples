@@ -55,6 +55,8 @@ export function vitePluginSharedUnocss(): PluginOption {
     // So, even though we only need to handle "client" environment case,
     // such artificial restriction is not necessary.
 
+    // [dev]
+    // transform virtual module directly and HMR is triggered as more tokens are extracted
     if (environment.mode === "dev") {
       // transform virtual module directly
       plugins.push(
@@ -88,6 +90,8 @@ export function vitePluginSharedUnocss(): PluginOption {
       ctx.onReload(debounced);
     }
 
+    // [build]
+    // transform virtual module during renderChunk
     if (environment.mode === "build") {
       const cssPlugins = environment.config.plugins.filter(
         (p) => p.name === "vite:css" || p.name === "vite:css-post",
