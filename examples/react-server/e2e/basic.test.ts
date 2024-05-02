@@ -25,7 +25,7 @@ test("client hmr @dev", async ({ page }) => {
   await waitForHydration(page);
 
   using editor = createEditor("src/routes/_client.tsx");
-  await using _ = await createReloadChecker(page);
+  await using reloadChecker = await createReloadChecker(page);
 
   await page.getByRole("heading", { name: "Hello Client Component" }).click();
   editor.edit((s) =>
@@ -34,6 +34,13 @@ test("client hmr @dev", async ({ page }) => {
   await page
     .getByRole("heading", { name: "Hello [EDIT] Client Component" })
     .click();
+
+  await reloadChecker.check();
+  const res = await page.reload();
+  await waitForHydration(page);
+  await reloadChecker.reset();
+  const resText = await res?.text();
+  expect(resText).toContain("Hello [EDIT] Client Component");
 });
 
 test("server hmr @dev", async ({ page }) => {
@@ -42,7 +49,7 @@ test("server hmr @dev", async ({ page }) => {
   await waitForHydration(page);
 
   using editor = createEditor("src/routes/page.tsx");
-  await using _ = await createReloadChecker(page);
+  await using reloadChecker = await createReloadChecker(page);
 
   await page.getByRole("heading", { name: "Hello Server Component" }).click();
   editor.edit((s) =>
@@ -51,6 +58,13 @@ test("server hmr @dev", async ({ page }) => {
   await page
     .getByRole("heading", { name: "Hello [EDIT] Server Component" })
     .click();
+
+  await reloadChecker.check();
+  const res = await page.reload();
+  await waitForHydration(page);
+  await reloadChecker.reset();
+  const resText = await res?.text();
+  expect(resText).toContain("Hello [EDIT] Server Component");
 });
 
 test("shared hmr @dev", async ({ page }) => {
@@ -59,13 +73,21 @@ test("shared hmr @dev", async ({ page }) => {
   await waitForHydration(page);
 
   using editor = createEditor("src/routes/_shared.tsx");
-  await using _ = await createReloadChecker(page);
+  await using reloadChecker = await createReloadChecker(page);
 
   await page.getByText("Shared Component (server)").click();
   await page.getByText("Shared Component (client)").click();
   editor.edit((s) => s.replace("Shared Component", "Shared [EDIT] Component"));
   await page.getByText("Shared [EDIT] Component (server)").click();
   await page.getByText("Shared [EDIT] Component (client)").click();
+
+  await reloadChecker.check();
+  const res = await page.reload();
+  await waitForHydration(page);
+  await reloadChecker.reset();
+  const resText = await res?.text();
+  expect(resText).toContain("Shared [EDIT] Component (<!-- -->server<!-- -->)");
+  expect(resText).toContain("Shared [EDIT] Component (<!-- -->client<!-- -->)");
 });
 
 test("server action @js", async ({ page }) => {
