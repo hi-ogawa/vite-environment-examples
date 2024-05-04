@@ -33,10 +33,11 @@ export async function handler(request: Request) {
   const ssrHtml = await renderToString(app);
 
   let html = (await import("virtual:index-html")).default;
-  html = html.replace("<body>", `<body><div id="root">${ssrHtml}</div>`);
+  html = html.replace("<body>", () => `<body><div id="root">${ssrHtml}</div>`);
   html = html.replace(
     "<head>",
-    `<head><script>globalThis.__serverPiniaState = ${JSON.stringify(pinia.state.value)}</script>`,
+    () =>
+      `<head><script>globalThis.__serverPiniaState = ${JSON.stringify(pinia.state.value)}</script>`,
   );
   // dev only FOUC fix
   if (import.meta.env.DEV) {
