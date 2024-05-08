@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { onMounted, onUpdated, ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const mounted = ref(0);
-const updated = ref(0);
-
 onMounted(() => {
   mounted.value++;
-});
-onUpdated(() => {
-  updated.value++;
 });
 
 const suspended = ref(false);
@@ -26,7 +21,7 @@ const suspended = ref(false);
     <span v-if="suspended">...</span>
   </div>
   <div style="display: flex; align-items: center; gap: 0.5rem">
-    mounted: {{ mounted }}, updated: {{ mounted }}
+    <span>[mounted: {{ mounted }}]</span>
     <input placeholder="(test)" />
   </div>
   <nav>
