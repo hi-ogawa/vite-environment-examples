@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUpdated } from "vue";
+import { onMounted, onUpdated, ref } from "vue";
 
 const mounted = ref(0);
 const updated = ref(0);

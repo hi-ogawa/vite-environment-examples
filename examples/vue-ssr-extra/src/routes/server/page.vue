@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useServerCounter } from "./_store";
 import { Form, useEnhance } from "../../features/server-action/shared";
 import { changeCounter, getCounter } from "./_action";
+import { useServerCounter } from "./_store";
 
 // TODO: revalidation
 const store = useServerCounter();
