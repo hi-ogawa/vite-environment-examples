@@ -37,7 +37,9 @@ export async function handler(request: Request) {
   html = html.replace(
     "<head>",
     () =>
-      `<head><script>globalThis.__serverPiniaState = ${JSON.stringify(pinia.state.value)}</script>`,
+      `<head><script>globalThis.__serverPiniaState = ${JSON.stringify(
+        pinia.state.value,
+      )}</script>`,
   );
   // dev only FOUC fix
   if (import.meta.env.DEV) {
