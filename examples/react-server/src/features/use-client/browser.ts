@@ -2,8 +2,8 @@ import { memoize, tinyassert } from "@hiogawa/utils";
 
 async function importWrapper(id: string) {
   if (import.meta.env.DEV) {
-    // `__dev_import` injected by examples/react-server/src/features/bootstrap/plugin.ts
-    return (globalThis as any).__dev_import(id);
+    // `__raw_import` injected by examples/react-server/src/features/bootstrap/plugin.ts
+    return (globalThis as any).__raw_import(id);
   } else {
     const clientReferences = await import("virtual:client-reference" as string);
     const dynImport = clientReferences.default[id];

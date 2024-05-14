@@ -38,7 +38,7 @@ export function vitePluginEntryBootstrap(): PluginOption {
         // expose raw dynamic `import` to avoid vite's import analysis `?import` injection
         // when vite transforms `import(/* @vite-ignore */ id)`..
         // see examples/react-server/src/features/use-client/browser.ts
-        head += `<script>globalThis.__dev_import = (id) => import(id)</script>\n`;
+        head += `<script>globalThis.__raw_import = (id) => import(id)</script>\n`;
         ssrAssets = {
           head,
           bootstrapModules: ["/@id/__x00__" + ENTRY_CLIENT_BOOTSTRAP],

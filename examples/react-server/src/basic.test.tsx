@@ -7,7 +7,7 @@ import { initializeWebpackBrowser } from "./features/use-client/browser";
 
 beforeAll(() => {
   // doing the same as examples/react-server/src/features/bootstrap/plugin.ts
-  (globalThis as any).__dev_import = (id: string) =>
+  (globalThis as any).__raw_import = (id: string) =>
     import(/* @vite-ignore */ id);
 });
 
