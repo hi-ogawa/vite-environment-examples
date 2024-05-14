@@ -2,8 +2,14 @@ import { createManualPromise } from "@hiogawa/utils";
 import { Window } from "happy-dom";
 import React from "react";
 import reactDomClient from "react-dom/client";
-import { beforeEach, expect, test, vi } from "vitest";
+import { beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { initializeWebpackBrowser } from "./features/use-client/browser";
+
+beforeAll(() => {
+  // doing the same as examples/react-server/src/features/bootstrap/plugin.ts
+  (globalThis as any).__dev_import = (id: string) =>
+    import(/* @vite-ignore */ id);
+});
 
 // happy-dom
 beforeEach(() => {
