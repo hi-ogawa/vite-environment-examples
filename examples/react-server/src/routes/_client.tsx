@@ -3,6 +3,7 @@
 import "./_client.css";
 import { tinyassert } from "@hiogawa/utils";
 import React from "react";
+import { useRouter } from "../features/router/client";
 import { checkAnswer } from "./_action";
 import { SharedComponent } from "./_shared";
 
@@ -80,5 +81,19 @@ export function UseActionStateDemo() {
         </div>
       </div>
     </form>
+  );
+}
+
+export function GlobalProgress() {
+  const { isPending } = useRouter();
+  return (
+    <span
+      style={{
+        transition: "opacity 200ms",
+        opacity: isPending ? "1.0" : "0",
+      }}
+    >
+      (Loading...)
+    </span>
   );
 }

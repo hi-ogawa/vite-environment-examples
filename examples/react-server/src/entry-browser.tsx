@@ -3,6 +3,7 @@ import React from "react";
 import reactDomClient from "react-dom/client";
 import type { StreamData } from "./entry-server";
 import { listenWindowHistory } from "./features/router/browser";
+import { RouterContext } from "./features/router/client";
 import { initializeWebpackBrowser } from "./features/use-client/browser";
 import { readStreamScript } from "./features/utils/stream-script";
 import { $__global } from "./global";
@@ -42,7 +43,7 @@ async function main() {
 
   function Root() {
     const [streamData, setStreamData] = React.useState(initialStreamData);
-    const [_isPending, startTransition] = React.useTransition();
+    const [isPending, startTransition] = React.useTransition();
     $__setStreamData = (v) => startTransition(() => setStreamData(v));
 
     React.useEffect(() => {
@@ -57,7 +58,16 @@ async function main() {
       });
     }, []);
 
-    return React.use(streamData).node;
+    return (
+      <RouterContext.Provider value={{ isPending }}>
+        <UseStream streamData={streamData} />
+      </RouterContext.Provider>
+    );
+  }
+
+  // separate component to contain throwing React.use
+  function UseStream(props: { streamData: Promise<StreamData> }) {
+    return React.use(props.streamData).node;
   }
 
   const reactRootEl = <Root />;

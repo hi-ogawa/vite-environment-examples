@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 export function Link(props: JSX.IntrinsicElements["a"] & { href: string }) {
   return (
     <a
@@ -17,4 +19,16 @@ export function Link(props: JSX.IntrinsicElements["a"] & { href: string }) {
       }}
     />
   );
+}
+
+type RouterContextType = {
+  isPending: boolean;
+};
+
+export const RouterContext = React.createContext<RouterContextType>({
+  isPending: false,
+});
+
+export function useRouter() {
+  return React.use(RouterContext);
 }

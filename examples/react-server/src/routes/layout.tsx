@@ -1,4 +1,5 @@
 import { Link } from "../features/router/client";
+import { GlobalProgress } from "./_client";
 
 export default async function Layout(props: React.PropsWithChildren) {
   return (
@@ -12,7 +13,16 @@ export default async function Layout(props: React.PropsWithChildren) {
         />
       </head>
       <body>
-        <h4>Hello Server Component</h4>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <h4>Hello Server Component</h4>
+          <a
+            href="https://github.com/hi-ogawa/vite-environment-examples/tree/main/examples/react-server"
+            target="_blank"
+          >
+            GitHub
+          </a>
+          <GlobalProgress />
+        </div>
         <ul>
           <li>
             <Link href="/">Home</Link>
