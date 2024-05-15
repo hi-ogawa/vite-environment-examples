@@ -5,7 +5,7 @@ import type { ReactServerHandlerResult, StreamData } from "./entry-server";
 import {
   createModuleMap,
   initializeWebpackServer,
-} from "./features/use-client/server";
+} from "./features/use-client/ssr";
 import { injectStreamScript } from "./features/utils/stream-script";
 import { $__global } from "./global";
 
