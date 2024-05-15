@@ -38,6 +38,7 @@ export async function handler({
 
 const routes = {
   "/": () => import("./routes/page"),
+  "/slow": () => import("./routes/slow/page"),
 };
 
 async function Router(props: { request: Request }) {

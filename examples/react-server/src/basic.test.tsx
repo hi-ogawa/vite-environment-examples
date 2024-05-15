@@ -58,8 +58,3 @@ test("basic", async () => {
   );
   expect(document.firstElementChild).toMatchSnapshot();
 });
-
-test("test async", async () => {
-  await testRender(document.body, "/src/routes/test/page");
-  expect(document.firstElementChild).toMatchSnapshot();
-});

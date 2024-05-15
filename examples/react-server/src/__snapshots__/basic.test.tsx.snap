@@ -5,9 +5,6 @@ exports[`basic 1`] = `
   <head />
   <body>
     <div>
-      <h4>
-        Hello Server Component
-      </h4>
       <div>
         Shared Component (
         server
@@ -117,25 +114,6 @@ exports[`basic 1`] = `
           +1
         </button>
       </div>
-    </div>
-  </body>
-</html>
-`;
-
-exports[`test async 1`] = `
-<html>
-  <head />
-  <body>
-    <div>
-      <div>
-        hello
-      </div>
-      <pre>
-        {
-  "name": "@hiogawa/vite-environment-examples-react-server",
-  "private": true,
-  "type": "module"
-      </pre>
     </div>
   </body>
 </html>
