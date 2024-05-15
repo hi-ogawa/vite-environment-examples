@@ -2,6 +2,7 @@ import "virtual:unocss.css";
 import React from "react";
 import reactDomClient from "react-dom/client";
 import type { StreamData } from "./entry-server";
+import { listenWindowHistory } from "./features/router/browser";
 import { initializeWebpackBrowser } from "./features/use-client/browser";
 import { readStreamScript } from "./features/utils/stream-script";
 import { $__global } from "./global";
@@ -17,8 +18,11 @@ async function main() {
   );
 
   $__global.callServer = async (id, args) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("__stream", "");
+    url.searchParams.set("__action_id", id);
     const streamData = reactServerDomClient.createFromFetch<StreamData>(
-      fetch("/?__stream&__action_id=" + encodeURIComponent(id), {
+      fetch(url, {
         method: "POST",
         body: await reactServerDomClient.encodeReply(args),
       }),
@@ -40,6 +44,19 @@ async function main() {
     const [streamData, setStreamData] = React.useState(initialStreamData);
     const [_isPending, startTransition] = React.useTransition();
     $__setStreamData = (v) => startTransition(() => setStreamData(v));
+
+    React.useEffect(() => {
+      return listenWindowHistory(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.set("__stream", "");
+        $__setStreamData(
+          reactServerDomClient.createFromFetch<StreamData>(fetch(url), {
+            callServer: $__global.callServer,
+          }),
+        );
+      });
+    }, []);
+
     return React.use(streamData).node;
   }
 
@@ -60,11 +77,7 @@ async function main() {
   if (import.meta.hot) {
     import.meta.hot.on("react-server:update", (e) => {
       console.log("[react-server] hot update", e.file);
-      const streamData = reactServerDomClient.createFromFetch<StreamData>(
-        fetch("/?__stream"),
-        { callServer: $__global.callServer },
-      );
-      $__setStreamData(streamData);
+      window.history.replaceState({}, "", window.location.href);
     });
   }
 }
