@@ -2,18 +2,7 @@
 
 exports[`basic 1`] = `
 <html>
-  <head>
-    <meta
-      charset="UTF-8"
-    />
-    <title>
-      react-server
-    </title>
-    <meta
-      content="width=device-width, height=device-height, initial-scale=1.0"
-      name="viewport"
-    />
-  </head>
+  <head />
   <body>
     <div>
       <h4>
