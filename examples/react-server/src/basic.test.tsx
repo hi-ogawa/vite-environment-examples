@@ -2,7 +2,7 @@ import { createManualPromise } from "@hiogawa/utils";
 import { Window } from "happy-dom";
 import React from "react";
 import reactDomClient from "react-dom/client";
-import { beforeAll, beforeEach, expect, test, vi } from "vitest";
+import { beforeAll, beforeEach, expect, test } from "vitest";
 import { initializeWebpackBrowser } from "./features/use-client/browser";
 
 beforeAll(() => {
