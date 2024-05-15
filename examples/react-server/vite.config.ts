@@ -12,7 +12,7 @@ import {
   defineConfig,
 } from "vite";
 import {
-  ENTRY_CLIENT_BOOTSTRAP,
+  ENTRY_BROWSER_BOOTSTRAP,
   vitePluginEntryBootstrap,
 } from "./src/features/bootstrap/plugin";
 import { vitePluginServerCss } from "./src/features/style/plugin";
@@ -58,7 +58,7 @@ export default defineConfig((_env) => ({
         manifest: true,
         rollupOptions: {
           input: {
-            index: ENTRY_CLIENT_BOOTSTRAP,
+            index: ENTRY_BROWSER_BOOTSTRAP,
           },
         },
       },
@@ -124,7 +124,7 @@ function vitePluginReactServer(): PluginOption {
           manifest: true,
           rollupOptions: {
             input: {
-              index: "/src/entry-react-server",
+              index: "/src/entry-server",
             },
           },
         },

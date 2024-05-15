@@ -1,7 +1,7 @@
 import "virtual:unocss.css";
 import React from "react";
 import reactDomClient from "react-dom/client";
-import type { StreamData } from "./entry-react-server";
+import type { StreamData } from "./entry-server";
 import { initializeWebpackBrowser } from "./features/use-client/browser";
 import { readStreamScript } from "./features/utils/stream-script";
 import { $__global } from "./global";
