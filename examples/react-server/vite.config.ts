@@ -38,7 +38,7 @@ export default defineConfig((_env) => ({
     vitePluginLogger(),
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
-      preview: resolve("./dist/server/index.js"),
+      preview: resolve("./dist/ssr/index.js"),
     }),
     !!process.env["VITEST"] && vitePluginTestReactServerStream(),
   ],
@@ -65,7 +65,7 @@ export default defineConfig((_env) => ({
     },
     ssr: {
       build: {
-        outDir: "dist/server",
+        outDir: "dist/ssr",
         sourcemap: true,
       },
     },

@@ -61,7 +61,7 @@ async function importReactServer() {
   let mod: typeof import("./entry-server");
   if (import.meta.env.DEV) {
     mod = (await $__global.reactServerRunner.import(
-      "/src/entry-react-server",
+      "/src/entry-server",
     )) as any;
   } else {
     mod = import("/dist/react-server/index.js" as string) as any;

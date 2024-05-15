@@ -5,7 +5,7 @@ import { $__global } from "../../global";
 import { VIRTUAL_COPY_SERVER_CSS } from "../style/plugin";
 import { createVirtualPlugin } from "../utils/plugin";
 
-export const ENTRY_BROWSER_BOOTSTRAP = "virtual:entry-client-bootstrap";
+export const ENTRY_BROWSER_BOOTSTRAP = "virtual:entry-browser-bootstrap";
 
 export interface SsrAssets {
   head: string;

@@ -76,7 +76,7 @@ export function vitePluginServerCss({
       if ($__global.server) {
         const urls = await collectStyleUrls(
           $__global.server.environments["react-server"],
-          ["/src/entry-react-server"],
+          ["/src/entry-server"],
         );
         return [
           ...urls.map((url) => `import "${url}"`),
