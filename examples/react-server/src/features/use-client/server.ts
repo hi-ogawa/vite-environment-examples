@@ -1,52 +1,36 @@
-import { memoize, tinyassert } from "@hiogawa/utils";
-import type { ImportManifestEntry, ModuleMap } from "../../types";
+import { tinyassert } from "@hiogawa/utils";
+import reactServerDomWebpack from "react-server-dom-webpack/server.edge";
+import type { BundlerConfig, ImportManifestEntry } from "../../types";
 
-// In contrast to old dev ssr, new module runner's dynamic `import`
-// with `vite-ignore` joins in a module graph.
-// Thus, `invalidateDepTree` by `vitePluginReactServer` will invalidate
-// this entire module and `momoize` will get refreshed automatically.
-// So, we don't have to manage `ssrImportPromiseCache` like done in
-// https://github.com/hi-ogawa/vite-plugins/blob/1c12519065563da60de9f58b946695adcbb50924/packages/react-server/src/features/use-client/server.tsx#L10-L18
+// https://github.com/facebook/react/blob/c8a035036d0f257c514b3628e927dd9dd26e5a09/packages/react-server-dom-webpack/src/ReactFlightWebpackReferences.js#L43
 
-async function importWrapper(id: string) {
-  if (import.meta.env.DEV) {
-    return import(/* @vite-ignore */ id);
-  } else {
-    const clientReferences = await import("virtual:client-reference" as string);
-    const dynImport = clientReferences.default[id];
-    tinyassert(dynImport, `client reference not found '${id}'`);
-    return dynImport();
-  }
-}
+// $$id: /src/components/counter.tsx#Counter
+//   ⇕
+// id: /src/components/counter.tsx
+// name: Counter
 
-export function initializeWebpackServer() {
-  Object.assign(globalThis, {
-    __webpack_require__: memoize(importWrapper),
-    __webpack_chunk_load__: () => {
-      throw new Error("todo: __webpack_chunk_load__");
+export function registerClientReference(id: string, name: string) {
+  // reuse everything but $$async: true for simplicity
+  const reference = reactServerDomWebpack.registerClientReference({}, id, name);
+  return Object.defineProperties(
+    {},
+    {
+      ...Object.getOwnPropertyDescriptors(reference),
+      $$async: { value: true },
     },
-  });
+  );
 }
 
-export function createModuleMap(): ModuleMap {
+export function createBundlerConfig(): BundlerConfig {
   return new Proxy(
     {},
     {
-      get(_target, id, _receiver) {
-        return new Proxy(
-          {},
-          {
-            get(_target, name, _receiver) {
-              tinyassert(typeof id === "string");
-              tinyassert(typeof name === "string");
-              return {
-                id,
-                name,
-                chunks: [],
-              } satisfies ImportManifestEntry;
-            },
-          },
-        );
+      get(_target, $$id, _receiver) {
+        tinyassert(typeof $$id === "string");
+        let [id, name] = $$id.split("#");
+        tinyassert(id);
+        tinyassert(name);
+        return { id, name, chunks: [] } satisfies ImportManifestEntry;
       },
     },
   );

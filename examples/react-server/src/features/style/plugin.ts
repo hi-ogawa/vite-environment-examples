@@ -3,7 +3,7 @@ import { tinyassert } from "@hiogawa/utils";
 import type { DevEnvironment, Manifest, PluginOption } from "vite";
 import type { ReactServerPluginManager } from "../../../vite.config";
 import { $__global } from "../../global";
-import { ENTRY_CLIENT_BOOTSTRAP } from "../bootstrap/plugin";
+import { ENTRY_BROWSER_BOOTSTRAP } from "../bootstrap/plugin";
 import { createVirtualPlugin } from "../utils/plugin";
 
 const VIRTUAL_SSR_CSS = "virtual:ssr-css.css";
@@ -64,7 +64,7 @@ export function vitePluginServerCss({
       tinyassert($__global.server);
       tinyassert(id.includes("?direct"));
       return collectStyle($__global.server.environments["client"], [
-        ENTRY_CLIENT_BOOTSTRAP,
+        ENTRY_BROWSER_BOOTSTRAP,
         // TODO: split css per-route?
         ...manager.clientReferences,
       ]);
@@ -76,7 +76,7 @@ export function vitePluginServerCss({
       if ($__global.server) {
         const urls = await collectStyleUrls(
           $__global.server.environments["react-server"],
-          ["/src/entry-react-server"],
+          ["/src/entry-server"],
         );
         return [
           ...urls.map((url) => `import "${url}"`),

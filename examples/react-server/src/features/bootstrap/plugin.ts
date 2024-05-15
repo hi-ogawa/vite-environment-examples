@@ -5,7 +5,7 @@ import { $__global } from "../../global";
 import { VIRTUAL_COPY_SERVER_CSS } from "../style/plugin";
 import { createVirtualPlugin } from "../utils/plugin";
 
-export const ENTRY_CLIENT_BOOTSTRAP = "virtual:entry-client-bootstrap";
+export const ENTRY_BROWSER_BOOTSTRAP = "virtual:entry-browser-bootstrap";
 
 export interface SsrAssets {
   head: string;
@@ -14,7 +14,7 @@ export interface SsrAssets {
 
 export function vitePluginEntryBootstrap(): PluginOption {
   return [
-    createVirtualPlugin(ENTRY_CLIENT_BOOTSTRAP.slice(8), async () => {
+    createVirtualPlugin(ENTRY_BROWSER_BOOTSTRAP.slice(8), async () => {
       if ($__global.server) {
         // wrapper entry to ensure client entry runs after vite/react inititialization
         return `
@@ -22,12 +22,12 @@ export function vitePluginEntryBootstrap(): PluginOption {
           for (let i = 0; !window.__vite_plugin_react_preamble_installed__; i++) {
             await new Promise(resolve => setTimeout(resolve, 10 * (2 ** i)));
           }
-          import("/src/entry-client");
+          import("/src/entry-browser");
         `;
       } else {
         return `
           import "${VIRTUAL_COPY_SERVER_CSS}";
-          import "/src/entry-client";
+          import "/src/entry-browser";
         `;
       }
     }),
@@ -41,7 +41,7 @@ export function vitePluginEntryBootstrap(): PluginOption {
         head += `<script>globalThis.__raw_import = (id) => import(id)</script>\n`;
         ssrAssets = {
           head,
-          bootstrapModules: ["/@id/__x00__" + ENTRY_CLIENT_BOOTSTRAP],
+          bootstrapModules: ["/@id/__x00__" + ENTRY_BROWSER_BOOTSTRAP],
         };
       } else {
         const manifest: Manifest = JSON.parse(
@@ -52,7 +52,7 @@ export function vitePluginEntryBootstrap(): PluginOption {
         );
         // TODO: split css per-route?
         const css = Object.values(manifest).flatMap((v) => v.css ?? []);
-        const entry = manifest[ENTRY_CLIENT_BOOTSTRAP];
+        const entry = manifest[ENTRY_BROWSER_BOOTSTRAP];
         tinyassert(entry);
         // preload only direct dynamic import for client references map
         const js =

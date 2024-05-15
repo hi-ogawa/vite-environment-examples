@@ -42,7 +42,7 @@ export function vitePluginTestReactServerStream(): Plugin {
 
 async function testRender(page: string) {
   const runner = $__global.reactServerRunner;
-  const entryMod = await runner.import("/src/entry-react-server");
+  const entryMod = await runner.import("/src/entry-server");
   const pageMod = await runner.import(page);
   const stream = entryMod.testRender(pageMod.default);
   return stream;

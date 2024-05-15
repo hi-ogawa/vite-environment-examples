@@ -12,7 +12,7 @@ import {
   defineConfig,
 } from "vite";
 import {
-  ENTRY_CLIENT_BOOTSTRAP,
+  ENTRY_BROWSER_BOOTSTRAP,
   vitePluginEntryBootstrap,
 } from "./src/features/bootstrap/plugin";
 import { vitePluginServerCss } from "./src/features/style/plugin";
@@ -38,7 +38,7 @@ export default defineConfig((_env) => ({
     vitePluginLogger(),
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
-      preview: resolve("./dist/server/index.js"),
+      preview: resolve("./dist/ssr/index.js"),
     }),
     !!process.env["VITEST"] && vitePluginTestReactServerStream(),
   ],
@@ -58,14 +58,14 @@ export default defineConfig((_env) => ({
         manifest: true,
         rollupOptions: {
           input: {
-            index: ENTRY_CLIENT_BOOTSTRAP,
+            index: ENTRY_BROWSER_BOOTSTRAP,
           },
         },
       },
     },
     ssr: {
       build: {
-        outDir: "dist/server",
+        outDir: "dist/ssr",
         sourcemap: true,
       },
     },
@@ -124,7 +124,7 @@ function vitePluginReactServer(): PluginOption {
           manifest: true,
           rollupOptions: {
             input: {
-              index: "/src/entry-react-server",
+              index: "/src/entry-server",
             },
           },
         },
@@ -197,7 +197,7 @@ function vitePluginUseClient(): PluginOption {
         if (/^("use client")|('use client')/.test(code)) {
           manager.clientReferences.add(id);
           const { exportNames } = await parseExports(code);
-          let result = `import { registerClientReference as $$register } from "/src/features/use-client/react-server";\n`;
+          let result = `import { registerClientReference as $$register } from "/src/features/use-client/server";\n`;
           for (const name of exportNames) {
             result += `export const ${name} = $$register("${id}", "${name}");\n`;
           }
@@ -266,14 +266,14 @@ function vitePluginServerAction(): PluginOption {
         const { exportNames, writableCode } = await parseExports(code);
         if (this.environment?.name === "react-server") {
           let result = writableCode;
-          result += `import { registerServerReference as $$register } from "/src/features/server-action/react-server";\n`;
+          result += `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`;
           for (const name of exportNames) {
             result += `${name} = $$register(${name}, "${id}", "${name}");\n`;
           }
           return { code: result, map: null };
         } else {
           const runtime =
-            this.environment?.name === "client" ? "browser" : "server";
+            this.environment?.name === "client" ? "browser" : "ssr";
           let result = `import { createServerReference as $$create } from "/src/features/server-action/${runtime}";\n`;
           for (const name of exportNames) {
             result += `export const ${name} = $$create("${id}#${name}");\n`;

@@ -12,8 +12,8 @@ cp -r ../../dist/client/. dist/client
 rm -rf dist/client/index.html
 
 # server (bundle by ourselve instead of relying on wrangler)
-npx esbuild ../../dist/server/index.js \
-  --outfile=dist/server/index.js \
+npx esbuild ../../dist/ssr/index.js \
+  --outfile=dist/ssr/index.js \
   --metafile=dist/esbuild-metafile.json \
   --define:process.env.NODE_ENV='"production"' \
   --log-override:ignored-bare-import=silent \
