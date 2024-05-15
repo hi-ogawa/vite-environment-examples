@@ -2,23 +2,9 @@
 
 exports[`basic 1`] = `
 <html>
-  <head>
-    <meta
-      charset="UTF-8"
-    />
-    <title>
-      react-server
-    </title>
-    <meta
-      content="width=device-width, height=device-height, initial-scale=1.0"
-      name="viewport"
-    />
-  </head>
+  <head />
   <body>
     <div>
-      <h4>
-        Hello Server Component
-      </h4>
       <div>
         Shared Component (
         server
@@ -98,22 +84,6 @@ exports[`basic 1`] = `
           unocss (client)
         </div>
         <div>
-          <div
-            data-hydrated="true"
-          >
-            [hydrated: 
-            true
-            ]
-          </div>
-          <div>
-            [effect: 
-            <span>
-              2
-            </span>
-            ]
-          </div>
-        </div>
-        <div>
           Count: 
           0
         </div>
@@ -128,25 +98,6 @@ exports[`basic 1`] = `
           +1
         </button>
       </div>
-    </div>
-  </body>
-</html>
-`;
-
-exports[`test async 1`] = `
-<html>
-  <head />
-  <body>
-    <div>
-      <div>
-        hello
-      </div>
-      <pre>
-        {
-  "name": "@hiogawa/vite-environment-examples-react-server",
-  "private": true,
-  "type": "module"
-      </pre>
     </div>
   </body>
 </html>

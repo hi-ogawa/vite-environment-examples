@@ -3,16 +3,12 @@
 import "./_client.css";
 import { tinyassert } from "@hiogawa/utils";
 import React from "react";
+import { useRouter } from "../features/router/client";
 import { checkAnswer } from "./_action";
 import { SharedComponent } from "./_shared";
 
 export function ClientComponent() {
   const [count, setCount] = React.useState(0);
-
-  const [hydrated, setHydrated] = React.useState(false);
-  React.useEffect(() => {
-    setHydrated(true);
-  }, []);
 
   return (
     <div data-testid="client-component">
@@ -20,10 +16,6 @@ export function ClientComponent() {
       <SharedComponent message="client" />
       <div className="flex justify-center w-36 m-1 p-1 important:(bg-[rgb(255,220,220)])">
         unocss (client)
-      </div>
-      <div>
-        <div data-hydrated={hydrated}>[hydrated: {String(hydrated)}]</div>
-        <EffectCount />
       </div>
       <div>Count: {count}</div>
       <button className="client-btn" onClick={() => setCount((v) => v - 1)}>
@@ -34,6 +26,15 @@ export function ClientComponent() {
       </button>
     </div>
   );
+}
+
+export function Hydrated() {
+  const [hydrated, setHydrated] = React.useState(false);
+  React.useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  return <span data-hydrated={hydrated}>[hydrated: {Number(hydrated)}]</span>;
 }
 
 export function EffectCount() {
@@ -47,9 +48,9 @@ export function EffectCount() {
   });
 
   return (
-    <div>
+    <span>
       [effect: <span ref={elRef}>0</span>]
-    </div>
+    </span>
   );
 }
 
@@ -80,5 +81,19 @@ export function UseActionStateDemo() {
         </div>
       </div>
     </form>
+  );
+}
+
+export function GlobalProgress() {
+  const { isPending } = useRouter();
+  return (
+    <span
+      style={{
+        transition: "opacity 200ms",
+        opacity: isPending ? "1.0" : "0",
+      }}
+    >
+      (Loading...)
+    </span>
   );
 }

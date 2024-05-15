@@ -3,28 +3,9 @@ import { changeCounter, getCounter } from "./_action";
 import { ClientComponent, UseActionStateDemo } from "./_client";
 import { SharedComponent } from "./_shared";
 
-export default async function Layout() {
-  return (
-    <html>
-      <head>
-        <meta charSet="UTF-8" />
-        <title>react-server</title>
-        <meta
-          name="viewport"
-          content="width=device-width, height=device-height, initial-scale=1.0"
-        />
-      </head>
-      <body>
-        <Page />
-      </body>
-    </html>
-  );
-}
-
-async function Page() {
+export default async function Page() {
   return (
     <div>
-      <h4>Hello Server Component</h4>
       <SharedComponent message="server" />
       <div className="flex justify-center w-36 m-1 p-1 important:(bg-[rgb(220,220,255)])">
         unocss (server)

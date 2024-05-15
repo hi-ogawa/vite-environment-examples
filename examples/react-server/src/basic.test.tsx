@@ -2,7 +2,7 @@ import { createManualPromise } from "@hiogawa/utils";
 import { Window } from "happy-dom";
 import React from "react";
 import reactDomClient from "react-dom/client";
-import { beforeAll, beforeEach, expect, test, vi } from "vitest";
+import { beforeAll, beforeEach, expect, test } from "vitest";
 import { initializeWebpackBrowser } from "./features/use-client/browser";
 
 beforeAll(() => {
@@ -52,14 +52,6 @@ async function testRender(container: reactDomClient.Container, page: string) {
 }
 
 test("basic", async () => {
-  await testRender(document, "/src/routes/page");
-  await vi.waitUntil(() =>
-    document.body.querySelector(`[data-hydrated="true"]`),
-  );
-  expect(document.firstElementChild).toMatchSnapshot();
-});
-
-test("test async", async () => {
-  await testRender(document.body, "/src/routes/test/page");
+  await testRender(document.body, "/src/routes/page");
   expect(document.firstElementChild).toMatchSnapshot();
 });

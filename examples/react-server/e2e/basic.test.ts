@@ -48,7 +48,7 @@ test("server hmr @dev", async ({ page }) => {
   await page.goto("/");
   await waitForHydration(page);
 
-  using editor = createEditor("src/routes/page.tsx");
+  using editor = createEditor("src/routes/layout.tsx");
   await using reloadChecker = await createReloadChecker(page);
 
   await page.getByRole("heading", { name: "Hello Server Component" }).click();
@@ -260,3 +260,23 @@ test("unocss hmr @dev", async ({ page }) => {
     "rgb(255, 199, 199)",
   );
 });
+
+test("navigation @js", async ({ page }) => {
+  await page.goto("/");
+  await waitForHydration(page);
+  await testNavigation(page, { js: true });
+});
+
+testNoJs("navigation @nojs", async ({ page }) => {
+  await page.goto("/");
+  await testNavigation(page, { js: false });
+});
+
+async function testNavigation(page: Page, options: { js: boolean }) {
+  await page.getByPlaceholder("(test)").fill("hello");
+  await page.getByRole("link", { name: "Slow" }).click();
+  await page.waitForURL("/slow");
+  await expect(page.getByPlaceholder("(test)")).toHaveValue(
+    options.js ? "hello" : "",
+  );
+}

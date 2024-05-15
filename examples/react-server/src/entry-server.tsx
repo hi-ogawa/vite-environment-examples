@@ -1,7 +1,7 @@
 import reactServerDomServer from "react-server-dom-webpack/server.edge";
 import { serverActionHandler } from "./features/server-action/server";
 import { createBundlerConfig } from "./features/use-client/server";
-import Page from "./routes/page";
+import Layout from "./routes/layout";
 
 export type StreamData = {
   node: React.ReactNode;
@@ -23,7 +23,7 @@ export async function handler({
     actionResult = await serverActionHandler({ request });
   }
 
-  const node = <Page />;
+  const node = <Router request={request} />;
 
   const stream = reactServerDomServer.renderToReadableStream<StreamData>(
     {
@@ -34,6 +34,23 @@ export async function handler({
   );
 
   return { stream, actionResult };
+}
+
+const routes = {
+  "/": () => import("./routes/page"),
+  "/slow": () => import("./routes/slow/page"),
+};
+
+async function Router(props: { request: Request }) {
+  const url = new URL(props.request.url);
+  const route = routes[url.pathname as "/"];
+  let node = <h4>Not Found</h4>;
+  if (route) {
+    const mod = await route();
+    const Page = mod.default;
+    node = <Page />;
+  }
+  return <Layout>{node}</Layout>;
 }
 
 export async function testRender(Comp: React.ComponentType) {
