@@ -84,22 +84,6 @@ exports[`basic 1`] = `
           unocss (client)
         </div>
         <div>
-          <div
-            data-hydrated="true"
-          >
-            [hydrated: 
-            true
-            ]
-          </div>
-          <div>
-            [effect: 
-            <span>
-              2
-            </span>
-            ]
-          </div>
-        </div>
-        <div>
           Count: 
           0
         </div>

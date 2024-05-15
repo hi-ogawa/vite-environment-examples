@@ -53,8 +53,5 @@ async function testRender(container: reactDomClient.Container, page: string) {
 
 test("basic", async () => {
   await testRender(document.body, "/src/routes/page");
-  await vi.waitUntil(() =>
-    document.body.querySelector(`[data-hydrated="true"]`),
-  );
   expect(document.firstElementChild).toMatchSnapshot();
 });
