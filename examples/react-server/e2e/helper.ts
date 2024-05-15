@@ -61,5 +61,5 @@ export async function createReloadChecker(page: Page) {
 }
 
 export async function waitForHydration(page: Page) {
-  await page.getByText("hydrated: true").click();
+  await page.getByText("[hydrated: 1]").click();
 }

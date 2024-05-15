@@ -1,5 +1,5 @@
 import { Link } from "../features/router/client";
-import { GlobalProgress } from "./_client";
+import { EffectCount, GlobalProgress, Hydrated } from "./_client";
 
 export default async function Layout(props: React.PropsWithChildren) {
   return (
@@ -34,6 +34,11 @@ export default async function Layout(props: React.PropsWithChildren) {
             <Link href="/not-found">Not Found</Link>
           </li>
         </ul>
+        <div style={{ marginBottom: "1rem" }}>
+          <input style={{ marginRight: "0.5rem" }} placeholder="(test)" />
+          <Hydrated />
+          <EffectCount />
+        </div>
         {props.children}
       </body>
     </html>

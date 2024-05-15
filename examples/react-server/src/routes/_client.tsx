@@ -10,21 +10,12 @@ import { SharedComponent } from "./_shared";
 export function ClientComponent() {
   const [count, setCount] = React.useState(0);
 
-  const [hydrated, setHydrated] = React.useState(false);
-  React.useEffect(() => {
-    setHydrated(true);
-  }, []);
-
   return (
     <div data-testid="client-component">
       <h4>Hello Client Component</h4>
       <SharedComponent message="client" />
       <div className="flex justify-center w-36 m-1 p-1 important:(bg-[rgb(255,220,220)])">
         unocss (client)
-      </div>
-      <div>
-        <div data-hydrated={hydrated}>[hydrated: {String(hydrated)}]</div>
-        <EffectCount />
       </div>
       <div>Count: {count}</div>
       <button className="client-btn" onClick={() => setCount((v) => v - 1)}>
@@ -35,6 +26,15 @@ export function ClientComponent() {
       </button>
     </div>
   );
+}
+
+export function Hydrated() {
+  const [hydrated, setHydrated] = React.useState(false);
+  React.useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  return <span data-hydrated={hydrated}>[hydrated: {Number(hydrated)}]</span>;
 }
 
 export function EffectCount() {
@@ -48,9 +48,9 @@ export function EffectCount() {
   });
 
   return (
-    <div>
+    <span>
       [effect: <span ref={elRef}>0</span>]
-    </div>
+    </span>
   );
 }
 
