@@ -21,8 +21,8 @@ export type ModuleMap = {
 };
 
 export interface SsrManifest {
-  moduleMap: ModuleMap;
-  // TODO
+  // identity mapping should suffice?
+  moduleMap: ModuleMap | null;
   moduleLoading: null;
 }
 
