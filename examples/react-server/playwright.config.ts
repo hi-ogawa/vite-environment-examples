@@ -3,7 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 const port = Number(process.env["E2E_PORT"] || 6174);
 const isPreview = Boolean(process.env["E2E_PREVIEW"]);
 const command = isPreview
-  ? `pnpm cf-preview --port ${port}`
+  ? process.env["E2E_CF"]
+    ? `pnpm cf-preview --port ${port}`
+    : `pnpm preview --port ${port} --strict-port`
   : `pnpm dev --port ${port} --strict-port`;
 
 export default defineConfig({
