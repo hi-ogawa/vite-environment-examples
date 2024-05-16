@@ -23,9 +23,9 @@
     "@hiogawa/vite-plugin-ssr-middleware-alpha": "workspace:*",
     "@types/react": "18.3.1",
     "@types/react-dom": "18.3.0",
-    "@unocss/vite": "^0.59.4",
+    "@unocss/vite": "0.58.9",
     "happy-dom": "^14.7.1",
-    "unocss": "^0.59.4"
+    "unocss": "0.58.9"
   },
   "volta": {
     "extends": "../../package.json"
