@@ -2,10 +2,7 @@ import { splitFirst } from "@hiogawa/utils";
 import React from "react";
 import reactDomServer from "react-dom/server.edge";
 import type { ReactServerHandlerResult, StreamData } from "./entry-server";
-import {
-  createModuleMap,
-  initializeWebpackServer,
-} from "./features/use-client/ssr";
+import { initializeWebpackServer } from "./features/use-client/ssr";
 import { injectStreamScript } from "./features/utils/stream-script";
 import { $__global } from "./global";
 
@@ -33,7 +30,7 @@ async function renderHtml(result: ReactServerHandlerResult) {
     rscStream1,
     {
       ssrManifest: {
-        moduleMap: createModuleMap(),
+        moduleMap: null,
         moduleLoading: null,
       },
     },

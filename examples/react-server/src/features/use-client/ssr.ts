@@ -1,5 +1,4 @@
 import { memoize, tinyassert } from "@hiogawa/utils";
-import type { ImportManifestEntry, ModuleMap } from "../../types";
 
 // In contrast to old dev ssr, new module runner's dynamic `import`
 // with `vite-ignore` joins in a module graph.
@@ -26,28 +25,4 @@ export function initializeWebpackServer() {
       throw new Error("todo: __webpack_chunk_load__");
     },
   });
-}
-
-export function createModuleMap(): ModuleMap {
-  return new Proxy(
-    {},
-    {
-      get(_target, id, _receiver) {
-        return new Proxy(
-          {},
-          {
-            get(_target, name, _receiver) {
-              tinyassert(typeof id === "string");
-              tinyassert(typeof name === "string");
-              return {
-                id,
-                name,
-                chunks: [],
-              } satisfies ImportManifestEntry;
-            },
-          },
-        );
-      },
-    },
-  );
 }
