@@ -1,6 +1,5 @@
 import { debounce, objectHas, tinyassert } from "@hiogawa/utils";
 import vitePluginUnocss, { type UnocssVitePluginAPI } from "@unocss/vite";
-import { defineConfig, presetUno, transformerVariantGroup } from "unocss";
 import {
   type BoundedPlugin,
   type BoundedPluginConstructor,
@@ -15,16 +14,12 @@ import { createVirtualPlugin } from "../utils/plugin";
 // https://github.com/unocss/unocss/tree/47eafba27619ed26579df60fe3fdeb6122b5093c/packages/vite/src/modes/global
 // https://github.com/tailwindlabs/tailwindcss/blob/719c0d488378002ff752e8dc7199c843930bb296/packages/%40tailwindcss-vite/src/index.ts
 
-// inline `uno.config.ts` since loading it from a file is taking more than 1 sec
-// TODO: investigate to see if this is related to Vite 6
-const unocssConfig = defineConfig({
-  presets: [presetUno()],
-  transformers: [transformerVariantGroup()],
-});
+// TODO:
+// reading `uno.config.ts` is adding more than 1 sec on startup time. is it normal?
 
 export function vitePluginSharedUnocss(): PluginOption {
   // reuse original plugin to grab internal unocss instance and transform plugins
-  const originalPlugins = vitePluginUnocss(unocssConfig);
+  const originalPlugins = vitePluginUnocss();
   const apiPlugin = originalPlugins.find((p) => p.name === "unocss:api");
   tinyassert(apiPlugin);
   const ctx = (apiPlugin.api as UnocssVitePluginAPI).getContext();
