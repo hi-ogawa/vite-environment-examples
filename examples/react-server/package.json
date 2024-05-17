@@ -15,9 +15,9 @@
     "cf-release": "cd misc/cloudflare-workers && wrangler deploy"
   },
   "dependencies": {
-    "react": "19.0.0-beta-4508873393-20240430",
-    "react-dom": "19.0.0-beta-4508873393-20240430",
-    "react-server-dom-webpack": "19.0.0-beta-4508873393-20240430"
+    "react": "19.0.0-rc-915b914b3a-20240515",
+    "react-dom": "19.0.0-rc-915b914b3a-20240515",
+    "react-server-dom-webpack": "19.0.0-rc-915b914b3a-20240515"
   },
   "devDependencies": {
     "@hiogawa/vite-plugin-ssr-middleware-alpha": "workspace:*",
