@@ -1,5 +1,5 @@
 import { debounce, objectHas, tinyassert } from "@hiogawa/utils";
-import vitePluginUnocss, { type UnocssVitePluginAPI } from "@unocss/vite";
+import vitePluginUnocss, { type UnocssVitePluginAPI } from "unocss/vite";
 import {
   type BoundedPlugin,
   type BoundedPluginConstructor,

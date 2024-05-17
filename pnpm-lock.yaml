@@ -106,9 +106,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      '@unocss/vite':
-        specifier: 0.58.9
-        version: 0.58.9(vite@6.0.0-alpha.10)
       happy-dom:
         specifier: ^14.7.1
         version: 14.7.1
