@@ -1,6 +1,6 @@
 import { fileURLToPath } from "url";
-import { createMiddleware } from "@hattip/adapter-node/native-fetch";
 import { DefaultMap, tinyassert } from "@hiogawa/utils";
+import { getRequestListener } from "@hono/node-server";
 import {
   Miniflare,
   Response as MiniflareResponse,
@@ -68,9 +68,8 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
         return;
       }
       const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
-      const nodeMiddleware = createMiddleware(
-        (ctx) => devEnv.api.dispatchFetch(entry, ctx.request),
-        { alwaysCallNext: false },
+      const nodeMiddleware = getRequestListener((request) =>
+        devEnv.api.dispatchFetch(entry, request),
       );
       return () => {
         server.middlewares.use(nodeMiddleware);
