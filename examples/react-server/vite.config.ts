@@ -75,7 +75,9 @@ export default defineConfig((_env) => ({
 
   builder: {
     async buildApp(builder) {
-      // pre-pass to collect server/client references by going over server/client boundary
+      // pre-pass to collect all server/client references
+      // by traversing server module graph and going over client boundary
+      // TODO: this causes single plugin to be reused by two react-server builds
       manager.buildStep = "scan";
       await builder.build(builder.environments["react-server"]!);
       manager.buildStep = undefined;
