@@ -68,8 +68,11 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
         return;
       }
       const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
-      const nodeMiddleware = getRequestListener((request) =>
-        devEnv.api.dispatchFetch(entry, request),
+      const nodeMiddleware = getRequestListener(
+        (request) => devEnv.api.dispatchFetch(entry, request),
+        {
+          overrideGlobalObjects: false,
+        },
       );
       return () => {
         server.middlewares.use(nodeMiddleware);

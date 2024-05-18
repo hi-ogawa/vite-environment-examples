@@ -19,7 +19,7 @@ export async function serverActionHandler({ request }: { request: Request }) {
   return new Response(null, {
     status: 302,
     headers: {
-      location: request.url,
+      Location: url.href.slice(url.origin.length),
     },
   });
 }
