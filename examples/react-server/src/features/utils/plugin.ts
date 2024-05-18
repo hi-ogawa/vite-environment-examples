@@ -111,25 +111,9 @@ function replaceCode(
 //
 
 export async function collectFiles(baseDir: string) {
-  const files: string[] = [];
-  await traverseFiles(baseDir, async (filepath, e) => {
-    if (e.isFile()) {
-      files.push(filepath);
-    }
-    return e.isDirectory();
+  const files = await fs.promises.readdir(baseDir, {
+    withFileTypes: true,
+    recursive: true,
   });
-  return files;
-}
-
-async function traverseFiles(
-  dir: string,
-  callback: (filepath: string, e: fs.Dirent) => Promise<boolean>,
-) {
-  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-  for (const e of entries) {
-    const filepath = path.join(e.path, e.name);
-    if (await callback(filepath, e)) {
-      await traverseFiles(filepath, callback);
-    }
-  }
+  return files.filter((f) => f.isFile()).map((f) => path.join(f.path, f.name));
 }
