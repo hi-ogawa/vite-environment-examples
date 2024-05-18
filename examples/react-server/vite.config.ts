@@ -75,7 +75,7 @@ export default defineConfig((_env) => ({
 
   builder: {
     async buildApp(builder) {
-      // extra build to collect server/client references by going over server/client boundary
+      // pre-pass to collect server/client references by going over server/client boundary
       manager.buildStep = "scan";
       await builder.build(builder.environments["react-server"]!);
       manager.buildStep = undefined;
@@ -94,18 +94,8 @@ export default defineConfig((_env) => ({
 // singleton to pass data through environment build
 class ReactServerPluginManager {
   buildStep?: "scan";
-
-  public clientReferences = new Set<string>();
-  public serverReferences = new Set<string>();
-
-  #prev: unknown;
-  finished() {
-    const next = [[...manager.clientReferences], [...manager.serverReferences]];
-    debug("[isReferenceScanned]", next);
-    const ok = JSON.stringify(this.#prev) === JSON.stringify(next);
-    this.#prev = next;
-    return ok;
-  }
+  clientReferences = new Set<string>();
+  serverReferences = new Set<string>();
 }
 
 export type { ReactServerPluginManager };
