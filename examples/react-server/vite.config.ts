@@ -268,7 +268,7 @@ function vitePluginServerAction(): PluginOption {
           let result = writableCode;
           result += `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`;
           for (const name of exportNames) {
-            result += `${name} = $$register(${name}, "${id}", "${name}");\n`;
+            result += `if (typeof ${name} === "function") ${name} = $$register(${name}, "${id}", "${name}");\n`;
           }
           return { code: result, map: null };
         } else {
