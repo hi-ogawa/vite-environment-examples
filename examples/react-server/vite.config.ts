@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import { resolve } from "node:path";
 import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
@@ -23,7 +22,6 @@ import { vitePluginServerCss } from "./src/features/style/plugin";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import { vitePluginSharedUnocss } from "./src/features/unocss/plugin";
 import {
-  collectFiles,
   createVirtualPlugin,
   parseExports,
   vitePluginSilenceDirectiveBuildWarning,
@@ -88,6 +86,8 @@ export default defineConfig((_env) => ({
         await builder.build(builder.environments["client"]!);
         if (manager.finished()) break;
       }
+      await builder.build(builder.environments["react-server"]!);
+      await builder.build(builder.environments["client"]!);
       await builder.build(builder.environments["ssr"]!);
     },
   },
@@ -338,19 +338,9 @@ function vitePluginServerAction(): PluginOption {
   const virtualServerReference = createVirtualPlugin(
     "server-reference",
     async function () {
-      // TODO: emitFile discovered references during renderStart?
-      manager.serverReferences;
-
       tinyassert(this.environment?.name === "react-server");
       tinyassert(this.environment.mode === "build");
-      const files = await collectFiles(resolve("./src"));
-      const ids: string[] = [];
-      for (const file of files) {
-        const code = await fs.promises.readFile(file, "utf-8");
-        if (/^("use server")|('use server')/.test(code)) {
-          ids.push(file);
-        }
-      }
+      const ids = [...manager.serverReferences];
       return [
         "export default {",
         ...ids.map((id) => `"${id}": () => import("${id}"),\n`),
