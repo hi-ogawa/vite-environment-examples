@@ -77,8 +77,17 @@ export default defineConfig((_env) => ({
 
   builder: {
     async buildApp(builder) {
-      await builder.build(builder.environments["react-server"]!);
-      await builder.build(builder.environments["client"]!);
+      // TODO
+      // single "scanning" build would suffice?
+      // start build from entry-server then crawl all "use client" and "use server".
+
+      // repeat server/client build to traverse server/client references
+      while (true) {
+        await builder.build(builder.environments["react-server"]!);
+        if (manager.finished()) break;
+        await builder.build(builder.environments["client"]!);
+        if (manager.finished()) break;
+      }
       await builder.build(builder.environments["ssr"]!);
     },
   },
@@ -91,6 +100,16 @@ export default defineConfig((_env) => ({
 // singleton to pass data through environment build
 class ReactServerPluginManager {
   public clientReferences = new Set<string>();
+  public serverReferences = new Set<string>();
+
+  #prev: unknown;
+  finished() {
+    const next = [[...manager.clientReferences], [...manager.serverReferences]];
+    debug("[isReferenceScanned]", next);
+    const ok = JSON.stringify(this.#prev) === JSON.stringify(next);
+    this.#prev = next;
+    return ok;
+  }
 }
 
 export type { ReactServerPluginManager };
@@ -268,6 +287,7 @@ function vitePluginServerAction(): PluginOption {
     async transform(code, id) {
       // file directive
       if (/^("use server"|'use server')/.test(code)) {
+        manager.serverReferences.add(id);
         const { output, exportNames } = await transformServerAction(code);
         if (this.environment?.name === "react-server") {
           output.append(
@@ -298,6 +318,7 @@ function vitePluginServerAction(): PluginOption {
       ) {
         const output = await transformServerAction2(code, id);
         if (output) {
+          manager.serverReferences.add(id);
           return { code: output.toString(), map: output.generateMap() };
         }
       }
@@ -317,6 +338,9 @@ function vitePluginServerAction(): PluginOption {
   const virtualServerReference = createVirtualPlugin(
     "server-reference",
     async function () {
+      // TODO: emitFile discovered references during renderStart?
+      manager.serverReferences;
+
       tinyassert(this.environment?.name === "react-server");
       tinyassert(this.environment.mode === "build");
       const files = await collectFiles(resolve("./src"));
