@@ -18,12 +18,15 @@ export default function Page() {
       </div>
       <div>
         <h4>Function</h4>
-        <form>TODO</form>
-        {false && (
-          <form action={changeCount2}>
-            <span>Count: {count2}</span>
-          </form>
-        )}
+        <form action={changeCount2}>
+          <div>Count: {count2}</div>
+          <button name="value" value={-1}>
+            -1
+          </button>
+          <button name="value" value={+1}>
+            +1
+          </button>
+        </form>
       </div>
       <div>
         <h4>Closure</h4>
@@ -35,6 +38,7 @@ export default function Page() {
 
 let count2 = 0;
 
-async function changeCount2() {
+async function changeCount2(formData: FormData) {
   "use server";
+  count2 += Number(formData.get("value"));
 }

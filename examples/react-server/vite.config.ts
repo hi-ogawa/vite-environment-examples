@@ -15,7 +15,10 @@ import {
   ENTRY_BROWSER_BOOTSTRAP,
   vitePluginEntryBootstrap,
 } from "./src/features/bootstrap/plugin";
-import { transformServerAction } from "./src/features/server-action/plugin";
+import {
+  transformServerAction,
+  transformServerAction2,
+} from "./src/features/server-action/plugin";
 import { vitePluginServerCss } from "./src/features/style/plugin";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import { vitePluginSharedUnocss } from "./src/features/unocss/plugin";
@@ -263,7 +266,8 @@ function vitePluginServerAction(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginServerAction.name + ":transform",
     async transform(code, id) {
-      if (/^("use server")|('use server')/.test(code)) {
+      // file directive
+      if (/^("use server"|'use server')/.test(code)) {
         const { output, exportNames } = await transformServerAction(code);
         if (this.environment?.name === "react-server") {
           output.append(
@@ -285,6 +289,16 @@ function vitePluginServerAction(): PluginOption {
             result += `export const ${name} = $$create("${id}#${name}");\n`;
           }
           return { code: result, map: null };
+        }
+      }
+      // function directive
+      if (
+        this.environment?.name === "react-server" &&
+        /("use server"|'use server')/.test(code)
+      ) {
+        const output = await transformServerAction2(code, id);
+        if (output) {
+          return { code: output.toString(), map: output.generateMap() };
         }
       }
       return;
