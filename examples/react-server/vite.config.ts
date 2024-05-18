@@ -75,17 +75,11 @@ export default defineConfig((_env) => ({
 
   builder: {
     async buildApp(builder) {
-      // TODO
-      // single "scanning" build would suffice?
-      // start build from entry-server then crawl all "use client" and "use server".
+      // extra build to collect server/client references by going over server/client boundary
+      manager.buildStep = "scan";
+      await builder.build(builder.environments["react-server"]!);
+      manager.buildStep = undefined;
 
-      // repeat server/client build to traverse server/client references
-      while (true) {
-        await builder.build(builder.environments["react-server"]!);
-        if (manager.finished()) break;
-        await builder.build(builder.environments["client"]!);
-        if (manager.finished()) break;
-      }
       await builder.build(builder.environments["react-server"]!);
       await builder.build(builder.environments["client"]!);
       await builder.build(builder.environments["ssr"]!);
@@ -99,6 +93,8 @@ export default defineConfig((_env) => ({
 
 // singleton to pass data through environment build
 class ReactServerPluginManager {
+  buildStep?: "scan";
+
   public clientReferences = new Set<string>();
   public serverReferences = new Set<string>();
 
@@ -219,6 +215,9 @@ function vitePluginUseClient(): PluginOption {
         manager.clientReferences.delete(id);
         if (/^("use client")|('use client')/.test(code)) {
           manager.clientReferences.add(id);
+          if (manager.buildStep === "scan") {
+            return;
+          }
           const { exportNames } = await parseExports(code);
           let result = `import { registerClientReference as $$register } from "/src/features/client-component/server";\n`;
           for (const name of exportNames) {
@@ -338,6 +337,9 @@ function vitePluginServerAction(): PluginOption {
   const virtualServerReference = createVirtualPlugin(
     "server-reference",
     async function () {
+      if (manager.buildStep === "scan") {
+        return `export default {}`;
+      }
       tinyassert(this.environment?.name === "react-server");
       tinyassert(this.environment.mode === "build");
       const ids = [...manager.serverReferences];
