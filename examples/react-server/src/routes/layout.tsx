@@ -28,6 +28,9 @@ export default async function Layout(props: React.PropsWithChildren) {
             <Link href="/">Home</Link>
           </li>
           <li>
+            <Link href="/action">Server Action</Link>
+          </li>
+          <li>
             <Link href="/slow">Slow</Link>
           </li>
           <li>

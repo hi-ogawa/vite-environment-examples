@@ -20,6 +20,9 @@ importers:
       '@hiogawa/utils':
         specifier: 1.6.4-pre.1
         version: 1.6.4-pre.1
+      '@hiogawa/utils-node':
+        specifier: ^0.0.1
+        version: 0.0.1
       '@hiogawa/vite-plugin-ssr-middleware':
         specifier: ^0.0.3
         version: 0.0.3(vite@6.0.0-alpha.10)
@@ -1408,6 +1411,10 @@ packages:
       '@hattip/headers': 0.0.44
       cac: 6.7.14
       mime-types: 2.1.35
+    dev: true
+
+  /@hiogawa/utils-node@0.0.1:
+    resolution: {integrity: sha512-vEir6KhApTlPPT+0wX85wglFgZjxG/WZGjWGahSR7+ltNkpY0OpmxozbF5sLodYgXPObTK8cKgsQ4nzFLtZQ8g==}
     dev: true
 
   /@hiogawa/utils@1.6.4-pre.1:
