@@ -15,6 +15,7 @@ import {
   ENTRY_BROWSER_BOOTSTRAP,
   vitePluginEntryBootstrap,
 } from "./src/features/bootstrap/plugin";
+import { transformServerAction } from "./src/features/server-action/plugin";
 import { vitePluginServerCss } from "./src/features/style/plugin";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import { vitePluginSharedUnocss } from "./src/features/unocss/plugin";
@@ -263,14 +264,19 @@ function vitePluginServerAction(): PluginOption {
     name: vitePluginServerAction.name + ":transform",
     async transform(code, id) {
       if (/^("use server")|('use server')/.test(code)) {
-        const { exportNames, writableCode } = await parseExports(code);
+        const { output, exportNames } = await transformServerAction(code);
         if (this.environment?.name === "react-server") {
-          let result = writableCode;
-          result += `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`;
-          for (const name of exportNames) {
-            result += `if (typeof ${name} === "function") ${name} = $$register(${name}, "${id}", "${name}");\n`;
-          }
-          return { code: result, map: null };
+          output.append(
+            [
+              "",
+              `import { registerServerReference as $$register } from "/src/features/server-action/server"`,
+              ...exportNames.map(
+                (name) =>
+                  `${name} = typeof ${name} === "function" ? $$register(${name}, "${id}", "${name}") : ${name}`,
+              ),
+            ].join(";\n"),
+          );
+          return { code: output.toString(), map: output.generateMap() };
         } else {
           const runtime =
             this.environment?.name === "client" ? "browser" : "ssr";
