@@ -1,6 +1,6 @@
 import reactServerDomServer from "react-server-dom-webpack/server.edge";
+import { createBundlerConfig } from "./features/client-component/server";
 import { serverActionHandler } from "./features/server-action/server";
-import { createBundlerConfig } from "./features/use-client/server";
 import Layout from "./routes/layout";
 
 export type StreamData = {

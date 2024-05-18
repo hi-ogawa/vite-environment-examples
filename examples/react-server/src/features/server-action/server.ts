@@ -85,7 +85,7 @@ function createActionBundlerConfig(): BundlerConfig {
 }
 
 // maybe this is also not necessary anymore
-// (see examples/react-server/src/features/use-client/server.ts)
+// (see examples/react-server/src/features/client-component/server.ts)
 const serverReferenceImportPromiseCache = new Map<string, Promise<unknown>>();
 
 const serverReferenceWebpackRequire = memoize(importServerReference, {
