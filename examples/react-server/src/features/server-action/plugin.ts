@@ -116,10 +116,9 @@ export async function transformServerAction2(input: string, id: string) {
   output.append(
     `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`,
   );
-  names.forEach((name, i) => {
-    const exportName = `$$fn_${i}_${name}`;
-    output.append(`${name} = $$register(${name}, "${id}", "${exportName}");\n`);
-    output.append(`export { ${name} as ${exportName} };\n`);
+  names.forEach((name) => {
+    output.append(`${name} = $$register(${name}, "${id}", "${name}");\n`);
+    output.append(`export { ${name} };\n`);
   });
 
   return output;
