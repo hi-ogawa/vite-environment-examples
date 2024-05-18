@@ -6,7 +6,7 @@ import type { ImportManifestEntry, ModuleMap } from "../../types";
 // Thus, `invalidateDepTree` by `vitePluginReactServer` will invalidate
 // this entire module and `momoize` will get refreshed automatically.
 // So, we don't have to manage `ssrImportPromiseCache` like done in
-// https://github.com/hi-ogawa/vite-plugins/blob/1c12519065563da60de9f58b946695adcbb50924/packages/react-server/src/features/use-client/server.tsx#L10-L18
+// https://github.com/hi-ogawa/vite-plugins/blob/1c12519065563da60de9f58b946695adcbb50924/packages/react-server/src/features/client-component/server.tsx#L10-L18
 
 async function importWrapper(id: string) {
   if (import.meta.env.DEV) {

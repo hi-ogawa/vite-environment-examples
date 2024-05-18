@@ -197,7 +197,7 @@ function vitePluginUseClient(): PluginOption {
         if (/^("use client")|('use client')/.test(code)) {
           manager.clientReferences.add(id);
           const { exportNames } = await parseExports(code);
-          let result = `import { registerClientReference as $$register } from "/src/features/use-client/server";\n`;
+          let result = `import { registerClientReference as $$register } from "/src/features/client-component/server";\n`;
           for (const name of exportNames) {
             result += `export const ${name} = $$register("${id}", "${name}");\n`;
           }
