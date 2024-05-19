@@ -43,7 +43,7 @@ export default function Page() {
         <h4 style={{ marginBottom: "0.5rem" }}>
           "use server" closure + server component
         </h4>
-        {"todo" || <Counter4 />}
+        <Counter4 />
       </div>
     </div>
   );
@@ -59,7 +59,7 @@ async function changeCount2(formData: FormData) {
 let count4 = 0;
 
 function Counter4() {
-  const name = Math.random().toString(36).slice(2);
+  const name = "value".slice();
 
   async function changeCount4(formData: FormData) {
     "use server";
@@ -84,15 +84,15 @@ function Counter4() {
 /*
 [closure server action lifting transform]
 
-export function $$lift_changeCount4(name, formData) {
+function $$lift_fn(name, formData) {
   ...
 }
-
-$$lift_changeCount4 = $$register($$lift_changeCount4, "<id>", "$$lift_changeCount4");
+$$lift_fn = $$register($$lift_fn, "<id>", "$$lift_fn");
+export { $$lift_fn }
 
 function Counter4() {
   const name = ...;
-  const changeCount4 = $$lift_changeCount4.bind(name);
+  const changeCount4 = $$lift_fn.bind(name);
   ...
 }
 */

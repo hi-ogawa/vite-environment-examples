@@ -3,6 +3,8 @@ import type * as estree from "estree";
 import MagicString from "magic-string";
 import { parseAstAsync } from "vite";
 
+// TODO: unit test transform in isolation
+
 // extend types for rollup ast with node position
 declare module "estree" {
   interface BaseNode {
@@ -90,20 +92,67 @@ export async function transformServerAction(input: string) {
 export async function transformServerAction2(input: string, id: string) {
   const parsed = await parseAstAsync(input);
   const names: string[] = [];
+  const output = new MagicString(input);
 
-  // only non-exported top-level function for starter
-  // TODO
-  // need to track scope (free variable) and traverse all function
-  // probably should borrow some tools e.g.
-  // - https://github.com/Rich-Harris/estree-walker
+  // for starter, very primitive implementation to support simple cases in examples/react-server/src/routes/action/page.tsx
+  // TODO: try scope analysis
   // - https://github.com/Rich-Harris/periscopic
+  // - https://github.com/Rich-Harris/estree-walker
   // - https://github.com/Rich-Harris/zimmerframe
+  // - https://github.com/Rich-Harris/is-reference
   // - https://github.com/vitejs/vite/blob/f71ba5b94a6e862460a96c7bf5e16d8ae66f9fe7/packages/vite/src/node/ssr/ssrTransform.ts#L17-L24
 
   for (const node of parsed.body) {
+    // top level function
     if (node.type === "FunctionDeclaration") {
+      // top level "use server" function
       if (getFunctionDirective(node.body.body) === SERVER_DIRECTIVE) {
         names.push(node.id.name);
+      }
+      // server component function
+      if (/^[A-Z]/.test(node.id.name)) {
+        let locals: string[] = [];
+        for (const stmt of node.body.body) {
+          // track variables
+          if (stmt.type === "VariableDeclaration") {
+            for (const decl of stmt.declarations) {
+              if (decl.id.type === "Identifier") {
+                locals.push(decl.id.name);
+              }
+            }
+          }
+          if (stmt.type === "FunctionDeclaration") {
+            if (getFunctionDirective(stmt.body.body) === SERVER_DIRECTIVE) {
+              // TODO: use MagicString.move to preserve sourcemap when lifting
+
+              // filter local variables to bind (for now just substring match...)
+              const bodyCode = input.slice(stmt.body.start, stmt.body.end);
+              const localsToBind = locals.filter((name) =>
+                bodyCode.includes(name),
+              );
+
+              // emit lift function
+              const liftName = `$$lift_${node.id.name}_${stmt.id.name}`;
+              const liftParams = [
+                ...localsToBind,
+                input.slice(stmt.params.at(0)!.start, stmt.params.at(-1)!.end),
+              ].join(", ");
+              names.push(liftName);
+              output.append(
+                `;\nasync function ${liftName}(${liftParams}) { ${bodyCode} };\n`,
+              );
+
+              // replace declartion with action bind
+              output.overwrite(
+                stmt.start,
+                stmt.end,
+                `const ${
+                  stmt.id.name
+                } = ${liftName}.bind(null, ${localsToBind.join(", ")})`,
+              );
+            }
+          }
+        }
       }
     }
   }
@@ -112,7 +161,6 @@ export async function transformServerAction2(input: string, id: string) {
     return;
   }
 
-  const output = new MagicString(input);
   output.append("\n;\n");
   output.append(
     `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`,
