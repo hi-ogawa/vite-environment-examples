@@ -6,7 +6,7 @@ export default function Page() {
     <div>
       <h4>Server action</h4>
       <div>
-        <h4 style={{ marginBottom: "0" }}>
+        <h4 style={{ marginBottom: "0.5rem" }}>
           "use server" file + server component
         </h4>
         <form action={changeCount1} data-testid="counter1">
@@ -20,7 +20,7 @@ export default function Page() {
         </form>
       </div>
       <div>
-        <h4 style={{ marginBottom: "0" }}>
+        <h4 style={{ marginBottom: "0.5rem" }}>
           "use server" top-level function + server component
         </h4>
         <form action={changeCount2} data-testid="counter2">
@@ -34,13 +34,13 @@ export default function Page() {
         </form>
       </div>
       <div>
-        <h4 style={{ marginBottom: "0" }}>
+        <h4 style={{ marginBottom: "0.5rem" }}>
           "use server" file + client component
         </h4>
         <Counter3 />
       </div>
       <div>
-        <h4 style={{ marginBottom: "0" }}>
+        <h4 style={{ marginBottom: "0.5rem" }}>
           "use server" closure + server component
         </h4>
         <form data-testid="counter4">TODO</form>
