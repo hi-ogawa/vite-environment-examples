@@ -121,33 +121,28 @@ export async function transformServerAction2(input: string, id: string) {
           }
           if (stmt.type === "FunctionDeclaration") {
             if (getFunctionDirective(stmt.body.body) === SERVER_DIRECTIVE) {
-              // TODO: use MagicString.move to preserve sourcemap when lifting
-
               // filter local variables to bind (for now just substring match...)
               const bodyCode = input.slice(stmt.body.start, stmt.body.end);
               const localsToBind = locals.filter((name) =>
                 bodyCode.includes(name),
               );
 
-              // emit lift function
+              // lift function by overwrite + move
               const liftName = `$$lift_${node.id.name}_${stmt.id.name}`;
+              names.push(liftName);
               const liftParams = [
                 ...localsToBind,
                 ...stmt.params.map((n) => input.slice(n.start, n.end)),
               ].join(", ");
-              names.push(liftName);
-              output.append(
-                `;\nasync function ${liftName}(${liftParams}) ${bodyCode};\n`,
-              );
+              output.overwrite(stmt.id.start, stmt.id.end, liftName);
+              output.overwrite(stmt.id.end, stmt.body.start, `(${liftParams})`);
+              output.move(stmt.start, stmt.end, input.length);
 
-              // replace declartion with action bind
-              output.overwrite(
-                stmt.start,
-                stmt.end,
-                `const ${
-                  stmt.id.name
-                } = ${liftName}.bind(null, ${localsToBind.join(", ")})`,
-              );
+              // replace original declartion with action bind
+              const bindCode = `const ${
+                stmt.id.name
+              } = ${liftName}.bind(null, ${localsToBind.join(", ")})`;
+              output.appendLeft(stmt.start, bindCode);
             }
           }
         }

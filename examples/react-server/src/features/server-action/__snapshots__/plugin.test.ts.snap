@@ -11,12 +11,10 @@ function Counter4() {
 
   console.log(name, changeCount4);
 }
-;
-async function $$lift_Counter4_changeCount4(name, formData) {
+async function $$lift_Counter4_changeCount4(name, formData){
     "use server";
     count4 += Number(formData.get(name));
-  };
-
+  }
 ;
 import { registerServerReference as $$register } from "/src/features/server-action/server";
 $$lift_Counter4_changeCount4 = $$register($$lift_Counter4_changeCount4, "<id>", "$$lift_Counter4_changeCount4");
