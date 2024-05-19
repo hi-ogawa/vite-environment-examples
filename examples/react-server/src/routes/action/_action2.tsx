@@ -1,8 +1,9 @@
 "use server";
 
-// this file is only imported by client
+// this server file is only imported by client
+// to test if build pre-pass can discover this file
 
-export let count3 = 0;
+let count3 = 0;
 
 export function changeCount3(_value: unknown, formData: FormData) {
   count3 += Number(formData.get("value"));
