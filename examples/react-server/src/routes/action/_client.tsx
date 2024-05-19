@@ -6,8 +6,8 @@ import { changeCount3 } from "./_action2";
 export function Counter3() {
   const [count, formAction] = React.useActionState(changeCount3, null);
   return (
-    <form action={formAction}>
-      <div>count: {count ?? "?"}</div>
+    <form action={formAction} data-testid="counter3">
+      <div>count: {count ?? 0}</div>
       <button name="value" value={-1}>
         -1
       </button>
