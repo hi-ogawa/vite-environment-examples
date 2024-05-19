@@ -38,18 +38,47 @@ async function g() {
 
   it("closure", async () => {
     const input = `
-let count4 = 0;
+let count = 0;
 
-function Counter4() {
-  const name = "value".slice();
+function Counter() {
+  const name = "value";
 
-  async function changeCount4(formData) {
+  async function changeCount(formData) {
     "use server";
-    count4 += Number(formData.get(name));
+    count += Number(formData.get(name));
   }
 
-  console.log(name, changeCount4);
+  return "something";
 }
+`;
+    expect(await testTransform(input)).toMatchSnapshot();
+  });
+
+  it("many", async () => {
+    const input = `
+let count = 0;
+
+function Counter() {
+  const name = "value";
+
+  async function changeCount(formData) {
+    "use server";
+    count += Number(formData.get(name));
+  }
+
+  async function changeCount2(formData) {
+    "use server";
+    count += Number(formData.get(name));
+  }
+
+  return "something";
+}
+
+async function changeCount3(formData) {
+  "use server";
+  count += Number(formData.get(name));
+}
+
 `;
     expect(await testTransform(input)).toMatchSnapshot();
   });

@@ -136,12 +136,13 @@ export async function transformServerAction2(input: string, id: string) {
               ].join(", ");
               output.overwrite(stmt.id.start, stmt.id.end, liftName);
               output.overwrite(stmt.id.end, stmt.body.start, `(${liftParams})`);
+              output.appendRight(stmt.start, ";\n");
               output.move(stmt.start, stmt.end, input.length);
 
               // replace original declartion with action bind
               const bindCode = `const ${
                 stmt.id.name
-              } = ${liftName}.bind(null, ${localsToBind.join(", ")})`;
+              } = ${liftName}.bind(null, ${localsToBind.join(", ")});`;
               output.appendLeft(stmt.start, bindCode);
             }
           }
@@ -154,7 +155,7 @@ export async function transformServerAction2(input: string, id: string) {
     return;
   }
 
-  output.append("\n;\n");
+  output.append(";\n");
   output.append(
     `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`,
   );
