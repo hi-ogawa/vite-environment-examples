@@ -98,6 +98,7 @@ export async function transformServerAction2(input: string, id: string) {
   // - https://github.com/Rich-Harris/estree-walker
   // - https://github.com/Rich-Harris/periscopic
   // - https://github.com/Rich-Harris/zimmerframe
+  // - https://github.com/vitejs/vite/blob/f71ba5b94a6e862460a96c7bf5e16d8ae66f9fe7/packages/vite/src/node/ssr/ssrTransform.ts#L17-L24
 
   for (const node of parsed.body) {
     if (node.type === "FunctionDeclaration") {
