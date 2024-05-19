@@ -76,6 +76,7 @@ export function vitePluginServerCss({
       if ($__global.server) {
         const urls = await collectStyleUrls(
           $__global.server.environments["react-server"],
+          // TODO: lazy import is not crawled until it's imported
           ["/src/entry-server"],
         );
         return [
