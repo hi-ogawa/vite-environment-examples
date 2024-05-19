@@ -135,7 +135,7 @@ export async function transformServerAction2(input: string, id: string) {
               const liftName = `$$lift_${node.id.name}_${stmt.id.name}`;
               const liftParams = [
                 ...localsToBind,
-                input.slice(stmt.params.at(0)!.start, stmt.params.at(-1)!.end),
+                ...stmt.params.map((n) => input.slice(n.start, n.end)),
               ].join(", ");
               names.push(liftName);
               output.append(
