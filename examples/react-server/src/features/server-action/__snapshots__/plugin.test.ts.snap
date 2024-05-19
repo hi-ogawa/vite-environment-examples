@@ -1,0 +1,40 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`transformServerAction2 > closure 1`] = `
+"
+let count4 = 0;
+
+function Counter4() {
+  const name = "value".slice();
+
+  const changeCount4 = $$lift_Counter4_changeCount4.bind(null, name)
+
+  console.log(name, changeCount4);
+}
+;
+async function $$lift_Counter4_changeCount4(name, formData) {
+    "use server";
+    count4 += Number(formData.get(name));
+  };
+
+;
+import { registerServerReference as $$register } from "/src/features/server-action/server";
+$$lift_Counter4_changeCount4 = $$register($$lift_Counter4_changeCount4, "<id>", "$$lift_Counter4_changeCount4");
+export { $$lift_Counter4_changeCount4 };
+"
+`;
+
+exports[`transformServerAction2 > top level 1`] = `
+"
+async function f() {
+  "use server";
+}
+async function g() {
+}
+
+;
+import { registerServerReference as $$register } from "/src/features/server-action/server";
+f = $$register(f, "<id>", "f");
+export { f };
+"
+`;

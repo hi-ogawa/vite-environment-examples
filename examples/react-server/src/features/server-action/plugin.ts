@@ -3,8 +3,6 @@ import type * as estree from "estree";
 import MagicString from "magic-string";
 import { parseAstAsync } from "vite";
 
-// TODO: unit test transform in isolation
-
 // extend types for rollup ast with node position
 declare module "estree" {
   interface BaseNode {
@@ -139,7 +137,7 @@ export async function transformServerAction2(input: string, id: string) {
               ].join(", ");
               names.push(liftName);
               output.append(
-                `;\nasync function ${liftName}(${liftParams}) { ${bodyCode} };\n`,
+                `;\nasync function ${liftName}(${liftParams}) ${bodyCode};\n`,
               );
 
               // replace declartion with action bind

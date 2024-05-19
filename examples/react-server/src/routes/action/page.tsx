@@ -80,19 +80,3 @@ function Counter4() {
     </form>
   );
 }
-
-/*
-[closure server action lifting transform]
-
-function $$lift_fn(name, formData) {
-  ...
-}
-$$lift_fn = $$register($$lift_fn, "<id>", "$$lift_fn");
-export { $$lift_fn }
-
-function Counter4() {
-  const name = ...;
-  const changeCount4 = $$lift_fn.bind(name);
-  ...
-}
-*/
