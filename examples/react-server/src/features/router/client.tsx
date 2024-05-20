@@ -2,10 +2,19 @@
 
 import React from "react";
 
-export function Link(props: JSX.IntrinsicElements["a"] & { href: string }) {
+export function Link(
+  props: JSX.IntrinsicElements["a"] & {
+    activeProps?: JSX.IntrinsicElements["a"];
+    pendingProps?: JSX.IntrinsicElements["a"];
+  },
+) {
+  const { isPending, pathname } = useRouter();
+
   return (
     <a
       {...props}
+      {...(props.href === pathname ? props.activeProps : {})}
+      {...(props.href === pathname && isPending ? props.pendingProps : {})}
       onClick={(e) => {
         if (
           e.currentTarget instanceof HTMLAnchorElement &&
@@ -23,11 +32,10 @@ export function Link(props: JSX.IntrinsicElements["a"] & { href: string }) {
 
 type RouterContextType = {
   isPending: boolean;
+  pathname: string;
 };
 
-export const RouterContext = React.createContext<RouterContextType>({
-  isPending: false,
-});
+export const RouterContext = React.createContext<RouterContextType>(undefined!);
 
 export function useRouter() {
   return React.use(RouterContext);
