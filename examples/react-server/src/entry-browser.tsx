@@ -21,8 +21,7 @@ async function main() {
     "react-server-dom-webpack/client.browser"
   );
 
-  // TODO: invalidate on server action
-  const bfcache = new BackForawrdCache();
+  const bfcache = new BackForawrdCache<Promise<StreamData>>();
 
   $__global.callServer = async (id, args) => {
     const url = new URL(window.location.href);
@@ -36,6 +35,7 @@ async function main() {
       { callServer: $__global.callServer },
     );
     $__setStreamData(streamData);
+    bfcache.set(streamData);
     return (await streamData).actionResult;
   };
 

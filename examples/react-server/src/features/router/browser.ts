@@ -46,14 +46,21 @@ function addStateKey(state: any) {
   return Object.assign({}, state || {}, { key } satisfies HistoryState);
 }
 
-export class BackForawrdCache {
+export class BackForawrdCache<T> {
   private cache: Record<string, any> = {};
 
-  run<T>(f: () => T): T {
+  run(f: () => T): T {
     const key = (window.history.state as HistoryState)?.key;
     if (typeof key === "string") {
       return (this.cache[key] ??= f());
     }
     return f();
+  }
+
+  set(v: T | undefined) {
+    const key = (window.history.state as HistoryState)?.key;
+    if (typeof key === "string") {
+      this.cache[key] = v;
+    }
   }
 }
