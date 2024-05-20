@@ -3,7 +3,10 @@ import React from "react";
 import reactDomClient from "react-dom/client";
 import type { StreamData } from "./entry-server";
 import { initializeWebpackBrowser } from "./features/client-component/browser";
-import { listenWindowHistory } from "./features/router/browser";
+import {
+  BackForawrdCache,
+  listenWindowHistory,
+} from "./features/router/browser";
 import { RouterContext } from "./features/router/client";
 import { readStreamScript } from "./features/utils/stream-script";
 import { $__global } from "./global";
@@ -18,6 +21,8 @@ async function main() {
     "react-server-dom-webpack/client.browser"
   );
 
+  const bfcache = new BackForawrdCache<Promise<StreamData>>();
+
   $__global.callServer = async (id, args) => {
     const url = new URL(window.location.href);
     url.searchParams.set("__stream", "");
@@ -30,6 +35,7 @@ async function main() {
       { callServer: $__global.callServer },
     );
     $__setStreamData(streamData);
+    bfcache.set(streamData);
     return (await streamData).actionResult;
   };
 
@@ -50,11 +56,11 @@ async function main() {
       return listenWindowHistory(() => {
         const url = new URL(window.location.href);
         url.searchParams.set("__stream", "");
-        $__setStreamData(
+        const fetchFlight = () =>
           reactServerDomClient.createFromFetch<StreamData>(fetch(url), {
             callServer: $__global.callServer,
-          }),
-        );
+          });
+        $__setStreamData(bfcache.run(fetchFlight));
       });
     }, []);
 
