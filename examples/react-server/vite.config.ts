@@ -5,6 +5,7 @@ import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
 import react from "@vitejs/plugin-react";
 import {
+  DevEnvironment,
   type Plugin,
   type PluginOption,
   createNodeDevEnvironment,
@@ -198,6 +199,9 @@ function vitePluginUseClient(): PluginOption {
           manager.clientReferences.add(id);
           const { exportNames } = await parseExports(code);
           let result = `import { registerClientReference as $$register } from "/src/features/client-component/server";\n`;
+          if (this.environment.mode === "dev") {
+            id = await normalizeUrl(id, $__global.server.environments.client);
+          }
           for (const name of exportNames) {
             result += `export const ${name} = $$register("${id}", "${name}");\n`;
           }
@@ -208,6 +212,36 @@ function vitePluginUseClient(): PluginOption {
           });
           return { code: result, map: null };
         }
+      }
+      return;
+    },
+  };
+
+  // need to align with what Vite import analysis would rewrite
+  // to avoid double modules on browser and ssr.
+  async function normalizeUrl(id: string, devEnv: DevEnvironment) {
+    const transformed = await devEnv.transformRequest(
+      "virtual:normalize-url/" + encodeURIComponent(id),
+    );
+    tinyassert(transformed);
+    const m = transformed.code.match(/import\("(.*)"\)/);
+    tinyassert(m && 1 in m);
+    return m[1];
+  }
+
+  const normalizeUrlVirtualPlugin: Plugin = {
+    name: vitePluginUseClient.name + "normalize-url-virtual",
+    resolveId(source, _importer, _options) {
+      if (source.startsWith("virtual:normalize-url/")) {
+        return "\0" + source;
+      }
+      return;
+    },
+    load(id, _options) {
+      if (id.startsWith("\0virtual:normalize-url/")) {
+        id = id.slice("\0virtual:normalize-url/".length);
+        id = decodeURIComponent(id);
+        return `export default () => import("${id}")`;
       }
       return;
     },
@@ -237,7 +271,7 @@ function vitePluginUseClient(): PluginOption {
     },
   );
 
-  return [transformPlugin, virtualPlugin];
+  return [transformPlugin, virtualPlugin, normalizeUrlVirtualPlugin];
 }
 
 function vitePluginServerAction(): PluginOption {
