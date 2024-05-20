@@ -65,7 +65,9 @@ async function main() {
     }, []);
 
     return (
-      <RouterContext.Provider value={{ isPending }}>
+      <RouterContext.Provider
+        value={{ isPending, pathname: window.location.pathname }}
+      >
         <UseStream streamData={streamData} />
       </RouterContext.Provider>
     );

@@ -22,13 +22,13 @@ export default async function Layout(props: React.PropsWithChildren) {
         </div>
         <ul>
           <li>
-            <Link href="/">Home</Link>
+            <NavLink href="/">Home</NavLink>
           </li>
           <li>
-            <Link href="/slow">Slow</Link>
+            <NavLink href="/slow">Slow</NavLink>
           </li>
           <li>
-            <Link href="/not-found">Not Found</Link>
+            <NavLink href="/not-found">Not Found</NavLink>
           </li>
         </ul>
         <div style={{ marginBottom: "1rem" }}>
@@ -39,5 +39,16 @@ export default async function Layout(props: React.PropsWithChildren) {
         {props.children}
       </body>
     </html>
+  );
+}
+
+function NavLink(props: React.ComponentProps<typeof Link>) {
+  return (
+    <Link
+      {...props}
+      style={{ textDecoration: "none" }}
+      activeProps={{ style: {} }}
+      pendingProps={{ style: { opacity: 0.5 } }}
+    />
   );
 }
