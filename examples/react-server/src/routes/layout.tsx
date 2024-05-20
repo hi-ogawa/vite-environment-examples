@@ -15,10 +15,7 @@ export default async function Layout(props: React.PropsWithChildren) {
       <body>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <h4>Hello Server Component</h4>
-          <a
-            href="https://github.com/hi-ogawa/vite-environment-examples/tree/main/examples/react-server"
-            target="_blank"
-          >
+          <a href="https://github.com/hi-ogawa/vite-environment-examples/tree/main/examples/react-server">
             GitHub
           </a>
           <GlobalProgress />
