@@ -2,19 +2,21 @@
 
 import React from "react";
 
-export function Link(
-  props: JSX.IntrinsicElements["a"] & {
-    activeProps?: JSX.IntrinsicElements["a"];
-    pendingProps?: JSX.IntrinsicElements["a"];
-  },
-) {
+export function Link({
+  activeProps,
+  pendingProps,
+  ...props
+}: JSX.IntrinsicElements["a"] & {
+  activeProps?: JSX.IntrinsicElements["a"];
+  pendingProps?: JSX.IntrinsicElements["a"];
+}) {
   const { isPending, pathname } = useRouter();
 
   return (
     <a
       {...props}
-      {...(props.href === pathname ? props.activeProps : {})}
-      {...(props.href === pathname && isPending ? props.pendingProps : {})}
+      {...(props.href === pathname ? activeProps : {})}
+      {...(props.href === pathname && isPending ? pendingProps : {})}
       onClick={(e) => {
         if (
           e.currentTarget instanceof HTMLAnchorElement &&
