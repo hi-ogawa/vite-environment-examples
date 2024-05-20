@@ -1,6 +1,6 @@
 import fs from "fs";
 import { sleep } from "@hiogawa/utils";
-import { type Page, expect, test } from "@playwright/test";
+import { type Page, type Request, expect, test } from "@playwright/test";
 
 export const testNoJs = test.extend({
   javaScriptEnabled: ({}, use) => use(false),
@@ -62,4 +62,18 @@ export async function createReloadChecker(page: Page) {
 
 export async function waitForHydration(page: Page) {
   await page.getByText("[hydrated: 1]").click();
+}
+
+export function assertNoRequests(page: Page) {
+  const requests: Request[] = [];
+  function handler(request: Request) {
+    requests.push(request);
+  }
+  page.on("request", handler);
+  return {
+    [Symbol.dispose]() {
+      page.off("request", handler);
+      expect(requests.map((req) => req.url())).toEqual([]);
+    },
+  };
 }

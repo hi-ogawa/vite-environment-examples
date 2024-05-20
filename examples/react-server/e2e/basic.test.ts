@@ -1,5 +1,6 @@
 import { type Page, expect, test } from "@playwright/test";
 import {
+  assertNoRequests,
   createEditor,
   createReloadChecker,
   testNoJs,
@@ -313,3 +314,42 @@ async function testNavigation(page: Page, options: { js: boolean }) {
     options.js ? "hello" : "",
   );
 }
+
+test("bfcache", async ({ page }) => {
+  await page.goto("/");
+  await waitForHydration(page);
+
+  // server action should invalidate cache
+  await page.getByTestId("server-action").getByText("Count: 0").click();
+  await page
+    .getByTestId("server-action")
+    .getByRole("button", { name: "+" })
+    .click();
+  await page.getByTestId("server-action").getByText("Count: 1").click();
+
+  // navigate to other page
+  await page.getByRole("link", { name: "Not Found" }).click();
+  await page.waitForURL("/not-found");
+  await page.getByRole("heading", { name: "Not Found" }).click();
+
+  // check no network request when going back
+  {
+    using _ = assertNoRequests(page);
+    await page.goBack();
+    await page.waitForURL("/");
+    await page.getByTestId("server-action").getByText("Count: 1").click();
+  }
+  await page
+    .getByTestId("server-action")
+    .getByRole("button", { name: "-" })
+    .click();
+  await page.getByTestId("server-action").getByText("Count: 0").click();
+
+  // check no network request when going forward
+  {
+    using _ = assertNoRequests(page);
+    await page.goForward();
+    await page.waitForURL("/not-found");
+    await page.getByRole("heading", { name: "Not Found" }).click();
+  }
+});
