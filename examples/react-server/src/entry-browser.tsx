@@ -35,7 +35,6 @@ async function main() {
       }),
       { callServer: $__global.callServer },
     );
-    //
     $__setStreamData(streamData);
     return (await streamData).actionResult;
   };

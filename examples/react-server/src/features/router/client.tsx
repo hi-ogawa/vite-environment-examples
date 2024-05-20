@@ -14,7 +14,7 @@ export function Link(props: JSX.IntrinsicElements["a"] & { href: string }) {
           (!e.currentTarget.target || e.currentTarget.target === "_self")
         ) {
           e.preventDefault();
-          history.pushState({}, "", e.currentTarget.href);
+          history.pushState(null, "", e.currentTarget.href);
         }
       }}
     />
