@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import { type Plugin, parseAstAsync } from "vite";
 
 export function vitePluginSilenceDirectiveBuildWarning(): Plugin {
@@ -104,16 +102,4 @@ function replaceCode(
   content: string,
 ) {
   return code.slice(0, start) + content + code.slice(end);
-}
-
-//
-// fs utils
-//
-
-export async function collectFiles(baseDir: string) {
-  const files = await fs.promises.readdir(baseDir, {
-    withFileTypes: true,
-    recursive: true,
-  });
-  return files.filter((f) => f.isFile()).map((f) => path.join(f.path, f.name));
 }

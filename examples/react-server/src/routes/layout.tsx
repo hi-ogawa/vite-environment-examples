@@ -25,6 +25,9 @@ export default async function Layout(props: React.PropsWithChildren) {
             <NavLink href="/">Home</NavLink>
           </li>
           <li>
+            <NavLink href="/action">Server Action</NavLink>
+          </li>
+          <li>
             <NavLink href="/slow">Slow</NavLink>
           </li>
           <li>

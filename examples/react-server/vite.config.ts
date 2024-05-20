@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import { resolve } from "node:path";
 import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
@@ -16,11 +15,14 @@ import {
   ENTRY_BROWSER_BOOTSTRAP,
   vitePluginEntryBootstrap,
 } from "./src/features/bootstrap/plugin";
+import {
+  transformServerAction,
+  transformServerAction2,
+} from "./src/features/server-action/plugin";
 import { vitePluginServerCss } from "./src/features/style/plugin";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import { vitePluginSharedUnocss } from "./src/features/unocss/plugin";
 import {
-  collectFiles,
   createVirtualPlugin,
   parseExports,
   vitePluginSilenceDirectiveBuildWarning,
@@ -74,6 +76,13 @@ export default defineConfig((_env) => ({
 
   builder: {
     async buildApp(builder) {
+      // pre-pass to collect all server/client references
+      // by traversing server module graph and going over client boundary
+      // TODO: this causes single plugin to be reused by two react-server builds
+      manager.buildStep = "scan";
+      await builder.build(builder.environments["react-server"]!);
+      manager.buildStep = undefined;
+
       await builder.build(builder.environments["react-server"]!);
       await builder.build(builder.environments["client"]!);
       await builder.build(builder.environments["ssr"]!);
@@ -87,7 +96,9 @@ export default defineConfig((_env) => ({
 
 // singleton to pass data through environment build
 class ReactServerPluginManager {
-  public clientReferences = new Set<string>();
+  buildStep?: "scan";
+  clientReferences = new Set<string>();
+  serverReferences = new Set<string>();
 }
 
 export type { ReactServerPluginManager };
@@ -197,6 +208,9 @@ function vitePluginUseClient(): PluginOption {
         manager.clientReferences.delete(id);
         if (/^("use client")|('use client')/.test(code)) {
           manager.clientReferences.add(id);
+          if (manager.buildStep === "scan") {
+            return;
+          }
           const { exportNames } = await parseExports(code);
           let result = `import { registerClientReference as $$register } from "/src/features/client-component/server";\n`;
           if (this.environment.mode === "dev") {
@@ -296,15 +310,22 @@ function vitePluginServerAction(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginServerAction.name + ":transform",
     async transform(code, id) {
-      if (/^("use server")|('use server')/.test(code)) {
-        const { exportNames, writableCode } = await parseExports(code);
+      // file directive
+      if (/^("use server"|'use server')/.test(code)) {
+        manager.serverReferences.add(id);
+        const { output, exportNames } = await transformServerAction(code);
         if (this.environment?.name === "react-server") {
-          let result = writableCode;
-          result += `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`;
-          for (const name of exportNames) {
-            result += `${name} = $$register(${name}, "${id}", "${name}");\n`;
-          }
-          return { code: result, map: null };
+          output.append(
+            [
+              "",
+              `import { registerServerReference as $$register } from "/src/features/server-action/server"`,
+              ...exportNames.map(
+                (name) =>
+                  `${name} = typeof ${name} === "function" ? $$register(${name}, "${id}", "${name}") : ${name}`,
+              ),
+            ].join(";\n"),
+          );
+          return { code: output.toString(), map: output.generateMap() };
         } else {
           const runtime =
             this.environment?.name === "client" ? "browser" : "ssr";
@@ -313,6 +334,17 @@ function vitePluginServerAction(): PluginOption {
             result += `export const ${name} = $$create("${id}#${name}");\n`;
           }
           return { code: result, map: null };
+        }
+      }
+      // function directive
+      if (
+        this.environment?.name === "react-server" &&
+        /("use server"|'use server')/.test(code)
+      ) {
+        const output = await transformServerAction2(code, id);
+        if (output) {
+          manager.serverReferences.add(id);
+          return { code: output.toString(), map: output.generateMap() };
         }
       }
       return;
@@ -331,16 +363,12 @@ function vitePluginServerAction(): PluginOption {
   const virtualServerReference = createVirtualPlugin(
     "server-reference",
     async function () {
+      if (manager.buildStep === "scan") {
+        return `export default {}`;
+      }
       tinyassert(this.environment?.name === "react-server");
       tinyassert(this.environment.mode === "build");
-      const files = await collectFiles(resolve("./src"));
-      const ids: string[] = [];
-      for (const file of files) {
-        const code = await fs.promises.readFile(file, "utf-8");
-        if (/^("use server")|('use server')/.test(code)) {
-          ids.push(file);
-        }
-      }
+      const ids = [...manager.serverReferences];
       return [
         "export default {",
         ...ids.map((id) => `"${id}": () => import("${id}"),\n`),
