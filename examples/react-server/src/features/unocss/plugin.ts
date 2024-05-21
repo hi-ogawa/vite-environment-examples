@@ -8,18 +8,30 @@ import { createVirtualPlugin } from "../utils/plugin";
 // https://github.com/unocss/unocss/tree/47eafba27619ed26579df60fe3fdeb6122b5093c/packages/vite/src/modes/global
 // https://github.com/tailwindlabs/tailwindcss/blob/719c0d488378002ff752e8dc7199c843930bb296/packages/%40tailwindcss-vite/src/index.ts
 
-export function vitePluginSharedUnocss(): Plugin {
+export function vitePluginSharedUnocss(): Plugin[] {
   // reuse original plugin to grab internal unocss instance and transform plugins
   const originalPlugins = vitePluginUnocss();
   const apiPlugin = originalPlugins.find((p) => p.name === "unocss:api");
   tinyassert(apiPlugin);
   const ctx = (apiPlugin.api as UnocssVitePluginAPI).getContext();
 
-  return {
+  // extract tokens by intercepting transform
+  const extractPlugin: Plugin = {
+    name: vitePluginSharedUnocss.name + ":extract",
+    sharedDuringBuild: true,
+    enforce: "post",
+    transform(code, id) {
+      if (ctx.filter(code, id)) {
+        ctx.tasks.push(ctx.extract(code, id));
+      }
+    },
+  };
+
+  const mainPlugin: Plugin = {
     name: vitePluginSharedUnocss.name,
     sharedDuringBuild: true,
 
-    // extract tokens by intercepting transform
+    // TODO: not working https://github.com/vitejs/vite/pull/16471#discussion_r1607712177
     transform: {
       order: "post",
       handler(code, id) {
@@ -114,4 +126,6 @@ export function vitePluginSharedUnocss(): Plugin {
       return plugins;
     },
   };
+
+  return [mainPlugin, extractPlugin];
 }
