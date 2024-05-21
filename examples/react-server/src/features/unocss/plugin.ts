@@ -19,7 +19,6 @@ export function vitePluginSharedUnocss(): Plugin[] {
   const extractPlugin: Plugin = {
     name: vitePluginSharedUnocss.name + ":extract",
     sharedDuringBuild: true,
-    enforce: "post",
     transform(code, id) {
       if (ctx.filter(code, id)) {
         ctx.tasks.push(ctx.extract(code, id));
@@ -27,105 +26,106 @@ export function vitePluginSharedUnocss(): Plugin[] {
     },
   };
 
-  const mainPlugin: Plugin = {
-    name: vitePluginSharedUnocss.name,
-    sharedDuringBuild: true,
+  // In our case, we only need to expose virtual css to "client" environment.
+  // However, we don't need such restriction since following plugins kick in
+  // only on the environments which actually import "virtual:unocss.css".
+  const environmentPlugins: NonNullable<Plugin["environmentPlugins"]> = (
+    environment,
+  ) => {
+    const plugins: Plugin[] = [];
 
-    // TODO: not working https://github.com/vitejs/vite/pull/16471#discussion_r1607712177
-    transform: {
-      order: "post",
-      handler(code, id) {
-        if (ctx.filter(code, id)) {
-          ctx.tasks.push(ctx.extract(code, id));
-        }
-      },
-    },
+    // reuse transform plugins
+    plugins.push(
+      ...originalPlugins.filter((plugin) =>
+        plugin.name.startsWith("unocss:transformers:"),
+      ),
+    );
 
-    environmentPlugins(environment) {
-      const plugins: Plugin[] = [];
-
-      // reuse transform plugins
+    // [dev]
+    // transform virtual module directly and HMR is triggered as more tokens are discovered
+    if (environment.mode === "dev") {
+      // transform virtual module directly
       plugins.push(
-        ...originalPlugins.filter((plugin) =>
-          plugin.name.startsWith("unocss:transformers:"),
-        ),
+        createVirtualPlugin("unocss.css", async () => {
+          await ctx.flushTasks();
+          const result = await ctx.uno.generate(ctx.tokens);
+          return result.css;
+        }),
       );
 
-      // In our case, we only need to expose virtual css to "client" environment.
-      // However, we don't need such restriction since following plugins kick in
-      // only on the environments which actually import "virtual:unocss.css".
-
-      // [dev]
-      // transform virtual module directly and HMR is triggered as more tokens are discovered
-      if (environment.mode === "dev") {
-        // transform virtual module directly
-        plugins.push(
-          createVirtualPlugin("unocss.css", async () => {
-            await ctx.flushTasks();
-            const result = await ctx.uno.generate(ctx.tokens);
-            return result.css;
-          }),
-        );
-
-        // HMR
-        function hotUpdate() {
-          tinyassert(environment instanceof DevEnvironment);
-          const mod = invalidateModule(environment, "\0virtual:unocss.css");
-          if (mod) {
-            environment.hot.send({
-              type: "update",
-              updates: [
-                {
-                  type: `${mod.type}-update`,
-                  path: "/@id/__x00__virtual:unocss.css",
-                  acceptedPath: "/@id/__x00__virtual:unocss.css",
-                  timestamp: Date.now(),
-                },
-              ],
-            });
-          }
+      // HMR
+      function hotUpdate() {
+        tinyassert(environment instanceof DevEnvironment);
+        const mod = invalidateModule(environment, "\0virtual:unocss.css");
+        if (mod) {
+          environment.hot.send({
+            type: "update",
+            updates: [
+              {
+                type: `${mod.type}-update`,
+                path: "/@id/__x00__virtual:unocss.css",
+                acceptedPath: "/@id/__x00__virtual:unocss.css",
+                timestamp: Date.now(),
+              },
+            ],
+          });
         }
-        const debounced = debounce(() => hotUpdate(), 50);
-        ctx.onInvalidate(debounced);
-        ctx.onReload(debounced);
       }
+      const debounced = debounce(() => hotUpdate(), 50);
+      ctx.onInvalidate(debounced);
+      ctx.onReload(debounced);
+    }
 
-      // [build]
-      // transform virtual module during renderChunk
-      if (environment.mode === "build") {
-        const cssPlugins = environment.config.plugins.filter(
-          (p) => p.name === "vite:css" || p.name === "vite:css-post",
-        );
+    // [build]
+    // transform virtual module during renderChunk
+    if (environment.mode === "build") {
+      const cssPlugins = environment.config.plugins.filter(
+        (p) => p.name === "vite:css" || p.name === "vite:css-post",
+      );
 
-        plugins.push(
-          createVirtualPlugin("unocss.css", () => "/*** tmp unocss ***/"),
-          {
-            name: vitePluginSharedUnocss.name + ":render",
-            async renderChunk(_code, chunk, _options) {
-              if (chunk.moduleIds.includes("\0virtual:unocss.css")) {
-                await ctx.flushTasks();
-                let { css } = await ctx.uno.generate(ctx.tokens);
-                for (const plugin of cssPlugins) {
-                  tinyassert(typeof plugin.transform === "function");
-                  const result = await plugin.transform.apply(this as any, [
-                    css,
-                    "\0virtual:unocss.css",
-                  ]);
-                  tinyassert(
-                    objectHas(result, "code") &&
-                      typeof result.code === "string",
-                  );
-                  css = result.code;
-                }
+      plugins.push(
+        createVirtualPlugin("unocss.css", () => "/*** tmp unocss ***/"),
+        {
+          name: vitePluginSharedUnocss.name + ":render",
+          async renderChunk(_code, chunk, _options) {
+            if (chunk.moduleIds.includes("\0virtual:unocss.css")) {
+              await ctx.flushTasks();
+              let { css } = await ctx.uno.generate(ctx.tokens);
+              for (const plugin of cssPlugins) {
+                tinyassert(typeof plugin.transform === "function");
+                const result = await plugin.transform.apply(this as any, [
+                  css,
+                  "\0virtual:unocss.css",
+                ]);
+                tinyassert(
+                  objectHas(result, "code") && typeof result.code === "string",
+                );
+                css = result.code;
               }
-            },
+            }
           },
-        );
-      }
+        },
+      );
+    }
 
-      return plugins;
-    },
+    return plugins;
   };
 
-  return [mainPlugin, extractPlugin];
+  return [
+    {
+      name: vitePluginSharedUnocss.name,
+      sharedDuringBuild: true,
+      // TODO: not working https://github.com/vitejs/vite/pull/16471#discussion_r1607712177
+      transform: {
+        order: "post",
+        handler(code, id) {
+          if (ctx.filter(code, id)) {
+            ctx.tasks.push(ctx.extract(code, id));
+          }
+        },
+      },
+      environmentPlugins,
+    },
+    extractPlugin,
+  ];
 }
