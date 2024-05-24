@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  vite: 6.0.0-alpha.10
+  vite: 6.0.0-alpha.16
 
 importers:
 
@@ -25,7 +25,7 @@ importers:
         version: 0.0.1
       '@hiogawa/vite-plugin-ssr-middleware':
         specifier: ^0.0.3
-        version: 0.0.3(vite@6.0.0-alpha.10)
+        version: 0.0.3(vite@6.0.0-alpha.16)
       '@playwright/test':
         specifier: ^1.42.1
         version: 1.42.1
@@ -37,7 +37,7 @@ importers:
         version: 20.11.30
       '@vitejs/plugin-react':
         specifier: ^4.2.1
-        version: 4.2.1(vite@6.0.0-alpha.10)
+        version: 4.2.1(vite@6.0.0-alpha.16)
       esbuild:
         specifier: ^0.20.2
         version: 0.20.2
@@ -54,8 +54,8 @@ importers:
         specifier: ^5.4.3
         version: 5.4.3
       vite:
-        specifier: 6.0.0-alpha.10
-        version: 6.0.0-alpha.10(@types/node@20.11.30)
+        specifier: 6.0.0-alpha.16
+        version: 6.0.0-alpha.16(@types/node@20.11.30)
       vitest:
         specifier: ^1.5.1
         version: 1.5.1(@types/node@20.11.30)
@@ -120,7 +120,7 @@ importers:
         version: 0.30.10
       unocss:
         specifier: 0.58.9
-        version: 0.58.9(postcss@8.4.38)(vite@6.0.0-alpha.10)
+        version: 0.58.9(postcss@8.4.38)(vite@6.0.0-alpha.16)
 
   examples/react-ssr:
     dependencies:
@@ -180,7 +180,7 @@ importers:
         version: link:../../packages/workerd
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
-        version: 5.0.4(vite@6.0.0-alpha.10)(vue@3.4.23)
+        version: 5.0.4(vite@6.0.0-alpha.16)(vue@3.4.23)
       vue-tsc:
         specifier: ^2.0.13
         version: 2.0.13(typescript@5.4.3)
@@ -205,7 +205,7 @@ importers:
         version: link:../../packages/workerd
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
-        version: 5.0.4(vite@6.0.0-alpha.10)(vue@3.4.23)
+        version: 5.0.4(vite@6.0.0-alpha.16)(vue@3.4.23)
       vue-tsc:
         specifier: ^2.0.13
         version: 2.0.13(typescript@5.4.3)
@@ -219,8 +219,8 @@ importers:
   packages/ssr-middleware:
     dependencies:
       vite:
-        specifier: 6.0.0-alpha.10
-        version: 6.0.0-alpha.10(@types/node@20.11.30)
+        specifier: 6.0.0-alpha.16
+        version: 6.0.0-alpha.16(@types/node@20.11.30)
 
   packages/workerd:
     dependencies:
@@ -228,8 +228,8 @@ importers:
         specifier: ^3.20240404.0
         version: 3.20240404.0
       vite:
-        specifier: 6.0.0-alpha.10
-        version: 6.0.0-alpha.10(@types/node@20.11.30)
+        specifier: 6.0.0-alpha.16
+        version: 6.0.0-alpha.16(@types/node@20.11.30)
       wrangler:
         specifier: ^3.48.0
         version: 3.48.0(@cloudflare/workers-types@4.20240405.0)
@@ -1427,12 +1427,12 @@ packages:
     resolution: {integrity: sha512-L8g6kQuPKJXKoqF1XuFYXXHQ3Z4VXuEX8tlOz/gPO6uP2VQ95JUyONsr93RpVTLc/GGblXY30/YK4r56kJzzgQ==}
     dev: true
 
-  /@hiogawa/vite-plugin-ssr-middleware@0.0.3(vite@6.0.0-alpha.10):
+  /@hiogawa/vite-plugin-ssr-middleware@0.0.3(vite@6.0.0-alpha.16):
     resolution: {integrity: sha512-84bzaAuImty4s4vHjOk5MQMzmDs0W0GP43fOTFhsBfj/MSJCNJ68elmPNZWs57WkIEzcdB4haY/P8Nf4ZGH8Qw==}
     peerDependencies:
-      vite: 6.0.0-alpha.10
+      vite: 6.0.0-alpha.16
     dependencies:
-      vite: 6.0.0-alpha.10(@types/node@20.11.30)
+      vite: 6.0.0-alpha.16(@types/node@20.11.30)
     dev: true
 
   /@iconify/types@2.0.0:
@@ -1744,18 +1744,18 @@ packages:
       csstype: 3.1.3
     dev: true
 
-  /@unocss/astro@0.58.9(vite@6.0.0-alpha.10):
+  /@unocss/astro@0.58.9(vite@6.0.0-alpha.16):
     resolution: {integrity: sha512-VWfHNC0EfawFxLfb3uI+QcMGBN+ju+BYtutzeZTjilLKj31X2UpqIh8fepixL6ljgZzB3fweqg2xtUMC0gMnoQ==}
     peerDependencies:
-      vite: 6.0.0-alpha.10
+      vite: 6.0.0-alpha.16
     peerDependenciesMeta:
       vite:
         optional: true
     dependencies:
       '@unocss/core': 0.58.9
       '@unocss/reset': 0.58.9
-      '@unocss/vite': 0.58.9(vite@6.0.0-alpha.10)
-      vite: 6.0.0-alpha.10(@types/node@20.11.30)
+      '@unocss/vite': 0.58.9(vite@6.0.0-alpha.16)
+      vite: 6.0.0-alpha.16(@types/node@20.11.30)
     transitivePeerDependencies:
       - rollup
     dev: true
@@ -1938,10 +1938,10 @@ packages:
       '@unocss/core': 0.58.9
     dev: true
 
-  /@unocss/vite@0.58.9(vite@6.0.0-alpha.10):
+  /@unocss/vite@0.58.9(vite@6.0.0-alpha.16):
     resolution: {integrity: sha512-mmppBuulAHCal+sC0Qz36Y99t0HicAmznpj70Kzwl7g/yvXwm58/DW2OnpCWw+uA8/JBft/+z3zE+XvrI+T1HA==}
     peerDependencies:
-      vite: 6.0.0-alpha.10
+      vite: 6.0.0-alpha.16
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@rollup/pluginutils': 5.1.0
@@ -1953,35 +1953,35 @@ packages:
       chokidar: 3.6.0
       fast-glob: 3.3.2
       magic-string: 0.30.10
-      vite: 6.0.0-alpha.10(@types/node@20.11.30)
+      vite: 6.0.0-alpha.16(@types/node@20.11.30)
     transitivePeerDependencies:
       - rollup
     dev: true
 
-  /@vitejs/plugin-react@4.2.1(vite@6.0.0-alpha.10):
+  /@vitejs/plugin-react@4.2.1(vite@6.0.0-alpha.16):
     resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: 6.0.0-alpha.10
+      vite: 6.0.0-alpha.16
     dependencies:
       '@babel/core': 7.24.3
       '@babel/plugin-transform-react-jsx-self': 7.24.1(@babel/core@7.24.3)
       '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.24.3)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 6.0.0-alpha.10(@types/node@20.11.30)
+      vite: 6.0.0-alpha.16(@types/node@20.11.30)
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@vitejs/plugin-vue@5.0.4(vite@6.0.0-alpha.10)(vue@3.4.23):
+  /@vitejs/plugin-vue@5.0.4(vite@6.0.0-alpha.16)(vue@3.4.23):
     resolution: {integrity: sha512-WS3hevEszI6CEVEx28F8RjTX97k3KsrcY6kvTg7+Whm5y3oYvcqzVeGCU3hxSAn4uY2CLCkeokkGKpoctccilQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
-      vite: 6.0.0-alpha.10
+      vite: 6.0.0-alpha.16
       vue: ^3.2.25
     dependencies:
-      vite: 6.0.0-alpha.10(@types/node@20.11.30)
+      vite: 6.0.0-alpha.16(@types/node@20.11.30)
       vue: 3.4.23(typescript@5.4.3)
     dev: true
 
@@ -4088,19 +4088,19 @@ packages:
     dependencies:
       '@fastify/busboy': 2.1.1
 
-  /unocss@0.58.9(postcss@8.4.38)(vite@6.0.0-alpha.10):
+  /unocss@0.58.9(postcss@8.4.38)(vite@6.0.0-alpha.16):
     resolution: {integrity: sha512-aqANXXP0RrtN4kSaTLn/7I6wh8o45LUdVgPzGu7Fan2DfH2+wpIs6frlnlHlOymnb+52dp6kXluQinddaUKW1A==}
     engines: {node: '>=14'}
     peerDependencies:
       '@unocss/webpack': 0.58.9
-      vite: 6.0.0-alpha.10
+      vite: 6.0.0-alpha.16
     peerDependenciesMeta:
       '@unocss/webpack':
         optional: true
       vite:
         optional: true
     dependencies:
-      '@unocss/astro': 0.58.9(vite@6.0.0-alpha.10)
+      '@unocss/astro': 0.58.9(vite@6.0.0-alpha.16)
       '@unocss/cli': 0.58.9
       '@unocss/core': 0.58.9
       '@unocss/extractor-arbitrary-variants': 0.58.9
@@ -4119,8 +4119,8 @@ packages:
       '@unocss/transformer-compile-class': 0.58.9
       '@unocss/transformer-directives': 0.58.9
       '@unocss/transformer-variant-group': 0.58.9
-      '@unocss/vite': 0.58.9(vite@6.0.0-alpha.10)
-      vite: 6.0.0-alpha.10(@types/node@20.11.30)
+      '@unocss/vite': 0.58.9(vite@6.0.0-alpha.16)
+      vite: 6.0.0-alpha.16(@types/node@20.11.30)
     transitivePeerDependencies:
       - postcss
       - rollup
@@ -4156,7 +4156,7 @@ packages:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 6.0.0-alpha.10(@types/node@20.11.30)
+      vite: 6.0.0-alpha.16(@types/node@20.11.30)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -4168,8 +4168,8 @@ packages:
       - terser
     dev: true
 
-  /vite@6.0.0-alpha.10(@types/node@20.11.30):
-    resolution: {integrity: sha512-HBp4W8ny4G0NFI3CJ9/C7x03/5oqmeaJ0isKYtEC7b1cddR392qZwTM+PPfNlENYo6wS976/nWx8vgGEuaAWMA==}
+  /vite@6.0.0-alpha.16(@types/node@20.11.30):
+    resolution: {integrity: sha512-VVzNJeNyyA1KJube14LANVN+W8gB6ThIAJCPbzXKAQYATmW/q0f/zOqNJ6eSI962T+SJm/jjvt3zp10QBkXpVA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -4246,7 +4246,7 @@ packages:
       strip-literal: 2.1.0
       tinybench: 2.8.0
       tinypool: 0.8.4
-      vite: 6.0.0-alpha.10(@types/node@20.11.30)
+      vite: 6.0.0-alpha.16(@types/node@20.11.30)
       vite-node: 1.5.1(@types/node@20.11.30)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
