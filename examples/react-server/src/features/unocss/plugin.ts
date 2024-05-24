@@ -1,12 +1,6 @@
 import { debounce, objectHas, tinyassert } from "@hiogawa/utils";
 import vitePluginUnocss, { type UnocssVitePluginAPI } from "unocss/vite";
-import {
-  type BoundedPlugin,
-  type BoundedPluginConstructor,
-  DevEnvironment,
-  type Plugin,
-  type PluginOption,
-} from "vite";
+import { DevEnvironment, type Plugin, type PluginOption } from "vite";
 import { invalidateModule } from "../style/plugin";
 import { createVirtualPlugin } from "../utils/plugin";
 
@@ -21,7 +15,7 @@ export function vitePluginSharedUnocss(): PluginOption {
   tinyassert(apiPlugin);
   const ctx = (apiPlugin.api as UnocssVitePluginAPI).getContext();
 
-  const transformPlugins = originalPlugins.filter((plugin) =>
+  const transformPlugins: Plugin[] = originalPlugins.filter((plugin) =>
     plugin.name.startsWith("unocss:transformers:"),
   );
 
@@ -37,83 +31,92 @@ export function vitePluginSharedUnocss(): PluginOption {
   // In our case, we only need to expose virtual css to "client" environment.
   // However, we don't need such restriction since following plugins kick in
   // only on the environments which actually import "virtual:unocss.css".
-  const environmentPlugin: BoundedPluginConstructor = (environment) => {
-    const plugins: BoundedPlugin[] = [];
 
-    // [dev]
-    // transform virtual module directly and HMR is triggered as more tokens are discovered
-    if (environment.mode === "dev") {
-      // transform virtual module directly
-      plugins.push(
-        createVirtualPlugin("unocss.css", async () => {
-          await ctx.flushTasks();
-          const result = await ctx.uno.generate(ctx.tokens);
-          return result.css;
-        }),
-      );
+  const virtualPlugin = createVirtualPlugin("unocss.css", async function () {
+    if (this.environment?.mode === "build") {
+      return "/*** tmp unocss ***/";
+    }
+    await ctx.flushTasks();
+    const result = await ctx.uno.generate(ctx.tokens);
+    return result.css;
+  });
 
-      // HMR
-      function hotUpdate() {
-        tinyassert(environment instanceof DevEnvironment);
-        const mod = invalidateModule(environment, "\0virtual:unocss.css");
-        if (mod) {
-          environment.hot.send({
-            type: "update",
-            updates: [
-              {
-                type: `${mod.type}-update`,
-                path: "/@id/__x00__virtual:unocss.css",
-                acceptedPath: "/@id/__x00__virtual:unocss.css",
-                timestamp: Date.now(),
-              },
-            ],
-          });
+  // [dev]
+  // transform virtual module directly and HMR is triggered as more tokens are discovered
+  const devPlugins: Plugin[] = [
+    {
+      name: vitePluginSharedUnocss.name + ":hot-update",
+      apply: "serve",
+      buildStart() {
+        // [feedback] why client?
+        // console.log("[buildStart]", this.environment?.name);
+      },
+      configureServer(server) {
+        function hotUpdate(environment: DevEnvironment) {
+          const mod = invalidateModule(environment, "\0virtual:unocss.css");
+          if (mod) {
+            environment.hot.send({
+              type: "update",
+              updates: [
+                {
+                  type: `${mod.type}-update`,
+                  path: "/@id/__x00__virtual:unocss.css",
+                  acceptedPath: "/@id/__x00__virtual:unocss.css",
+                  timestamp: Date.now(),
+                },
+              ],
+            });
+          }
         }
-      }
-      const debounced = debounce(() => hotUpdate(), 50);
-      ctx.onInvalidate(debounced);
-      ctx.onReload(debounced);
-    }
 
-    // [build]
-    // transform virtual module during renderChunk
-    if (environment.mode === "build") {
-      const cssPlugins = environment.config.plugins.filter(
-        (p) => p.name === "vite:css" || p.name === "vite:css-post",
-      );
+        function hotUpdateAll() {
+          for (const environment of Object.values(server.environments)) {
+            hotUpdate(environment);
+          }
+        }
 
-      plugins.push(
-        createVirtualPlugin("unocss.css", () => "/*** tmp unocss ***/"),
-        {
-          name: vitePluginSharedUnocss.name + ":render",
-          async renderChunk(_code, chunk, _options) {
-            if (chunk.moduleIds.includes("\0virtual:unocss.css")) {
-              await ctx.flushTasks();
-              let { css } = await ctx.uno.generate(ctx.tokens);
-              for (const plugin of cssPlugins) {
-                tinyassert(typeof plugin.transform === "function");
-                const result = await plugin.transform.apply(this as any, [
-                  css,
-                  "\0virtual:unocss.css",
-                ]);
-                tinyassert(
-                  objectHas(result, "code") && typeof result.code === "string",
-                );
-                css = result.code;
-              }
-            }
-          },
-        },
-      );
-    }
-
-    return plugins;
-  };
-
-  return [...transformPlugins, extractPlugin, environmentPlugin].map(
-    (plugin) => {
-      plugin.sharedDuringBuild = true;
-      return plugin;
+        const debounced = debounce(() => hotUpdateAll(), 50);
+        ctx.onInvalidate(debounced);
+        ctx.onReload(debounced);
+      },
     },
-  );
+  ];
+
+  // [build]
+  // transform virtual module during renderChunk
+  const buildPlugins: Plugin[] = [
+    {
+      name: vitePluginSharedUnocss.name + ":render",
+      apply: "build",
+      async renderChunk(_code, chunk, _options) {
+        if (chunk.moduleIds.includes("\0virtual:unocss.css")) {
+          tinyassert(this.environment);
+          const cssPlugins = this.environment.config.plugins.filter(
+            (p) => p.name === "vite:css" || p.name === "vite:css-post",
+          );
+          await ctx.flushTasks();
+          let { css } = await ctx.uno.generate(ctx.tokens);
+          for (const plugin of cssPlugins) {
+            tinyassert(typeof plugin.transform === "function");
+            const result = await plugin.transform.apply(this as any, [
+              css,
+              "\0virtual:unocss.css",
+            ]);
+            tinyassert(
+              objectHas(result, "code") && typeof result.code === "string",
+            );
+            css = result.code;
+          }
+        }
+      },
+    },
+  ];
+
+  return [
+    extractPlugin,
+    virtualPlugin,
+    ...transformPlugins,
+    ...devPlugins,
+    ...buildPlugins,
+  ].map((plugin) => ({ ...plugin, sharedDuringBuild: true }));
 }
