@@ -91,14 +91,14 @@ importers:
   examples/react-server:
     dependencies:
       react:
-        specifier: 19.0.0-beta-4508873393-20240430
-        version: 19.0.0-beta-4508873393-20240430
+        specifier: 19.0.0-rc-4c2e457c7c-20240522
+        version: 19.0.0-rc-4c2e457c7c-20240522
       react-dom:
-        specifier: 19.0.0-beta-4508873393-20240430
-        version: 19.0.0-beta-4508873393-20240430(react@19.0.0-beta-4508873393-20240430)
+        specifier: 19.0.0-rc-4c2e457c7c-20240522
+        version: 19.0.0-rc-4c2e457c7c-20240522(react@19.0.0-rc-4c2e457c7c-20240522)
       react-server-dom-webpack:
-        specifier: 19.0.0-beta-4508873393-20240430
-        version: 19.0.0-beta-4508873393-20240430(react-dom@19.0.0-beta-4508873393-20240430)(react@19.0.0-beta-4508873393-20240430)(webpack@5.91.0)
+        specifier: 19.0.0-rc-4c2e457c7c-20240522
+        version: 19.0.0-rc-4c2e457c7c-20240522(react-dom@19.0.0-rc-4c2e457c7c-20240522)(react@19.0.0-rc-4c2e457c7c-20240522)(webpack@5.91.0)
     devDependencies:
       '@hiogawa/vite-plugin-ssr-middleware-alpha':
         specifier: workspace:*
@@ -125,11 +125,11 @@ importers:
   examples/react-ssr:
     dependencies:
       react:
-        specifier: 19.0.0-beta-4508873393-20240430
-        version: 19.0.0-beta-4508873393-20240430
+        specifier: 19.0.0-rc-4c2e457c7c-20240522
+        version: 19.0.0-rc-4c2e457c7c-20240522
       react-dom:
-        specifier: 19.0.0-beta-4508873393-20240430
-        version: 19.0.0-beta-4508873393-20240430(react@19.0.0-beta-4508873393-20240430)
+        specifier: 19.0.0-rc-4c2e457c7c-20240522
+        version: 19.0.0-rc-4c2e457c7c-20240522(react@19.0.0-rc-4c2e457c7c-20240522)
     devDependencies:
       '@hiogawa/vite-plugin-ssr-middleware-alpha':
         specifier: workspace:*
@@ -147,11 +147,11 @@ importers:
   examples/react-ssr-workerd:
     dependencies:
       react:
-        specifier: 19.0.0-beta-4508873393-20240430
-        version: 19.0.0-beta-4508873393-20240430
+        specifier: 19.0.0-rc-4c2e457c7c-20240522
+        version: 19.0.0-rc-4c2e457c7c-20240522
       react-dom:
-        specifier: 19.0.0-beta-4508873393-20240430
-        version: 19.0.0-beta-4508873393-20240430(react@19.0.0-beta-4508873393-20240430)
+        specifier: 19.0.0-rc-4c2e457c7c-20240522
+        version: 19.0.0-rc-4c2e457c7c-20240522(react@19.0.0-rc-4c2e457c7c-20240522)
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20240405.0
@@ -3566,13 +3566,13 @@ packages:
       scheduler: 0.24.0-canary-6c3b8dbfe-20240226
     dev: false
 
-  /react-dom@19.0.0-beta-4508873393-20240430(react@19.0.0-beta-4508873393-20240430):
-    resolution: {integrity: sha512-/j97ai1qF3c6O3XV0nVzzExPV/0U2v8M75Sq6ThXYxePCi33kAnm+xRsCDpZOZOrIjz6nurLU/FzzPZIzXVvKQ==}
+  /react-dom@19.0.0-rc-4c2e457c7c-20240522(react@19.0.0-rc-4c2e457c7c-20240522):
+    resolution: {integrity: sha512-HXPEwX9ibB3OSzaU03Bh6uw7QFulRzyLJM3x+3WoF2j++D9tl2PoqiN6+ctH5Nrh6X11+oxH7Eq3RqkQhbQqKw==}
     peerDependencies:
-      react: 19.0.0-beta-4508873393-20240430
+      react: 19.0.0-rc-4c2e457c7c-20240522
     dependencies:
-      react: 19.0.0-beta-4508873393-20240430
-      scheduler: 0.25.0-beta-4508873393-20240430
+      react: 19.0.0-rc-4c2e457c7c-20240522
+      scheduler: 0.25.0-rc-4c2e457c7c-20240522
     dev: false
 
   /react-is@18.2.0:
@@ -3584,18 +3584,18 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /react-server-dom-webpack@19.0.0-beta-4508873393-20240430(react-dom@19.0.0-beta-4508873393-20240430)(react@19.0.0-beta-4508873393-20240430)(webpack@5.91.0):
-    resolution: {integrity: sha512-/rRIMqNoeReqyioWwfLyqu/qUfZ39YLXOfkhLrXOStzG2g7Q2a5DoLD0eZOcCIpvpWg+/QRw1xOGZLm75mK+Aw==}
+  /react-server-dom-webpack@19.0.0-rc-4c2e457c7c-20240522(react-dom@19.0.0-rc-4c2e457c7c-20240522)(react@19.0.0-rc-4c2e457c7c-20240522)(webpack@5.91.0):
+    resolution: {integrity: sha512-LMauhhE6SAd6SiBWBcQT2PfeOIBGQCArLR5mzzp2WrPnZgYBad+LiRpH7Sir5dBthaq7BX2dtPO87j/YT64yJQ==}
     engines: {node: '>=0.10.0'}
     peerDependencies:
-      react: 19.0.0-beta-4508873393-20240430
-      react-dom: 19.0.0-beta-4508873393-20240430
+      react: 19.0.0-rc-4c2e457c7c-20240522
+      react-dom: 19.0.0-rc-4c2e457c7c-20240522
       webpack: ^5.59.0
     dependencies:
       acorn-loose: 8.4.0
       neo-async: 2.6.2
-      react: 19.0.0-beta-4508873393-20240430
-      react-dom: 19.0.0-beta-4508873393-20240430(react@19.0.0-beta-4508873393-20240430)
+      react: 19.0.0-rc-4c2e457c7c-20240522
+      react-dom: 19.0.0-rc-4c2e457c7c-20240522(react@19.0.0-rc-4c2e457c7c-20240522)
       webpack: 5.91.0(esbuild@0.20.2)
     dev: false
 
@@ -3606,8 +3606,8 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /react@19.0.0-beta-4508873393-20240430:
-    resolution: {integrity: sha512-//89udV7fhVq5pEzpNH7vlpmS5D4wDbPn0oif+G7vwDsuSks5yJGdqrE1uzn2CyFNL73FjV3/R3Pjyaxs+xnvg==}
+  /react@19.0.0-rc-4c2e457c7c-20240522:
+    resolution: {integrity: sha512-jA9abMci6Z9xYDh07shOajSM5/wII9/lo8Cshk6zXo2Y6nc4LIvXqhjk0yOfiMlwMGEc+Ee1veGwa4ixjnzBJA==}
     engines: {node: '>=0.10.0'}
     dev: false
 
@@ -3699,8 +3699,8 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /scheduler@0.25.0-beta-4508873393-20240430:
-    resolution: {integrity: sha512-gk9vDoDOjTys0DpLgFll+hYk5gLhLnTipi81Pl+XSRtWkQnqQdjxLO2RF726t0g0jQ5tvwjLfBCgsvusgB6Luw==}
+  /scheduler@0.25.0-rc-4c2e457c7c-20240522:
+    resolution: {integrity: sha512-Vyzc3lN/cMuxvrMKtToIytTL6P2Xiz0zQlY+0KioteRSSgNORZ5gQX7MYEHpQ0QUm44mcpkZxSdZsI7YYNLpsQ==}
     dev: false
 
   /schema-utils@3.3.0:
