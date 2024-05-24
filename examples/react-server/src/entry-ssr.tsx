@@ -5,7 +5,8 @@ import type { ReactServerHandlerResult, StreamData } from "./entry-server";
 import {
   createModuleMap,
   initializeWebpackServer,
-} from "./features/use-client/ssr";
+} from "./features/client-component/ssr";
+import { RouterContext } from "./features/router/client";
 import { injectStreamScript } from "./features/utils/stream-script";
 import { $__global } from "./global";
 
@@ -17,11 +18,11 @@ export async function handler(request: Request) {
       headers: { "content-type": "text/x-component; charset=utf-8" },
     });
   }
-  const htmlStream = await renderHtml(result);
+  const htmlStream = await renderHtml(request, result);
   return new Response(htmlStream, { headers: { "content-type": "text/html" } });
 }
 
-async function renderHtml(result: ReactServerHandlerResult) {
+async function renderHtml(request: Request, result: ReactServerHandlerResult) {
   initializeWebpackServer();
   const { default: reactServerDomClient } = await import(
     "react-server-dom-webpack/client.edge"
@@ -40,7 +41,19 @@ async function renderHtml(result: ReactServerHandlerResult) {
   );
 
   function Root() {
-    return React.use(rscPromise).node;
+    const url = new URL(request.url);
+    return (
+      <RouterContext.Provider
+        value={{ isPending: false, pathname: url.pathname }}
+      >
+        <UseStream streamData={rscPromise} />
+      </RouterContext.Provider>
+    );
+  }
+
+  // separate component to contain throwing React.use
+  function UseStream(props: { streamData: Promise<StreamData> }) {
+    return React.use(props.streamData).node;
   }
 
   const ssrAssets = (await import("virtual:ssr-assets")).default;

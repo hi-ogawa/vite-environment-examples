@@ -1,6 +1,6 @@
 import reactServerDomServer from "react-server-dom-webpack/server.edge";
+import { createBundlerConfig } from "./features/client-component/server";
 import { serverActionHandler } from "./features/server-action/server";
-import { createBundlerConfig } from "./features/use-client/server";
 import Layout from "./routes/layout";
 
 export type StreamData = {
@@ -38,6 +38,7 @@ export async function handler({
 
 const routes = {
   "/": () => import("./routes/page"),
+  "/action": () => import("./routes/action/page"),
   "/slow": () => import("./routes/slow/page"),
 };
 

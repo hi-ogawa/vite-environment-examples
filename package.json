@@ -13,6 +13,7 @@
     "@biomejs/biome": "^1.7.3",
     "@hattip/adapter-node": "^0.0.44",
     "@hiogawa/utils": "1.6.4-pre.1",
+    "@hiogawa/utils-node": "^0.0.1",
     "@hiogawa/vite-plugin-ssr-middleware": "^0.0.3",
     "@playwright/test": "^1.42.1",
     "@tsconfig/strictest": "^2.0.4",
@@ -23,7 +24,7 @@
     "tsup": "^8.0.2",
     "tsx": "^4.7.1",
     "typescript": "^5.4.3",
-    "vite": "6.0.0-alpha.10",
+    "vite": "6.0.0-alpha.16",
     "vitest": "^1.5.1",
     "wrangler": "^3.48.0"
   },

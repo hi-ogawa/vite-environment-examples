@@ -1,5 +1,6 @@
 import { type Page, expect, test } from "@playwright/test";
 import {
+  assertNoRequests,
   createEditor,
   createReloadChecker,
   testNoJs,
@@ -90,31 +91,64 @@ test("shared hmr @dev", async ({ page }) => {
   expect(resText).toContain("Shared [EDIT] Component (<!-- -->client<!-- -->)");
 });
 
-test("server action @js", async ({ page }) => {
+test("server action 1 @js", async ({ page }) => {
   usePageErrorChecker(page);
-  await page.goto("/");
+  await page.goto("/action");
   await waitForHydration(page);
-  await testServerAction(page);
+  await testServerAction(page, "counter1");
 });
 
-testNoJs("server action @nojs", async ({ page }) => {
+testNoJs("server action 1 @nojs", async ({ page }) => {
   usePageErrorChecker(page);
-  await page.goto("/");
-  await testServerAction(page);
+  await page.goto("/action");
+  await testServerAction(page, "counter1");
 });
 
-async function testServerAction(page: Page) {
-  await page.getByTestId("server-action").getByText("Count: 0").click();
-  await page
-    .getByTestId("server-action")
-    .getByRole("button", { name: "+" })
-    .click();
-  await page.getByTestId("server-action").getByText("Count: 1").click();
-  await page
-    .getByTestId("server-action")
-    .getByRole("button", { name: "-" })
-    .click();
-  await page.getByTestId("server-action").getByText("Count: 0").click();
+test("server action 2 @js", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/action");
+  await waitForHydration(page);
+  await testServerAction(page, "counter2");
+});
+
+testNoJs("server action 2 @nojs", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/action");
+  await testServerAction(page, "counter2");
+});
+
+test("server action 3 @js", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/action");
+  await waitForHydration(page);
+  await testServerAction(page, "counter3");
+});
+
+testNoJs("server action 3 @nojs", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/action");
+  await testServerAction(page, "counter3");
+});
+
+test("server action 4 @js", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/action");
+  await waitForHydration(page);
+  await testServerAction(page, "counter4");
+});
+
+testNoJs("server action 4 @nojs", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/action");
+  await testServerAction(page, "counter4");
+});
+
+async function testServerAction(page: Page, testId: string) {
+  await page.getByTestId(testId).getByText("Count: 0").click();
+  await page.getByTestId(testId).getByRole("button", { name: "+" }).click();
+  await page.getByTestId(testId).getByText("Count: 1").click();
+  await page.getByTestId(testId).getByRole("button", { name: "-" }).click();
+  await page.getByTestId(testId).getByText("Count: 0").click();
 }
 
 test("useActionState @js", async ({ page }) => {
@@ -280,3 +314,42 @@ async function testNavigation(page: Page, options: { js: boolean }) {
     options.js ? "hello" : "",
   );
 }
+
+test("bfcache", async ({ page }) => {
+  await page.goto("/");
+  await waitForHydration(page);
+
+  // server action should invalidate cache
+  await page.getByTestId("server-action").getByText("Count: 0").click();
+  await page
+    .getByTestId("server-action")
+    .getByRole("button", { name: "+" })
+    .click();
+  await page.getByTestId("server-action").getByText("Count: 1").click();
+
+  // navigate to other page
+  await page.getByRole("link", { name: "Not Found" }).click();
+  await page.waitForURL("/not-found");
+  await page.getByRole("heading", { name: "Not Found" }).click();
+
+  // check no network request when going back
+  {
+    using _ = assertNoRequests(page);
+    await page.goBack();
+    await page.waitForURL("/");
+    await page.getByTestId("server-action").getByText("Count: 1").click();
+  }
+  await page
+    .getByTestId("server-action")
+    .getByRole("button", { name: "-" })
+    .click();
+  await page.getByTestId("server-action").getByText("Count: 0").click();
+
+  // check no network request when going forward
+  {
+    using _ = assertNoRequests(page);
+    await page.goForward();
+    await page.waitForURL("/not-found");
+    await page.getByRole("heading", { name: "Not Found" }).click();
+  }
+});
