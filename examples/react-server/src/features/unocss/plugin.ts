@@ -47,10 +47,6 @@ export function vitePluginSharedUnocss(): PluginOption {
     {
       name: vitePluginSharedUnocss.name + ":hot-update",
       apply: "serve",
-      buildStart() {
-        // [feedback] why client?
-        // console.log("[buildStart]", this.environment?.name);
-      },
       configureServer(server) {
         function hotUpdate(environment: DevEnvironment) {
           const mod = invalidateModule(environment, "\0virtual:unocss.css");
