@@ -14,7 +14,7 @@ async function importWrapper(id: string) {
 
 const cache = new Map<string, unknown>();
 
-export function initializeWebpackBrowser() {
+export function initializeReactClientBrowser() {
   Object.assign(globalThis, {
     __webpack_require__: (id: string) => {
       console.log("[__webpack_require__]", { id });

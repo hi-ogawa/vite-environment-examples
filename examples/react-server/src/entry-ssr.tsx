@@ -1,10 +1,11 @@
 import { splitFirst } from "@hiogawa/utils";
 import React from "react";
-import reactDomServer from "react-dom/server.edge";
+import ReactDOMServer from "react-dom/server.edge";
+import ReactClient from "react-server-dom-webpack/client.edge";
 import type { ReactServerHandlerResult, StreamData } from "./entry-server";
 import {
   createModuleMap,
-  initializeWebpackServer,
+  initializeReactClientSsr,
 } from "./features/client-component/ssr";
 import { RouterContext } from "./features/router/client";
 import { injectStreamScript } from "./features/utils/stream-script";
@@ -23,14 +24,11 @@ export async function handler(request: Request) {
 }
 
 async function renderHtml(request: Request, result: ReactServerHandlerResult) {
-  initializeWebpackServer();
-  const { default: reactServerDomClient } = await import(
-    "react-server-dom-webpack/client.edge"
-  );
+  initializeReactClientSsr();
 
   const [rscStream1, rscStream2] = result.stream.tee();
 
-  const rscPromise = reactServerDomClient.createFromReadableStream<StreamData>(
+  const rscPromise = ReactClient.createFromReadableStream<StreamData>(
     rscStream1,
     {
       ssrManifest: {
@@ -58,7 +56,7 @@ async function renderHtml(request: Request, result: ReactServerHandlerResult) {
 
   const ssrAssets = (await import("virtual:ssr-assets")).default;
 
-  const ssrStream = await reactDomServer.renderToReadableStream(<Root />, {
+  const ssrStream = await ReactDOMServer.renderToReadableStream(<Root />, {
     formState: result.actionResult,
     bootstrapModules: ssrAssets.bootstrapModules,
   });
