@@ -68,9 +68,6 @@ export function vitePluginEntryBootstrap(): PluginOption {
           bootstrapModules: [`/${entry.file}`],
         };
       }
-      // define it early for unused __webpack_require__.u
-      // https://github.com/facebook/react/blob/ea6e05912aa43a0bbfbee381752caa1817a41a86/packages/react-server-dom-webpack/src/ReactFlightClientConfigBundlerWebpackBrowser.js#L16
-      ssrAssets.head += `<script>globalThis.__webpack_require__ = {}</script>\n`;
       return `export default ${JSON.stringify(ssrAssets)}`;
     }),
   ];

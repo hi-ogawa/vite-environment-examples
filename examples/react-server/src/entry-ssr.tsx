@@ -1,7 +1,6 @@
 import { splitFirst } from "@hiogawa/utils";
 import React from "react";
 import ReactDOMServer from "react-dom/server.edge";
-import ReactClient from "react-server-dom-webpack/client.edge";
 import type { ReactServerHandlerResult, StreamData } from "./entry-server";
 import {
   createModuleMap,
@@ -25,6 +24,9 @@ export async function handler(request: Request) {
 
 async function renderHtml(request: Request, result: ReactServerHandlerResult) {
   initializeReactClientSsr();
+  const { default: ReactClient } = await import(
+    "react-server-dom-webpack/client.edge"
+  );
 
   const [rscStream1, rscStream2] = result.stream.tee();
 

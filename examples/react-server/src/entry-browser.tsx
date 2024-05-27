@@ -1,7 +1,6 @@
 import "virtual:unocss.css";
 import React from "react";
 import ReactDOMClient from "react-dom/client";
-import ReactClient from "react-server-dom-webpack/client.browser";
 import type { StreamData } from "./entry-server";
 import { initializeReactClientBrowser } from "./features/client-component/browser";
 import {
@@ -18,6 +17,9 @@ async function main() {
   }
 
   initializeReactClientBrowser();
+  const { default: ReactClient } = await import(
+    "react-server-dom-webpack/client.browser"
+  );
 
   const bfcache = new BackForawrdCache<Promise<StreamData>>();
 
