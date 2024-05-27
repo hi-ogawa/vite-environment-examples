@@ -82,4 +82,24 @@ async function changeCount3(formData) {
 `;
     expect(await testTransform(input)).toMatchSnapshot();
   });
+
+  // TODO:
+  it.skip("anonymous", async () => {
+    const input = `
+let count = 0;
+
+function Counter() {
+  const name = "value";
+
+  return {
+    type: "form",
+    action: (formData) => {
+      "use server";
+      count += Number(formData.get(name));
+    }
+  }
+}
+`;
+    expect(await testTransform(input)).toMatchSnapshot();
+  });
 });
