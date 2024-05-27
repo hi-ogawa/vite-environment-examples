@@ -7,80 +7,6 @@ let count = 0;
 function Counter() {
   const name = "value";
 
-  const changeCount = $$lift_Counter_changeCount.bind(null, name);
-
-  return "something";
-}
-;
-async function $$lift_Counter_changeCount(name, formData){
-    "use server";
-    count += Number(formData.get(name));
-  };
-import { registerServerReference as $$register } from "/src/features/server-action/server";
-$$lift_Counter_changeCount = $$register($$lift_Counter_changeCount, "<id>", "$$lift_Counter_changeCount");
-export { $$lift_Counter_changeCount };
-"
-`;
-
-exports[`transformServerAction2 > many 1`] = `
-"
-let count = 0;
-
-function Counter() {
-  const name = "value";
-
-  const changeCount = $$lift_Counter_changeCount.bind(null, name);
-
-  const changeCount2 = $$lift_Counter_changeCount2.bind(null, name);
-
-  return "something";
-}
-
-async function changeCount3(formData) {
-  "use server";
-  count += Number(formData.get(name));
-}
-
-;
-async function $$lift_Counter_changeCount(name, formData){
-    "use server";
-    count += Number(formData.get(name));
-  };
-async function $$lift_Counter_changeCount2(name, formData){
-    "use server";
-    count += Number(formData.get(name));
-  };
-import { registerServerReference as $$register } from "/src/features/server-action/server";
-$$lift_Counter_changeCount = $$register($$lift_Counter_changeCount, "<id>", "$$lift_Counter_changeCount");
-export { $$lift_Counter_changeCount };
-$$lift_Counter_changeCount2 = $$register($$lift_Counter_changeCount2, "<id>", "$$lift_Counter_changeCount2");
-export { $$lift_Counter_changeCount2 };
-changeCount3 = $$register(changeCount3, "<id>", "changeCount3");
-export { changeCount3 };
-"
-`;
-
-exports[`transformServerAction2 > top level 1`] = `
-"
-async function f() {
-  "use server";
-}
-async function g() {
-}
-;
-import { registerServerReference as $$register } from "/src/features/server-action/server";
-f = $$register(f, "<id>", "f");
-export { f };
-"
-`;
-
-exports[`transformServerAction3 > closure 1`] = `
-"
-let count = 0;
-
-function Counter() {
-  const name = "value";
-
   const changeCount = $$tmp_0_changeCount.bind(null, name);
 
   return "something";
@@ -96,12 +22,49 @@ export { $$tmp_0_changeCount };
 "
 `;
 
-exports[`transformServerAction3 > top level 1`] = `
+exports[`transformServerAction2 > many 1`] = `
+"
+let count = 0;
+
+function Counter() {
+  const name = "value";
+
+  const changeCount = $$tmp_0_changeCount.bind(null, name);
+
+  const changeCount2 = $$tmp_1_changeCount2.bind(null, name);
+
+  return "something";
+}
+
+async function changeCount3(formData) {
+  "use server";
+  count += Number(formData.get(name));
+}
+
+;
+async function $$tmp_0_changeCount(name, formData){
+    "use server";
+    count += Number(formData.get(name));
+  };
+async function $$tmp_1_changeCount2(name, formData){
+    "use server";
+    count += Number(formData.get(name));
+  };
+import { registerServerReference as $$register } from "/src/features/server-action/server";
+$$tmp_0_changeCount = $$register($$tmp_0_changeCount, "<id>", "$$tmp_0_changeCount");
+export { $$tmp_0_changeCount };
+$$tmp_1_changeCount2 = $$register($$tmp_1_changeCount2, "<id>", "$$tmp_1_changeCount2");
+export { $$tmp_1_changeCount2 };
+changeCount3 = $$register(changeCount3, "<id>", "changeCount3");
+export { changeCount3 };
+"
+`;
+
+exports[`transformServerAction2 > top level 1`] = `
 "
 async function f() {
   "use server";
 }
-
 async function g() {
 }
 ;
