@@ -3,10 +3,7 @@ import React from "react";
 import ReactDOMServer from "react-dom/server.edge";
 import ReactClient from "react-server-dom-webpack/client.edge";
 import type { ReactServerHandlerResult, StreamData } from "./entry-server";
-import {
-  createModuleMap,
-  initializeReactClientSsr,
-} from "./features/client-component/ssr";
+import { initializeReactClientSsr } from "./features/client-component/ssr";
 import { RouterContext } from "./features/router/client";
 import { injectStreamScript } from "./features/utils/stream-script";
 import { $__global } from "./global";
@@ -31,10 +28,7 @@ async function renderHtml(request: Request, result: ReactServerHandlerResult) {
   const rscPromise = ReactClient.createFromReadableStream<StreamData>(
     rscStream1,
     {
-      ssrManifest: {
-        moduleMap: null && createModuleMap(),
-        moduleLoading: null,
-      },
+      ssrManifest: {},
     },
   );
 

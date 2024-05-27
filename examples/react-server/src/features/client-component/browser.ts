@@ -1,6 +1,6 @@
 import { tinyassert } from "@hiogawa/utils";
 
-async function importWrapper(id: string) {
+async function importClientReference(id: string) {
   if (import.meta.env.DEV) {
     // `__raw_import` injected by examples/react-server/src/features/bootstrap/plugin.ts
     return (globalThis as any).__raw_import(id);
@@ -27,7 +27,7 @@ export function initializeReactClientBrowser() {
       if (import.meta.env.DEV) {
         id = id.split("*")[0];
       }
-      const promise = importWrapper(id);
+      const promise = importClientReference(id);
       promise.then((v) => cache.set(id, v));
       return promise;
     },
