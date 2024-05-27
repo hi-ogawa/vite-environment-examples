@@ -10,18 +10,7 @@ import type { BundlerConfig, ImportManifestEntry } from "../../types";
 // name: Counter
 
 export function registerClientReference(id: string, name: string) {
-  if (1) {
-    return ReactServer.registerClientReference({}, id, name);
-  }
-  // reuse everything but $$async: true for simplicity
-  const reference = ReactServer.registerClientReference({}, id, name);
-  return Object.defineProperties(
-    {},
-    {
-      ...Object.getOwnPropertyDescriptors(reference),
-      $$async: { value: true },
-    },
-  );
+  return ReactServer.registerClientReference({}, id, name);
 }
 
 export function createBundlerConfig(): BundlerConfig {

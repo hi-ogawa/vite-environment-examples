@@ -1,5 +1,5 @@
 import { tinyassert } from "@hiogawa/utils";
-import reactServerDomWebpack from "react-server-dom-webpack/server.edge";
+import ReactServer from "react-server-dom-webpack/server.edge";
 import { createBundlerConfig } from "../client-component/server";
 
 export function registerServerReference(
@@ -7,7 +7,7 @@ export function registerServerReference(
   id: string,
   name: string,
 ) {
-  return reactServerDomWebpack.registerServerReference(action, id, name);
+  return ReactServer.registerServerReference(action, id, name);
 }
 
 export async function serverActionHandler({ request }: { request: Request }) {
@@ -21,7 +21,7 @@ export async function serverActionHandler({ request }: { request: Request }) {
     const body = contentType?.startsWith("multipart/form-data")
       ? await request.formData()
       : await request.text();
-    const args = await reactServerDomWebpack.decodeReply(body);
+    const args = await ReactServer.decodeReply(body);
     const actionId = url.searchParams.get("__action_id");
     tinyassert(actionId);
     const action = await importServerAction(actionId);
@@ -29,16 +29,13 @@ export async function serverActionHandler({ request }: { request: Request }) {
   } else {
     // progressive enhancement
     const formData = await request.formData();
-    const decodedAction = await reactServerDomWebpack.decodeAction(
+    const decodedAction = await ReactServer.decodeAction(
       formData,
       createBundlerConfig(),
     );
     boundAction = async () => {
       const result = await decodedAction();
-      const formState = await reactServerDomWebpack.decodeFormState(
-        result,
-        formData,
-      );
+      const formState = await ReactServer.decodeFormState(result, formData);
       return formState;
     };
   }
