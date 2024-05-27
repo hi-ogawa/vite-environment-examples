@@ -5,7 +5,9 @@ async function importClientReference(id: string) {
     // `__raw_import` injected by examples/react-server/src/features/bootstrap/plugin.ts
     return (globalThis as any).__raw_import(id);
   } else {
-    const clientReferences = await import("virtual:client-reference" as string);
+    const clientReferences = await import(
+      "virtual:client-references" as string
+    );
     const dynImport = clientReferences.default[id];
     tinyassert(dynImport, `client reference not found '${id}'`);
     return dynImport();

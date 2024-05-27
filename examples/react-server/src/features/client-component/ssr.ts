@@ -4,7 +4,9 @@ async function importClientReference(id: string) {
   if (import.meta.env.DEV) {
     return import(/* @vite-ignore */ id);
   } else {
-    const clientReferences = await import("virtual:client-reference" as string);
+    const clientReferences = await import(
+      "virtual:client-references" as string
+    );
     const dynImport = clientReferences.default[id];
     tinyassert(dynImport, `client reference not found '${id}'`);
     return dynImport();

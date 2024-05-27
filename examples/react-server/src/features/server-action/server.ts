@@ -46,7 +46,7 @@ async function importServerReference(id: string): Promise<unknown> {
   if (import.meta.env.DEV) {
     return import(/* @vite-ignore */ id);
   } else {
-    const references = await import("virtual:server-reference" as string);
+    const references = await import("virtual:server-references" as string);
     const dynImport = references.default[id];
     tinyassert(dynImport, `server reference not found '${id}'`);
     return dynImport();
