@@ -1,4 +1,4 @@
-import { memoize, tinyassert } from "@hiogawa/utils";
+import { tinyassert } from "@hiogawa/utils";
 
 async function importWrapper(id: string) {
   if (import.meta.env.DEV) {
@@ -11,17 +11,6 @@ async function importWrapper(id: string) {
     return dynImport();
   }
 }
-
-// const cache = new Map<string, unknown>();
-
-// export function initializeWebpackBrowser() {
-//   Object.assign(globalThis, {
-//     __webpack_require__: memoize(importWrapper),
-//     __webpack_chunk_load__: () => {
-//       throw new Error("todo: __webpack_chunk_load__");
-//     },
-//   });
-// }
 
 const cache = new Map<string, unknown>();
 
