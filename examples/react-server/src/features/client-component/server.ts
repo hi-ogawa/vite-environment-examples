@@ -38,11 +38,11 @@ export function createBundlerConfig(): BundlerConfig {
         tinyassert(id);
         tinyassert(name);
 
-        let chunkId = id;
+        let preloadId = id;
         if (import.meta.env.DEV) {
-          chunkId += "*" + cacheId;
+          preloadId += "*" + cacheId;
         }
-        return { id, name, chunks: [chunkId] } satisfies ImportManifestEntry;
+        return { id, name, chunks: [preloadId] } satisfies ImportManifestEntry;
       },
     },
   );
