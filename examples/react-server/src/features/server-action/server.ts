@@ -1,5 +1,5 @@
 import { memoize, tinyassert } from "@hiogawa/utils";
-import reactServerDomWebpack from "react-server-dom-webpack/server.edge";
+import ReactServer from "react-server-dom-webpack/server.edge";
 import type { BundlerConfig, ImportManifestEntry } from "../../types";
 
 export function registerServerReference(
@@ -7,11 +7,11 @@ export function registerServerReference(
   id: string,
   name: string,
 ) {
-  return reactServerDomWebpack.registerServerReference(action, id, name);
+  return ReactServer.registerServerReference(action, id, name);
 }
 
 export async function serverActionHandler({ request }: { request: Request }) {
-  initializeWebpackReactServer();
+  initializeReactServer();
   if (import.meta.env.DEV) {
     serverReferenceImportPromiseCache.clear();
   }
@@ -24,7 +24,7 @@ export async function serverActionHandler({ request }: { request: Request }) {
     const body = contentType?.startsWith("multipart/form-data")
       ? await request.formData()
       : await request.text();
-    const args = await reactServerDomWebpack.decodeReply(body);
+    const args = await ReactServer.decodeReply(body);
     const actionId = url.searchParams.get("__action_id");
     tinyassert(actionId);
     const action = await importServerAction(actionId);
@@ -32,16 +32,13 @@ export async function serverActionHandler({ request }: { request: Request }) {
   } else {
     // progressive enhancement
     const formData = await request.formData();
-    const decodedAction = await reactServerDomWebpack.decodeAction(
+    const decodedAction = await ReactServer.decodeAction(
       formData,
       createActionBundlerConfig(),
     );
     boundAction = async () => {
       const result = await decodedAction();
-      const formState = await reactServerDomWebpack.decodeFormState(
-        result,
-        formData,
-      );
+      const formState = await ReactServer.decodeFormState(result, formData);
       return formState;
     };
   }
@@ -52,7 +49,7 @@ async function importServerReference(id: string): Promise<unknown> {
   if (import.meta.env.DEV) {
     return import(/* @vite-ignore */ id);
   } else {
-    const references = await import("virtual:server-reference" as string);
+    const references = await import("virtual:server-references" as string);
     const dynImport = references.default[id];
     tinyassert(dynImport, `server reference not found '${id}'`);
     return dynImport();
@@ -92,7 +89,7 @@ const serverReferenceWebpackRequire = memoize(importServerReference, {
   cache: serverReferenceImportPromiseCache,
 });
 
-function initializeWebpackReactServer() {
+function initializeReactServer() {
   Object.assign(globalThis, {
     __vite_react_server_webpack_require__: serverReferenceWebpackRequire,
     __vite_react_server_webpack_chunk_load__: () => {

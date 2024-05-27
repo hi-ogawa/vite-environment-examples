@@ -271,7 +271,7 @@ function vitePluginUseClient(): PluginOption {
 
   */
   const virtualPlugin: Plugin = createVirtualPlugin(
-    "client-reference",
+    "client-references",
     function () {
       tinyassert(this.environment?.name !== "react-server");
       tinyassert(this.environment?.mode === "build");
@@ -361,7 +361,7 @@ function vitePluginServerAction(): PluginOption {
 
   */
   const virtualServerReference = createVirtualPlugin(
-    "server-reference",
+    "server-references",
     async function () {
       if (manager.buildStep === "scan") {
         return `export default {}`;
