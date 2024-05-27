@@ -21,8 +21,7 @@ export type ModuleMap = {
 };
 
 export interface SsrManifest {
-  moduleMap: ModuleMap;
-  // TODO
+  moduleMap: null | ModuleMap;
   moduleLoading: null;
 }
 

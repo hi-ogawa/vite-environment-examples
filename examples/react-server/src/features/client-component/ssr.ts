@@ -1,4 +1,4 @@
-import { memoize, tinyassert } from "@hiogawa/utils";
+import { tinyassert } from "@hiogawa/utils";
 import type { ImportManifestEntry, ModuleMap } from "../../types";
 
 // In contrast to old dev ssr, new module runner's dynamic `import`
@@ -19,11 +19,24 @@ async function importWrapper(id: string) {
   }
 }
 
+const cache = new Map<string, unknown>();
+
 export function initializeWebpackServer() {
   Object.assign(globalThis, {
-    __webpack_require__: memoize(importWrapper),
-    __webpack_chunk_load__: () => {
-      throw new Error("todo: __webpack_chunk_load__");
+    __webpack_require__: (id: string) => {
+      console.log("[__webpack_require__]", { id });
+      const mod = cache.get(id);
+      tinyassert(mod, `invalid client reference '${id}'`);
+      return cache.get(id);
+    },
+    __webpack_chunk_load__: (id: string) => {
+      console.log("[__webpack_chunk_load__]", { id });
+      if (import.meta.env.DEV) {
+        id = id.split("*")[0];
+      }
+      const promise = importWrapper(id);
+      promise.then((v) => cache.set(id, v));
+      return promise;
     },
   });
 }

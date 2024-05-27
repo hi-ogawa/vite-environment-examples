@@ -34,7 +34,7 @@ async function renderHtml(request: Request, result: ReactServerHandlerResult) {
     rscStream1,
     {
       ssrManifest: {
-        moduleMap: createModuleMap(),
+        moduleMap: null && createModuleMap(),
         moduleLoading: null,
       },
     },

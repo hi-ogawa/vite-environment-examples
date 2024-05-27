@@ -10,6 +10,9 @@ import type { BundlerConfig, ImportManifestEntry } from "../../types";
 // name: Counter
 
 export function registerClientReference(id: string, name: string) {
+  if (1) {
+    return reactServerDomWebpack.registerClientReference({}, id, name);
+  }
   // reuse everything but $$async: true for simplicity
   const reference = reactServerDomWebpack.registerClientReference({}, id, name);
   return Object.defineProperties(
@@ -21,7 +24,11 @@ export function registerClientReference(id: string, name: string) {
   );
 }
 
-export function createBundlerConfig(): BundlerConfig {
+export function createBundlerConfig(
+  // need to bust cache for each flight render
+  // https://github.com/facebook/react/blob/ea6e05912aa43a0bbfbee381752caa1817a41a86/packages/react-server-dom-webpack/src/ReactFlightClientConfigBundlerWebpack.js#L182
+  cacheId = Math.random().toString(36).slice(2),
+): BundlerConfig {
   return new Proxy(
     {},
     {
@@ -30,7 +37,12 @@ export function createBundlerConfig(): BundlerConfig {
         let [id, name] = $$id.split("#");
         tinyassert(id);
         tinyassert(name);
-        return { id, name, chunks: [] } satisfies ImportManifestEntry;
+
+        let chunkId = id;
+        if (import.meta.env.DEV) {
+          chunkId += "*" + cacheId;
+        }
+        return { id, name, chunks: [chunkId] } satisfies ImportManifestEntry;
       },
     },
   );
