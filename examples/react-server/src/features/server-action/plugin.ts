@@ -1,6 +1,8 @@
 import { tinyassert } from "@hiogawa/utils";
 import type * as estree from "estree";
+import { walk } from "estree-walker";
 import MagicString from "magic-string";
+import * as periscopic from "periscopic";
 import { parseAstAsync } from "vite";
 
 // extend types for rollup ast with node position
@@ -150,6 +152,80 @@ export async function transformServerAction2(input: string, id: string) {
       }
     }
   }
+
+  if (names.length === 0) {
+    return;
+  }
+
+  output.append(";\n");
+  output.append(
+    `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`,
+  );
+  names.forEach((name) => {
+    output.append(`${name} = $$register(${name}, "${id}", "${name}");\n`);
+    output.append(`export { ${name} };\n`);
+  });
+
+  return output;
+}
+
+export async function transformServerAction3(input: string, id: string) {
+  const parsed = await parseAstAsync(input);
+  const output = new MagicString(input);
+  const analyzed = periscopic.analyze(parsed);
+  const names: string[] = [];
+
+  walk(parsed, {
+    enter(node) {
+      if (
+        (node.type === "FunctionExpression" ||
+          node.type === "FunctionDeclaration" ||
+          node.type === "ArrowFunctionExpression") &&
+        node.body.type === "BlockStatement" &&
+        getFunctionDirective(node.body.body) === SERVER_DIRECTIVE
+      ) {
+        // TODO: for now function decl only
+        tinyassert(node.type === "FunctionDeclaration");
+        this.skip();
+
+        const scope = analyzed.map.get(node);
+        tinyassert(scope);
+
+        // top level function
+        if (scope.parent === analyzed.scope) {
+          names.push(node.id.name);
+          return;
+        }
+
+        // otherwise lift closure by overwrite + move
+        const liftName = `$$tmp_${names.length}_${node.id.name}`;
+        names.push(liftName);
+        const bindVars = [...scope.references].filter((ref) => {
+          // not sure why function name itself is reference
+          if (ref === node.id.name) {
+            return false;
+          }
+          const owner = scope.find_owner(ref);
+          return owner && owner !== scope && owner !== analyzed.scope;
+        });
+        const liftParams = [
+          ...bindVars,
+          ...node.params.map((n) => input.slice(n.start, n.end)),
+        ].join(", ");
+        output.overwrite(node.id.start, node.id.end, liftName);
+        output.overwrite(node.id.end, node.body.start, `(${liftParams})`);
+        output.appendRight(node.start, ";\n");
+        output.move(node.start, node.end, input.length); // move to the end
+
+        // replace original declartion with action bind
+        const bindCode = `const ${node.id.name} = ${liftName}.bind(${[
+          "null",
+          ...bindVars,
+        ].join(", ")});`;
+        output.appendLeft(node.start, bindCode);
+      }
+    },
+  });
 
   if (names.length === 0) {
     return;

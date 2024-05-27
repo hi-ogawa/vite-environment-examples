@@ -3,7 +3,7 @@ import { hashString } from "@hiogawa/utils";
 import { mkdir, writeFile } from "fs/promises";
 import type MagicString from "magic-string";
 import { describe, expect, it } from "vitest";
-import { transformServerAction2 } from "./plugin";
+import { transformServerAction2, transformServerAction3 } from "./plugin";
 
 function inlineSourceMap(output: MagicString) {
   const code = output.toString();
@@ -79,6 +79,43 @@ async function changeCount3(formData) {
   count += Number(formData.get(name));
 }
 
+`;
+    expect(await testTransform(input)).toMatchSnapshot();
+  });
+});
+
+describe(transformServerAction3, () => {
+  async function testTransform(input: string) {
+    const output = await transformServerAction3(input, "<id>");
+    return output?.toString();
+  }
+
+  it("top level", async () => {
+    const input = `
+async function f() {
+  "use server";
+}
+
+async function g() {
+}
+`;
+    expect(await testTransform(input)).toMatchSnapshot();
+  });
+
+  it("closure", async () => {
+    const input = `
+let count = 0;
+
+function Counter() {
+  const name = "value";
+
+  async function changeCount(formData) {
+    "use server";
+    count += Number(formData.get(name));
+  }
+
+  return "something";
+}
 `;
     expect(await testTransform(input)).toMatchSnapshot();
   });

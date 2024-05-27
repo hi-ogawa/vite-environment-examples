@@ -73,3 +73,40 @@ f = $$register(f, "<id>", "f");
 export { f };
 "
 `;
+
+exports[`transformServerAction3 > closure 1`] = `
+"
+let count = 0;
+
+function Counter() {
+  const name = "value";
+
+  const changeCount = $$tmp_0_changeCount.bind(null, name);
+
+  return "something";
+}
+;
+async function $$tmp_0_changeCount(name, formData){
+    "use server";
+    count += Number(formData.get(name));
+  };
+import { registerServerReference as $$register } from "/src/features/server-action/server";
+$$tmp_0_changeCount = $$register($$tmp_0_changeCount, "<id>", "$$tmp_0_changeCount");
+export { $$tmp_0_changeCount };
+"
+`;
+
+exports[`transformServerAction3 > top level 1`] = `
+"
+async function f() {
+  "use server";
+}
+
+async function g() {
+}
+;
+import { registerServerReference as $$register } from "/src/features/server-action/server";
+f = $$register(f, "<id>", "f");
+export { f };
+"
+`;
