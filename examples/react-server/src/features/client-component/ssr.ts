@@ -8,11 +8,13 @@ import type { ImportManifestEntry, ModuleMap } from "../../types";
 // So, we don't have to manage `ssrImportPromiseCache` like done in
 // https://github.com/hi-ogawa/vite-plugins/blob/1c12519065563da60de9f58b946695adcbb50924/packages/react-server/src/features/use-client/server.tsx#L10-L18
 
-async function importWrapper(id: string) {
+async function importClientReference(id: string) {
   if (import.meta.env.DEV) {
     return import(/* @vite-ignore */ id);
   } else {
-    const clientReferences = await import("virtual:client-reference" as string);
+    const clientReferences = await import(
+      "virtual:client-references" as string
+    );
     const dynImport = clientReferences.default[id];
     tinyassert(dynImport, `client reference not found '${id}'`);
     return dynImport();
@@ -21,7 +23,7 @@ async function importWrapper(id: string) {
 
 export function initializeReactClientSsr() {
   Object.assign(globalThis, {
-    __webpack_require__: memoize(importWrapper),
+    __webpack_require__: memoize(importClientReference),
     __webpack_chunk_load__: () => {
       throw new Error("todo: __webpack_chunk_load__");
     },
