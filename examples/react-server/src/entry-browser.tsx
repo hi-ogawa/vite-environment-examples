@@ -1,8 +1,8 @@
 import "virtual:unocss.css";
 import React from "react";
-import reactDomClient from "react-dom/client";
+import ReactDOMClient from "react-dom/client";
 import type { StreamData } from "./entry-server";
-import { initializeWebpackBrowser } from "./features/client-component/browser";
+import { initializeReactClientBrowser } from "./features/client-component/browser";
 import {
   BackForawrdCache,
   listenWindowHistory,
@@ -16,8 +16,8 @@ async function main() {
     return;
   }
 
-  initializeWebpackBrowser();
-  const { default: reactServerDomClient } = await import(
+  initializeReactClientBrowser();
+  const { default: ReactClient } = await import(
     "react-server-dom-webpack/client.browser"
   );
 
@@ -27,10 +27,10 @@ async function main() {
     const url = new URL(window.location.href);
     url.searchParams.set("__stream", "");
     url.searchParams.set("__action_id", id);
-    const streamData = reactServerDomClient.createFromFetch<StreamData>(
+    const streamData = ReactClient.createFromFetch<StreamData>(
       fetch(url, {
         method: "POST",
-        body: await reactServerDomClient.encodeReply(args),
+        body: await ReactClient.encodeReply(args),
       }),
       { callServer: $__global.callServer },
     );
@@ -39,11 +39,10 @@ async function main() {
     return (await streamData).actionResult;
   };
 
-  const initialStreamData =
-    reactServerDomClient.createFromReadableStream<StreamData>(
-      readStreamScript(),
-      { callServer: $__global.callServer },
-    );
+  const initialStreamData = ReactClient.createFromReadableStream<StreamData>(
+    readStreamScript(),
+    { callServer: $__global.callServer },
+  );
 
   let $__setStreamData: (v: Promise<StreamData>) => void;
 
@@ -57,7 +56,7 @@ async function main() {
         const url = new URL(window.location.href);
         url.searchParams.set("__stream", "");
         const fetchFlight = () =>
-          reactServerDomClient.createFromFetch<StreamData>(fetch(url), {
+          ReactClient.createFromFetch<StreamData>(fetch(url), {
             callServer: $__global.callServer,
           });
         $__setStreamData(bfcache.run(fetchFlight));
@@ -81,12 +80,12 @@ async function main() {
   const reactRootEl = <Root />;
 
   if (window.location.search.toLowerCase().includes("__nohydrate")) {
-    reactDomClient.createRoot(document).render(reactRootEl);
+    ReactDOMClient.createRoot(document).render(reactRootEl);
   } else {
     // TODO: can we avoid await? (separate script stream?)
     const formState = (await initialStreamData).actionResult;
     React.startTransition(() => {
-      reactDomClient.hydrateRoot(document, reactRootEl, {
+      ReactDOMClient.hydrateRoot(document, reactRootEl, {
         formState,
       });
     });

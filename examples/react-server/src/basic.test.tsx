@@ -3,7 +3,7 @@ import { Window } from "happy-dom";
 import React from "react";
 import reactDomClient from "react-dom/client";
 import { beforeAll, beforeEach, expect, test } from "vitest";
-import { initializeWebpackBrowser } from "./features/client-component/browser";
+import { initializeReactClientBrowser } from "./features/client-component/browser";
 
 beforeAll(() => {
   // doing the same as examples/react-server/src/features/bootstrap/plugin.ts
@@ -25,7 +25,7 @@ beforeEach(() => {
 
 async function testRender(container: reactDomClient.Container, page: string) {
   // react client browser
-  initializeWebpackBrowser();
+  initializeReactClientBrowser();
   const { default: reactServerDomClient } = await import(
     "react-server-dom-webpack/client.browser"
   );

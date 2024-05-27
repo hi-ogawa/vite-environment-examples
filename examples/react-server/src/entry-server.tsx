@@ -1,4 +1,4 @@
-import reactServerDomServer from "react-server-dom-webpack/server.edge";
+import ReactServer from "react-server-dom-webpack/server.edge";
 import { createBundlerConfig } from "./features/client-component/server";
 import { serverActionHandler } from "./features/server-action/server";
 import Layout from "./routes/layout";
@@ -25,7 +25,7 @@ export async function handler({
 
   const node = <Router request={request} />;
 
-  const stream = reactServerDomServer.renderToReadableStream<StreamData>(
+  const stream = ReactServer.renderToReadableStream<StreamData>(
     {
       node,
       actionResult: actionResult,
@@ -55,8 +55,5 @@ async function Router(props: { request: Request }) {
 }
 
 export async function testRender(Comp: React.ComponentType) {
-  return reactServerDomServer.renderToReadableStream(
-    <Comp />,
-    createBundlerConfig(),
-  );
+  return ReactServer.renderToReadableStream(<Comp />, createBundlerConfig());
 }
