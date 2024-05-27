@@ -24,11 +24,11 @@ export function registerClientReference(id: string, name: string) {
   );
 }
 
-export function createBundlerConfig(
+export function createBundlerConfig(): BundlerConfig {
   // need to bust cache for each flight render
   // https://github.com/facebook/react/blob/ea6e05912aa43a0bbfbee381752caa1817a41a86/packages/react-server-dom-webpack/src/ReactFlightClientConfigBundlerWebpack.js#L182
-  cacheId = Math.random().toString(36).slice(2),
-): BundlerConfig {
+  const cacheId = Math.random().toString(36).slice(2);
+
   return new Proxy(
     {},
     {
