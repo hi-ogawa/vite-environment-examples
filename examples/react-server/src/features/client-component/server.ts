@@ -14,7 +14,7 @@ export function registerClientReference(id: string, name: string) {
 }
 
 export function createBundlerConfig(): BundlerConfig {
-  // need to bust cache for each flight render
+  // cache bust for each flight render during dev
   // https://github.com/facebook/react/blob/ea6e05912aa43a0bbfbee381752caa1817a41a86/packages/react-server-dom-webpack/src/ReactFlightClientConfigBundlerWebpack.js#L182
   const cacheId = Math.random().toString(36).slice(2);
 
