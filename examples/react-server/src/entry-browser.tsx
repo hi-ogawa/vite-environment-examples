@@ -16,6 +16,8 @@ async function main() {
     return;
   }
 
+  // need to import after __webpack_require__ is defined
+  // https://github.com/facebook/react/blob/ea6e05912aa43a0bbfbee381752caa1817a41a86/packages/react-server-dom-webpack/src/ReactFlightClientConfigBundlerWebpackBrowser.js#L16
   initializeReactClientBrowser();
   const { default: ReactClient } = await import(
     "react-server-dom-webpack/client.browser"
