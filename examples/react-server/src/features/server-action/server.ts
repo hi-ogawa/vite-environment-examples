@@ -67,13 +67,11 @@ const cache = new Map<string, unknown>();
 export function initializeReactServer() {
   Object.assign(globalThis, {
     __vite_react_server_webpack_require__: (id: string) => {
-      console.log("[server:require]", id);
       const mod = cache.get(id);
       tinyassert(mod, `invalid server reference '${id}'`);
       return cache.get(id);
     },
     __vite_react_server_webpack_chunk_load__: (id: string) => {
-      console.log("[server:preload]", id);
       if (import.meta.env.DEV) {
         id = id.split("*")[0];
       }
