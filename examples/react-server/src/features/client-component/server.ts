@@ -1,5 +1,5 @@
 import { tinyassert } from "@hiogawa/utils";
-import reactServerDomWebpack from "react-server-dom-webpack/server.edge";
+import ReactServer from "react-server-dom-webpack/server.edge";
 import type { BundlerConfig, ImportManifestEntry } from "../../types";
 
 // https://github.com/facebook/react/blob/c8a035036d0f257c514b3628e927dd9dd26e5a09/packages/react-server-dom-webpack/src/ReactFlightWebpackReferences.js#L43
@@ -11,7 +11,7 @@ import type { BundlerConfig, ImportManifestEntry } from "../../types";
 
 export function registerClientReference(id: string, name: string) {
   // reuse everything but $$async: true for simplicity
-  const reference = reactServerDomWebpack.registerClientReference({}, id, name);
+  const reference = ReactServer.registerClientReference({}, id, name);
   return Object.defineProperties(
     {},
     {

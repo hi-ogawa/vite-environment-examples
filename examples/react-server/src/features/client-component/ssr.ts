@@ -19,7 +19,7 @@ async function importWrapper(id: string) {
   }
 }
 
-export function initializeWebpackServer() {
+export function initializeReactClientSsr() {
   Object.assign(globalThis, {
     __webpack_require__: memoize(importWrapper),
     __webpack_chunk_load__: () => {
