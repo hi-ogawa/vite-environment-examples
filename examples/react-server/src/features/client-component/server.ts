@@ -11,7 +11,7 @@ import type { BundlerConfig, ImportManifestEntry } from "../../types";
 
 export function registerClientReference(id: string, name: string) {
   if (1) {
-    return reactServerDomWebpack.registerClientReference({}, id, name);
+    return ReactServer.registerClientReference({}, id, name);
   }
   // reuse everything but $$async: true for simplicity
   const reference = ReactServer.registerClientReference({}, id, name);
