@@ -224,10 +224,10 @@ function vitePluginUseClient(): PluginOption {
           if (manager.buildStep === "scan") {
             return;
           }
-          output =
-            `import { registerClientReference as $$register } from "/src/features/client-component/server";\n` +
-            output;
-          return { code: output, map: null };
+          output.prepend(
+            `import { registerClientReference as $$register } from "/src/features/client-component/server";\n`,
+          );
+          return { code: output.toString(), map: output.generateMap() };
         }
       }
       return;
@@ -340,10 +340,10 @@ function vitePluginServerAction(): PluginOption {
           manager.serverReferences.add(id);
           const runtime =
             this.environment.name === "client" ? "browser" : "ssr";
-          output =
-            `import { createServerReference as $$proxy } from "/src/features/server-action/${runtime}";\n` +
-            output;
-          return { code: output, map: null };
+          output.prepend(
+            `import { createServerReference as $$proxy } from "/src/features/server-action/${runtime}";\n`,
+          );
+          return { code: output.toString(), map: output.generateMap() };
         }
       }
       return;
