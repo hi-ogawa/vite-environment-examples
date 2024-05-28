@@ -1,5 +1,8 @@
 import { resolve } from "node:path";
-import { transformServerActionInline } from "@hiogawa/transforms";
+import {
+  transformDirectiveProxyExport,
+  transformServerActionServer,
+} from "@hiogawa/transforms";
 import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
@@ -11,12 +14,12 @@ import {
   createNodeDevEnvironment,
   createServerModuleRunner,
   defineConfig,
+  parseAstAsync,
 } from "vite";
 import {
   ENTRY_BROWSER_BOOTSTRAP,
   vitePluginEntryBootstrap,
 } from "./src/features/bootstrap/plugin";
-import { transformServerAction } from "./src/features/server-action/plugin";
 import { vitePluginServerCss } from "./src/features/style/plugin";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import { vitePluginSharedUnocss } from "./src/features/unocss/plugin";
@@ -301,54 +304,46 @@ function vitePluginServerAction(): PluginOption {
 
     [output] (client)
 
-      import { createServerReference as $$create } from "...runtime..."
-      export const hello = $$create("<id>#hello");
+      import { createServerReference as $$proxy } from "...runtime..."
+      export const hello = $$proxy("<id>", "hello");
 
   */
   const transformPlugin: Plugin = {
     name: vitePluginServerAction.name + ":transform",
     async transform(code, id) {
-      // file directive
-      if (/^("use server"|'use server')/.test(code)) {
-        manager.serverReferences.add(id);
-        const { output, exportNames } = await transformServerAction(code);
-        if (this.environment?.name === "react-server") {
-          output.append(
-            [
-              "",
-              `import { registerServerReference as $$register } from "/src/features/server-action/server"`,
-              ...exportNames.map(
-                (name) =>
-                  `${name} = typeof ${name} === "function" ? $$register(${name}, "${id}", "${name}") : ${name}`,
-              ),
-            ].join(";\n"),
-          );
-          return { code: output.toString(), map: output.generateMap() };
-        } else {
-          const runtime =
-            this.environment?.name === "client" ? "browser" : "ssr";
-          let result = `import { createServerReference as $$create } from "/src/features/server-action/${runtime}";\n`;
-          for (const name of exportNames) {
-            result += `export const ${name} = $$create("${id}#${name}");\n`;
-          }
-          return { code: result, map: null };
-        }
+      if (!code.includes("use server")) {
+        return;
       }
-      // function directive
-      if (
-        this.environment?.name === "react-server" &&
-        /("use server"|'use server')/.test(code)
-      ) {
-        const { output } = await transformServerActionInline(code, {
+      const ast = await parseAstAsync(code);
+      tinyassert(this.environment);
+      if (this.environment.name === "react-server") {
+        const { output } = await transformServerActionServer(code, ast, {
           id,
           runtime: "$$register",
         });
         if (output.hasChanged()) {
+          console.log({ name: this.environment.name, id }, output.toString());
           manager.serverReferences.add(id);
           output.prepend(
             `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`,
           );
           return { code: output.toString(), map: output.generateMap() };
+        }
+      } else {
+        let output = await transformDirectiveProxyExport(ast, {
+          id,
+          runtime: "$$proxy",
+          directive: "use server",
+        });
+        if (output) {
+          console.log({ name: this.environment.name, id }, output);
+          manager.serverReferences.add(id);
+          const runtime =
+            this.environment.name === "client" ? "browser" : "ssr";
+          output =
+            `import { createServerReference as $$proxy } from "/src/features/server-action/${runtime}";\n` +
+            output;
+          return { code: output, map: null };
         }
       }
       return;
