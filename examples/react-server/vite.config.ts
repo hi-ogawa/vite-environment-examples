@@ -204,11 +204,12 @@ function vitePluginUseClient(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
+      tinyassert(this.environment);
+      if (this.environment.name !== "react-server") {
+        return;
+      }
       manager.clientReferences.delete(id);
-      if (
-        code.includes("use client") &&
-        this.environment?.name === "react-server"
-      ) {
+      if (code.includes("use client")) {
         const ast = await parseAstAsync(code);
         let output = await transformDirectiveProxyExport(ast, {
           directive: "use client",
