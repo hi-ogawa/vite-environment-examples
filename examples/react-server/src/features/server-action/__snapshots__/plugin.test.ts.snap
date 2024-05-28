@@ -9,17 +9,17 @@ function Counter() {
 
   return {
     type: "form",
-    action: $$tmp_0.bind(null, name)
+    action: $$action_0.bind(null, name)
   }
 }
 ;
-let $$tmp_0 = (name, formData) => {
+let $$action_0 = (name, formData) => {
       "use server";
       count += Number(formData.get(name));
     };
 import { registerServerReference as $$register } from "/src/features/server-action/server";
-$$tmp_0 = $$register($$tmp_0, "<id>", "$$tmp_0");
-export { $$tmp_0 };
+$$action_0 = $$register($$action_0, "<id>", "$$action_0");
+export { $$action_0 };
 "
 `;
 
@@ -30,18 +30,18 @@ let count = 0;
 function Counter() {
   const name = "value";
 
-  const changeCount = $$tmp_0_changeCount.bind(null, name);
+  const changeCount = $$action_0_changeCount.bind(null, name);
 
   return "something";
 }
 ;
-async function $$tmp_0_changeCount(name, formData){
+async function $$action_0_changeCount(name, formData){
     "use server";
     count += Number(formData.get(name));
   };
 import { registerServerReference as $$register } from "/src/features/server-action/server";
-$$tmp_0_changeCount = $$register($$tmp_0_changeCount, "<id>", "$$tmp_0_changeCount");
-export { $$tmp_0_changeCount };
+$$action_0_changeCount = $$register($$action_0_changeCount, "<id>", "$$action_0_changeCount");
+export { $$action_0_changeCount };
 "
 `;
 
@@ -52,9 +52,9 @@ let count = 0;
 function Counter() {
   const name = "value";
 
-  const changeCount = $$tmp_0_changeCount.bind(null, name);
+  const changeCount = $$action_0_changeCount.bind(null, name);
 
-  const changeCount2 = $$tmp_1_changeCount2.bind(null, name);
+  const changeCount2 = $$action_1_changeCount2.bind(null, name);
 
   return "something";
 }
@@ -65,19 +65,19 @@ async function changeCount3(formData) {
 }
 
 ;
-async function $$tmp_0_changeCount(name, formData){
+async function $$action_0_changeCount(name, formData){
     "use server";
     count += Number(formData.get(name));
   };
-async function $$tmp_1_changeCount2(name, formData){
+async function $$action_1_changeCount2(name, formData){
     "use server";
     count += Number(formData.get(name));
   };
 import { registerServerReference as $$register } from "/src/features/server-action/server";
-$$tmp_0_changeCount = $$register($$tmp_0_changeCount, "<id>", "$$tmp_0_changeCount");
-export { $$tmp_0_changeCount };
-$$tmp_1_changeCount2 = $$register($$tmp_1_changeCount2, "<id>", "$$tmp_1_changeCount2");
-export { $$tmp_1_changeCount2 };
+$$action_0_changeCount = $$register($$action_0_changeCount, "<id>", "$$action_0_changeCount");
+export { $$action_0_changeCount };
+$$action_1_changeCount2 = $$register($$action_1_changeCount2, "<id>", "$$action_1_changeCount2");
+export { $$action_1_changeCount2 };
 changeCount3 = $$register(changeCount3, "<id>", "changeCount3");
 export { changeCount3 };
 "

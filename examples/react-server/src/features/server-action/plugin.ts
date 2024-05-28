@@ -114,7 +114,7 @@ export async function transformServerAction2(input: string, id: string) {
           }
 
           // otherwise lift closure by overwrite + move
-          const liftName = `$$tmp_${names.length}_${node.id.name}`;
+          const liftName = `$$action_${names.length}_${node.id.name}`;
           names.push(liftName);
           const bindVars = [...scope.references].filter((ref) => {
             // function name itself is included as reference
@@ -146,7 +146,7 @@ export async function transformServerAction2(input: string, id: string) {
           tinyassert(scope.parent !== analyzed.scope);
 
           // lift closure by overwrite + move
-          const liftName = `$$tmp_${names.length}`;
+          const liftName = `$$action_${names.length}`;
           names.push(liftName);
           const bindVars = [...scope.references].filter((ref) => {
             const owner = scope.find_owner(ref);
