@@ -83,8 +83,7 @@ async function changeCount3(formData) {
     expect(await testTransform(input)).toMatchSnapshot();
   });
 
-  // TODO:
-  it.skip("anonymous", async () => {
+  it("arrow", async () => {
     const input = `
 let count = 0;
 

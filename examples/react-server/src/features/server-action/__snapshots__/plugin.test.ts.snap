@@ -1,5 +1,28 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`transformServerAction2 > arrow 1`] = `
+"
+let count = 0;
+
+function Counter() {
+  const name = "value";
+
+  return {
+    type: "form",
+    action: $$tmp_0.bind(null, name)
+  }
+}
+;
+const $$tmp_0 = (name, formData) => {
+      "use server";
+      count += Number(formData.get(name));
+    };
+import { registerServerReference as $$register } from "/src/features/server-action/server";
+$$tmp_0 = $$register($$tmp_0, "<id>", "$$tmp_0");
+export { $$tmp_0 };
+"
+`;
+
 exports[`transformServerAction2 > closure 1`] = `
 "
 let count = 0;
