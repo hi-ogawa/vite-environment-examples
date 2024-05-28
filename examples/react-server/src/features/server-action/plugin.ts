@@ -128,8 +128,8 @@ export async function transformServerAction2(input: string, id: string) {
             ...bindVars,
             ...node.params.map((n) => input.slice(n.start, n.end)),
           ].join(", ");
-          output.overwrite(node.id.start, node.id.end, liftName);
-          output.overwrite(node.id.end, node.body.start, `(${liftParams})`);
+          output.update(node.id.start, node.id.end, liftName);
+          output.update(node.id.end, node.body.start, `(${liftParams})`);
           output.appendRight(node.start, ";\n");
           output.move(node.start, node.end, input.length); // move to the end
 
@@ -156,7 +156,7 @@ export async function transformServerAction2(input: string, id: string) {
             ...bindVars,
             ...node.params.map((n) => input.slice(n.start, n.end)),
           ].join(", ");
-          output.overwrite(
+          output.update(
             node.start,
             node.body.start,
             `let ${liftName} = ${
