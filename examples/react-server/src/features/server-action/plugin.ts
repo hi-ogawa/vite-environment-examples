@@ -159,7 +159,7 @@ export async function transformServerAction2(input: string, id: string) {
           output.overwrite(
             node.start,
             node.body.start,
-            `const ${liftName} = ${
+            `let ${liftName} = ${
               node.async ? "async " : ""
             }(${liftParams}) => `,
           );

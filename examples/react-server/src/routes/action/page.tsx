@@ -47,9 +47,9 @@ export default function Page() {
       </div>
       <div>
         <h4 style={{ marginBottom: "0.5rem" }}>
-          "use server" closure in server form action prop
+          "use server" closure + server component (inline arrow function prop)
         </h4>
-        {0 && <Counter5 />}
+        <Counter5 />
       </div>
     </div>
   );
@@ -95,12 +95,12 @@ function Counter5() {
   return (
     <form
       action={(formData: FormData) => {
-        // "use server";
+        "use server";
         count5 += Number(formData.get(name));
       }}
       data-testid="counter5"
     >
-      <div>Count: {count4}</div>
+      <div>Count: {count5}</div>
       <button name={name} value={-1}>
         -1
       </button>
