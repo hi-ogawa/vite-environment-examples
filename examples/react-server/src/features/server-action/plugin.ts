@@ -142,7 +142,7 @@ export async function transformServerAction2(input: string, id: string) {
         }
 
         if (node.type === "ArrowFunctionExpression") {
-          // TODO: not sure how to do top level function
+          // TODO: not sure how to deal with top level function
           tinyassert(scope.parent !== analyzed.scope);
 
           // lift closure by overwrite + move
