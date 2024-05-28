@@ -1,4 +1,5 @@
 import { resolve } from "node:path";
+import { transformServerActionInline } from "@hiogawa/transforms";
 import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
@@ -15,10 +16,7 @@ import {
   ENTRY_BROWSER_BOOTSTRAP,
   vitePluginEntryBootstrap,
 } from "./src/features/bootstrap/plugin";
-import {
-  transformServerAction,
-  transformServerAction2,
-} from "./src/features/server-action/plugin";
+import { transformServerAction } from "./src/features/server-action/plugin";
 import { vitePluginServerCss } from "./src/features/style/plugin";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import { vitePluginSharedUnocss } from "./src/features/unocss/plugin";
@@ -341,9 +339,15 @@ function vitePluginServerAction(): PluginOption {
         this.environment?.name === "react-server" &&
         /("use server"|'use server')/.test(code)
       ) {
-        const output = await transformServerAction2(code, id);
-        if (output) {
+        const { output } = await transformServerActionInline(code, {
+          id,
+          runtime: "$$register",
+        });
+        if (output.hasChanged()) {
           manager.serverReferences.add(id);
+          output.prepend(
+            `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`,
+          );
           return { code: output.toString(), map: output.generateMap() };
         }
       }

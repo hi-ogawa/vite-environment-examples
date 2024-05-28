@@ -17,6 +17,9 @@ importers:
       '@hattip/adapter-node':
         specifier: ^0.0.44
         version: 0.0.44
+      '@hiogawa/transforms':
+        specifier: 0.0.0-pre.3
+        version: 0.0.0-pre.3(vite@6.0.0-alpha.16)
       '@hiogawa/utils':
         specifier: 1.6.4-pre.1
         version: 1.6.4-pre.1
@@ -1423,6 +1426,17 @@ packages:
       '@hattip/headers': 0.0.44
       cac: 6.7.14
       mime-types: 2.1.35
+    dev: true
+
+  /@hiogawa/transforms@0.0.0-pre.3(vite@6.0.0-alpha.16):
+    resolution: {integrity: sha512-VSrU0Nebd2AO8PotVhi9IICox1BTagQho8sozrFdlSx7bZguzuaDOZkOUAHhMSNR3ugikRwSPij6jvce6Shk1w==}
+    peerDependencies:
+      vite: 6.0.0-alpha.16
+    dependencies:
+      estree-walker: 3.0.3
+      magic-string: 0.30.10
+      periscopic: 4.0.2
+      vite: 6.0.0-alpha.16(@types/node@20.11.30)
     dev: true
 
   /@hiogawa/utils-node@0.0.1:
