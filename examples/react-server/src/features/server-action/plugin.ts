@@ -138,10 +138,8 @@ export async function transformServerAction2(input: string, id: string) {
           output.move(node.start, node.end, input.length); // move to the end
 
           // replace original declartion with action bind
-          const bindCode = `const ${node.id.name} = ${liftName}.bind(${[
-            "null",
-            ...bindVars,
-          ].join(", ")});`;
+          const bindParams = ["null", ...bindVars].join(", ");
+          const bindCode = `const ${node.id.name} = ${liftName}.bind(${bindParams});`;
           output.appendLeft(node.start, bindCode);
         }
 
