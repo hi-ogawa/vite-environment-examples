@@ -45,6 +45,12 @@ export default function Page() {
         </h4>
         <Counter4 />
       </div>
+      <div>
+        <h4 style={{ marginBottom: "0.5rem" }}>
+          "use server" closure + server component (inline arrow function prop)
+        </h4>
+        <Counter5 />
+      </div>
     </div>
   );
 }
@@ -71,6 +77,30 @@ function Counter4() {
   return (
     <form action={changeCount4} data-testid="counter4">
       <div>Count: {count4}</div>
+      <button name={name} value={-1}>
+        -1
+      </button>
+      <button name={name} value={+1}>
+        +1
+      </button>
+    </form>
+  );
+}
+
+let count5 = 0;
+
+function Counter5() {
+  const name = "value".slice();
+
+  return (
+    <form
+      action={(formData: FormData) => {
+        "use server";
+        count5 += Number(formData.get(name));
+      }}
+      data-testid="counter5"
+    >
+      <div>Count: {count5}</div>
       <button name={name} value={-1}>
         -1
       </button>

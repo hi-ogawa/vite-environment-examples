@@ -1,4 +1,8 @@
 import { resolve } from "node:path";
+import {
+  transformDirectiveProxyExport,
+  transformServerActionServer,
+} from "@hiogawa/transforms";
 import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
@@ -10,21 +14,17 @@ import {
   createNodeDevEnvironment,
   createServerModuleRunner,
   defineConfig,
+  parseAstAsync,
 } from "vite";
 import {
   ENTRY_BROWSER_BOOTSTRAP,
   vitePluginEntryBootstrap,
 } from "./src/features/bootstrap/plugin";
-import {
-  transformServerAction,
-  transformServerAction2,
-} from "./src/features/server-action/plugin";
 import { vitePluginServerCss } from "./src/features/style/plugin";
 import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import { vitePluginSharedUnocss } from "./src/features/unocss/plugin";
 import {
   createVirtualPlugin,
-  parseExports,
   vitePluginSilenceDirectiveBuildWarning,
 } from "./src/features/utils/plugin";
 import { $__global } from "./src/global";
@@ -204,27 +204,30 @@ function vitePluginUseClient(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
-      if (this.environment?.name === "react-server") {
-        manager.clientReferences.delete(id);
-        if (/^("use client")|('use client')/.test(code)) {
+      tinyassert(this.environment);
+      if (this.environment.name !== "react-server") {
+        return;
+      }
+      manager.clientReferences.delete(id);
+      if (code.includes("use client")) {
+        const ast = await parseAstAsync(code);
+        let output = await transformDirectiveProxyExport(ast, {
+          directive: "use client",
+          id:
+            this.environment.mode === "dev"
+              ? await normalizeUrl(id, $__global.server.environments.client)
+              : id,
+          runtime: "$$register",
+        });
+        if (output) {
           manager.clientReferences.add(id);
           if (manager.buildStep === "scan") {
             return;
           }
-          const { exportNames } = await parseExports(code);
-          let result = `import { registerClientReference as $$register } from "/src/features/client-component/server";\n`;
-          if (this.environment.mode === "dev") {
-            id = await normalizeUrl(id, $__global.server.environments.client);
-          }
-          for (const name of exportNames) {
-            result += `export const ${name} = $$register("${id}", "${name}");\n`;
-          }
-          debug(`[${vitePluginUseClient.name}:transform]`, {
-            id,
-            exportNames,
-            result,
-          });
-          return { code: result, map: null };
+          output.prepend(
+            `import { registerClientReference as $$register } from "/src/features/client-component/server";\n`,
+          );
+          return { code: output.toString(), map: output.generateMap() };
         }
       }
       return;
@@ -303,47 +306,43 @@ function vitePluginServerAction(): PluginOption {
 
     [output] (client)
 
-      import { createServerReference as $$create } from "...runtime..."
-      export const hello = $$create("<id>#hello");
+      import { createServerReference as $$proxy } from "...runtime..."
+      export const hello = $$proxy("<id>", "hello");
 
   */
   const transformPlugin: Plugin = {
     name: vitePluginServerAction.name + ":transform",
     async transform(code, id) {
-      // file directive
-      if (/^("use server"|'use server')/.test(code)) {
-        manager.serverReferences.add(id);
-        const { output, exportNames } = await transformServerAction(code);
-        if (this.environment?.name === "react-server") {
-          output.append(
-            [
-              "",
-              `import { registerServerReference as $$register } from "/src/features/server-action/server"`,
-              ...exportNames.map(
-                (name) =>
-                  `${name} = typeof ${name} === "function" ? $$register(${name}, "${id}", "${name}") : ${name}`,
-              ),
-            ].join(";\n"),
+      if (!code.includes("use server")) {
+        return;
+      }
+      const ast = await parseAstAsync(code);
+      tinyassert(this.environment);
+      if (this.environment.name === "react-server") {
+        const { output } = await transformServerActionServer(code, ast, {
+          id,
+          runtime: "$$register",
+        });
+        if (output.hasChanged()) {
+          manager.serverReferences.add(id);
+          output.prepend(
+            `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`,
           );
           return { code: output.toString(), map: output.generateMap() };
-        } else {
-          const runtime =
-            this.environment?.name === "client" ? "browser" : "ssr";
-          let result = `import { createServerReference as $$create } from "/src/features/server-action/${runtime}";\n`;
-          for (const name of exportNames) {
-            result += `export const ${name} = $$create("${id}#${name}");\n`;
-          }
-          return { code: result, map: null };
         }
-      }
-      // function directive
-      if (
-        this.environment?.name === "react-server" &&
-        /("use server"|'use server')/.test(code)
-      ) {
-        const output = await transformServerAction2(code, id);
+      } else {
+        let output = await transformDirectiveProxyExport(ast, {
+          id,
+          runtime: "$$proxy",
+          directive: "use server",
+        });
         if (output) {
           manager.serverReferences.add(id);
+          const runtime =
+            this.environment.name === "client" ? "browser" : "ssr";
+          output.prepend(
+            `import { createServerReference as $$proxy } from "/src/features/server-action/${runtime}";\n`,
+          );
           return { code: output.toString(), map: output.generateMap() };
         }
       }

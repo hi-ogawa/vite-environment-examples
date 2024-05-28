@@ -100,6 +100,9 @@ importers:
         specifier: 19.0.0-rc-4c2e457c7c-20240522
         version: 19.0.0-rc-4c2e457c7c-20240522(react-dom@19.0.0-rc-4c2e457c7c-20240522)(react@19.0.0-rc-4c2e457c7c-20240522)(webpack@5.91.0)
     devDependencies:
+      '@hiogawa/transforms':
+        specifier: 0.0.0-pre.8
+        version: 0.0.0-pre.8
       '@hiogawa/vite-plugin-ssr-middleware-alpha':
         specifier: workspace:*
         version: link:../../packages/ssr-middleware
@@ -1417,6 +1420,14 @@ packages:
       '@hattip/headers': 0.0.44
       cac: 6.7.14
       mime-types: 2.1.35
+    dev: true
+
+  /@hiogawa/transforms@0.0.0-pre.8:
+    resolution: {integrity: sha512-2XN6MVM2DbQbMGEMA6Pck1xpkauJ5cESG5xTEAzIY1Zs8n2pA/zjNnRv16PnJM2h4lSdMVY++QQg60dV02xttg==}
+    dependencies:
+      estree-walker: 3.0.3
+      magic-string: 0.30.10
+      periscopic: 4.0.2
     dev: true
 
   /@hiogawa/utils-node@0.0.1:
@@ -3048,6 +3059,12 @@ packages:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
 
+  /is-reference@3.0.2:
+    resolution: {integrity: sha512-v3rht/LgVcsdZa3O2Nqs+NMowLOxeOm7Ay9+/ARQ2F+qEoANRcqrjAZKGN0v8ymUetZGgkp26LTnGT7H0Qo9Pg==}
+    dependencies:
+      '@types/estree': 1.0.5
+    dev: true
+
   /is-stream@2.0.1:
     resolution: {integrity: sha512-hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg==}
     engines: {node: '>=8'}
@@ -3450,6 +3467,14 @@ packages:
 
   /perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
+    dev: true
+
+  /periscopic@4.0.2:
+    resolution: {integrity: sha512-sqpQDUy8vgB7ycLkendSKS6HnVz1Rneoc3Rc+ZBUCe2pbqlVuCC5vF52l0NJ1aiMg/r1qfYF9/myz8CZeI2rjA==}
+    dependencies:
+      '@types/estree': 1.0.5
+      is-reference: 3.0.2
+      zimmerframe: 1.1.2
     dev: true
 
   /picocolors@1.0.0:
@@ -4516,6 +4541,10 @@ packages:
       cookie: 0.5.0
       mustache: 4.2.0
       stacktracey: 2.1.8
+
+  /zimmerframe@1.1.2:
+    resolution: {integrity: sha512-rAbqEGa8ovJy4pyBxZM70hg4pE6gDgaQ0Sl9M3enG3I0d6H4XSAM3GeNGLKnsBpuijUow064sf7ww1nutC5/3w==}
+    dev: true
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
