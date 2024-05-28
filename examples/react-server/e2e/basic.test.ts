@@ -143,6 +143,19 @@ testNoJs("server action 4 @nojs", async ({ page }) => {
   await testServerAction(page, "counter4");
 });
 
+test("server action 5 @js", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/action");
+  await waitForHydration(page);
+  await testServerAction(page, "counter5");
+});
+
+testNoJs("server action 5 @nojs", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/action");
+  await testServerAction(page, "counter5");
+});
+
 async function testServerAction(page: Page, testId: string) {
   await page.getByTestId(testId).getByText("Count: 0").click();
   await page.getByTestId(testId).getByRole("button", { name: "+" }).click();
