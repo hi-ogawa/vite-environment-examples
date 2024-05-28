@@ -322,7 +322,6 @@ function vitePluginServerAction(): PluginOption {
           runtime: "$$register",
         });
         if (output.hasChanged()) {
-          console.log({ name: this.environment.name, id }, output.toString());
           manager.serverReferences.add(id);
           output.prepend(
             `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`,
@@ -336,7 +335,6 @@ function vitePluginServerAction(): PluginOption {
           directive: "use server",
         });
         if (output) {
-          console.log({ name: this.environment.name, id }, output);
           manager.serverReferences.add(id);
           const runtime =
             this.environment.name === "client" ? "browser" : "ssr";

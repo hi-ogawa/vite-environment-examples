@@ -7,6 +7,9 @@ export function registerServerReference(
   id: string,
   name: string,
 ) {
+  if (typeof action !== "function") {
+    return action;
+  }
   return ReactServer.registerServerReference(action, id, name);
 }
 

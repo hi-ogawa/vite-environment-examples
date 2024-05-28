@@ -1,4 +1,4 @@
-import { changeCount1, count1 } from "./_action";
+import { changeCount1, getCount1 } from "./_action";
 import { Counter3 } from "./_client";
 
 export default function Page() {
@@ -10,7 +10,7 @@ export default function Page() {
           "use server" file + server component
         </h4>
         <form action={changeCount1} data-testid="counter1">
-          <div>Count: {count1}</div>
+          <div>Count: {getCount1()}</div>
           <button name="value" value={-1}>
             -1
           </button>
