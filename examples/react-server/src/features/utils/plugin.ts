@@ -1,4 +1,4 @@
-import { type Plugin, parseAstAsync } from "vite";
+import type { Plugin } from "vite";
 
 export function vitePluginSilenceDirectiveBuildWarning(): Plugin {
   return {
@@ -50,56 +50,4 @@ export function createVirtualPlugin(name: string, load: Plugin["load"]) {
       }
     },
   } satisfies Plugin;
-}
-
-//
-// code transform utils
-//
-
-export async function parseExports(code: string) {
-  const ast = await parseAstAsync(code);
-  const exportNames = new Set<string>();
-  let writableCode = code;
-  for (const node of ast.body) {
-    // named exports
-    if (node.type === "ExportNamedDeclaration") {
-      if (node.declaration) {
-        if (
-          node.declaration.type === "FunctionDeclaration" ||
-          node.declaration.type === "ClassDeclaration"
-        ) {
-          /**
-           * export function foo() {}
-           */
-          exportNames.add(node.declaration.id.name);
-        } else if (node.declaration.type === "VariableDeclaration") {
-          /**
-           * export const foo = 1, bar = 2
-           */
-          if (node.declaration.kind === "const") {
-            const start = (node.declaration as any).start;
-            writableCode = replaceCode(writableCode, start, start + 5, "let  ");
-          }
-          for (const decl of node.declaration.declarations) {
-            if (decl.id.type === "Identifier") {
-              exportNames.add(decl.id.name);
-            }
-          }
-        }
-      }
-    }
-  }
-  return {
-    exportNames,
-    writableCode,
-  };
-}
-
-function replaceCode(
-  code: string,
-  start: number,
-  end: number,
-  content: string,
-) {
-  return code.slice(0, start) + content + code.slice(end);
 }

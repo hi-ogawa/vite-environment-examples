@@ -25,7 +25,6 @@ import { vitePluginTestReactServerStream } from "./src/features/test/plugin";
 import { vitePluginSharedUnocss } from "./src/features/unocss/plugin";
 import {
   createVirtualPlugin,
-  parseExports,
   vitePluginSilenceDirectiveBuildWarning,
 } from "./src/features/utils/plugin";
 import { $__global } from "./src/global";
@@ -205,27 +204,29 @@ function vitePluginUseClient(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
-      if (this.environment?.name === "react-server") {
-        manager.clientReferences.delete(id);
-        if (/^("use client")|('use client')/.test(code)) {
+      manager.clientReferences.delete(id);
+      if (
+        code.includes("use client") &&
+        this.environment?.name === "react-server"
+      ) {
+        const ast = await parseAstAsync(code);
+        let output = await transformDirectiveProxyExport(ast, {
+          directive: "use client",
+          id:
+            this.environment.mode === "dev"
+              ? await normalizeUrl(id, $__global.server.environments.client)
+              : id,
+          runtime: "$$register",
+        });
+        if (output) {
           manager.clientReferences.add(id);
           if (manager.buildStep === "scan") {
             return;
           }
-          const { exportNames } = await parseExports(code);
-          let result = `import { registerClientReference as $$register } from "/src/features/client-component/server";\n`;
-          if (this.environment.mode === "dev") {
-            id = await normalizeUrl(id, $__global.server.environments.client);
-          }
-          for (const name of exportNames) {
-            result += `export const ${name} = $$register("${id}", "${name}");\n`;
-          }
-          debug(`[${vitePluginUseClient.name}:transform]`, {
-            id,
-            exportNames,
-            result,
-          });
-          return { code: result, map: null };
+          output =
+            `import { registerClientReference as $$register } from "/src/features/client-component/server";\n` +
+            output;
+          return { code: output, map: null };
         }
       }
       return;
