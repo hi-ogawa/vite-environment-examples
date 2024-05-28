@@ -128,9 +128,13 @@ export async function transformServerAction2(input: string, id: string) {
             ...bindVars,
             ...node.params.map((n) => input.slice(n.start, n.end)),
           ].join(", ");
-          output.update(node.id.start, node.id.end, liftName);
-          output.update(node.id.end, node.body.start, `(${liftParams})`);
-          output.appendRight(node.start, ";\n");
+          output.update(
+            node.start,
+            node.body.start,
+            `;\nlet ${liftName} = ${
+              node.async ? "async " : ""
+            }(${liftParams}) => `,
+          );
           output.move(node.start, node.end, input.length); // move to the end
 
           // replace original declartion with action bind
@@ -159,11 +163,10 @@ export async function transformServerAction2(input: string, id: string) {
           output.update(
             node.start,
             node.body.start,
-            `let ${liftName} = ${
+            `;\nlet ${liftName} = ${
               node.async ? "async " : ""
             }(${liftParams}) => `,
           );
-          output.appendRight(node.start, ";\n");
           output.move(node.start, node.end, input.length); // move to the end
 
           // replace original declartion with action bind

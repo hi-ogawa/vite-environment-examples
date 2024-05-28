@@ -35,7 +35,7 @@ function Counter() {
   return "something";
 }
 ;
-async function $$action_0_changeCount(name, formData){
+let $$action_0_changeCount = async (name, formData) => {
     "use server";
     count += Number(formData.get(name));
   };
@@ -65,11 +65,11 @@ async function changeCount3(formData) {
 }
 
 ;
-async function $$action_0_changeCount(name, formData){
+let $$action_0_changeCount = async (name, formData) => {
     "use server";
     count += Number(formData.get(name));
   };
-async function $$action_1_changeCount2(name, formData){
+let $$action_1_changeCount2 = async (name, formData) => {
     "use server";
     count += Number(formData.get(name));
   };
