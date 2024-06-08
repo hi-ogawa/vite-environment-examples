@@ -49,6 +49,7 @@ export async function serverActionHandler({ request }: { request: Request }) {
 }
 
 async function importServerReference(id: string): Promise<unknown> {
+  console.log("[importServerReference]", id);
   if (import.meta.env.DEV) {
     return import(/* @vite-ignore */ id);
   } else {
