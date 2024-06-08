@@ -11,7 +11,6 @@ import {
   DevEnvironment,
   type Plugin,
   type PluginOption,
-  createNodeDevEnvironment,
   createServerModuleRunner,
   defineConfig,
   parseAstAsync,
@@ -118,7 +117,6 @@ function vitePluginReactServer(): PluginOption {
           noExternal: true,
         },
         dev: {
-          createEnvironment: createNodeDevEnvironment,
           optimizeDeps: {
             include: [
               "react",
