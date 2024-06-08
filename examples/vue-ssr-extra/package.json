@@ -14,14 +14,14 @@
   },
   "dependencies": {
     "pinia": "^2.1.7",
-    "vue": "^3.4.27",
-    "vue-router": "^4.3.2"
+    "vue": "^3.4.23",
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240605.0",
+    "@cloudflare/workers-types": "^4.20240405.0",
     "@hiogawa/vite-plugin-workerd": "workspace:*",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "vue-tsc": "^2.0.19"
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vue-tsc": "^2.0.13"
   },
   "volta": {
     "extends": "../../package.json"

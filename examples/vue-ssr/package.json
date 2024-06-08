@@ -17,13 +17,13 @@
     "cf-release": "cd misc/cloudflare-workers && wrangler deploy"
   },
   "dependencies": {
-    "vue": "^3.4.27"
+    "vue": "^3.4.23"
   },
   "devDependencies": {
     "@hiogawa/vite-plugin-ssr-middleware-alpha": "workspace:*",
     "@hiogawa/vite-plugin-workerd": "workspace:*",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "vue-tsc": "^2.0.19"
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vue-tsc": "^2.0.13"
   },
   "volta": {
     "extends": "../../package.json"
