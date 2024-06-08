@@ -4,12 +4,16 @@ import { sleep } from "@hiogawa/utils";
 
 let count = 0;
 
+console.log("[imported]", import.meta.url);
+
 export function getCounter() {
+  console.log("[getCounter]", { count });
   return count;
 }
 
 export function changeCounter(formData: FormData) {
   count += Number(formData.get("value"));
+  console.log("[changeCounter]", { count });
 }
 
 type CheckAnswerState = {
