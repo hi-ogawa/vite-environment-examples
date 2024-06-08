@@ -89,7 +89,7 @@ export function GlobalProgress() {
   return (
     <span
       style={{
-        transition: "opacity 200ms 200ms",
+        transition: "opacity 200ms 100ms",
         opacity: isPending ? "1.0" : "0",
       }}
     >
