@@ -10,7 +10,7 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "react": "18.3.0-canary-6c3b8dbfe-20240226",
-    "react-dom": "18.3.0-canary-6c3b8dbfe-20240226"
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   }
 }

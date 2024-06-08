@@ -13,17 +13,17 @@
     "build": "tsup --clean"
   },
   "dependencies": {
-    "miniflare": "^3.20240404.0",
-    "wrangler": "^3.48.0",
-    "vite": "*"
+    "miniflare": "^3.20240605.0",
+    "vite": "6.0.0-alpha.18",
+    "wrangler": "^3.60.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240405.0"
+    "@cloudflare/workers-types": "^4.20240605.0"
   },
   "peerDependencies": {
     "miniflare": "*",
-    "wrangler": "*",
-    "vite": "*"
+    "vite": "*",
+    "wrangler": "*"
   },
   "peerDependenciesMeta": {
     "wrangler": {
