@@ -6,7 +6,7 @@
     "build": "pnpm '--filter=./packages/*' build",
     "tsc": "tsc -b packages/*/tsconfig.json examples/*/tsconfig.json",
     "tsc-dev": "pnpm tsc --watch --preserveWatchOutput",
-    "lint": "biome check --write .",
+    "lint": "biome check --apply .",
     "lint-check": "biome check ."
   },
   "devDependencies": {
