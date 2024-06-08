@@ -1,10 +1,6 @@
 import { fileURLToPath } from "url";
 import { tinyassert } from "@hiogawa/utils";
-import {
-  createNodeDevEnvironment,
-  createServer,
-  createServerModuleRunner,
-} from "vite";
+import { createServer, createServerModuleRunner } from "vite";
 
 const server = await createServer({
   clearScreen: false,
@@ -13,7 +9,6 @@ const server = await createServer({
   environments: {
     custom: {
       dev: {
-        createEnvironment: createNodeDevEnvironment,
         optimizeDeps: {
           include: ["react", "react-dom"],
         },
