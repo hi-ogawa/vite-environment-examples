@@ -316,6 +316,9 @@ function vitePluginServerAction(): PluginOption {
       }
       const ast = await parseAstAsync(code);
       tinyassert(this.environment);
+      if (id.startsWith(this.environment.config.root)) {
+        id = id.slice(this.environment.config.root.length);
+      }
       if (this.environment.name === "react-server") {
         const { output } = await transformServerActionServer(code, ast, {
           id,
