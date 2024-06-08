@@ -51,7 +51,6 @@ function NavLink(props: React.ComponentProps<typeof Link>) {
       {...props}
       style={{ textDecoration: "none" }}
       activeProps={{ style: {} }}
-      pendingProps={{ style: { opacity: 0.5 } }}
     />
   );
 }
