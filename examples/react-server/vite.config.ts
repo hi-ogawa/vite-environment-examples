@@ -400,9 +400,13 @@ function vitePluginServerAction(): PluginOption {
   return [transformPlugin, virtualServerReference, patchPlugin];
 }
 
-async function normalizeReferenceId(id: string, name: string) {
+async function normalizeReferenceId(
+  id: string,
+  name: "client" | "react-server",
+) {
   if (manager.config.command === "build") {
-    return path.relative(id, manager.config.root);
+    // TODO: relative + hash
+    return id;
   }
 
   // need to align with what Vite import analysis would rewrite
