@@ -316,6 +316,7 @@ function vitePluginServerAction(): PluginOption {
       }
       const ast = await parseAstAsync(code);
       tinyassert(this.environment);
+      // TODO: workaround https://github.com/hi-ogawa/vite-environment-examples/pull/91
       if (id.startsWith(this.environment.config.root)) {
         id = id.slice(this.environment.config.root.length);
       }
