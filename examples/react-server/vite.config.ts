@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import path from "node:path";
 import {
   transformDirectiveProxyExport,
   transformServerActionServer,
@@ -8,9 +8,9 @@ import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
 import react from "@vitejs/plugin-react";
 import {
-  DevEnvironment,
   type Plugin,
   type PluginOption,
+  type ResolvedConfig,
   createServerModuleRunner,
   defineConfig,
   parseAstAsync,
@@ -40,7 +40,7 @@ export default defineConfig((_env) => ({
     vitePluginLogger(),
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
-      preview: resolve("./dist/ssr/index.js"),
+      preview: path.resolve("./dist/ssr/index.js"),
     }),
     !!process.env["VITEST"] && vitePluginTestReactServerStream(),
   ],
@@ -104,9 +104,19 @@ export default defineConfig((_env) => ({
 
 // singleton to survive multiple environment builds
 class PluginStateManager {
+  config!: ResolvedConfig;
   buildStep?: "scan";
   clientReferences = new Set<string>();
   serverReferences = new Set<string>();
+  // TODO
+  clientReferenceMap = new Map<
+    string,
+    { normalied: string; runtime: string }
+  >();
+  serverReferenceMap = new Map<
+    string,
+    { normalied: string; runtime: string }
+  >();
 }
 
 export type { PluginStateManager };
@@ -148,6 +158,9 @@ function vitePluginReactServer(): PluginOption {
           },
         },
       };
+    },
+    configResolved(config) {
+      manager.config = config;
     },
     async configureServer(server) {
       const reactServerEnv = server.environments["react-server"];
@@ -192,6 +205,7 @@ function vitePluginReactServer(): PluginOption {
     vitePluginServerAction(),
     vitePluginEntryBootstrap(),
     vitePluginServerCss({ manager }),
+    virtualNormalizeUrlPlugin(),
   ];
 }
 
@@ -220,10 +234,7 @@ function vitePluginUseClient(): PluginOption {
         const ast = await parseAstAsync(code);
         let output = await transformDirectiveProxyExport(ast, {
           directive: "use client",
-          id:
-            this.environment.mode === "dev"
-              ? await normalizeUrl(id, $__global.server.environments.client)
-              : id,
+          id: await normalizeReferenceId(id, "client"),
           runtime: "$$register",
         });
         if (output) {
@@ -236,36 +247,6 @@ function vitePluginUseClient(): PluginOption {
           );
           return { code: output.toString(), map: output.generateMap() };
         }
-      }
-      return;
-    },
-  };
-
-  // need to align with what Vite import analysis would rewrite
-  // to avoid double modules on browser and ssr.
-  async function normalizeUrl(id: string, devEnv: DevEnvironment) {
-    const transformed = await devEnv.transformRequest(
-      "virtual:normalize-url/" + encodeURIComponent(id),
-    );
-    tinyassert(transformed);
-    const m = transformed.code.match(/import\("(.*)"\)/);
-    tinyassert(m && 1 in m);
-    return m[1];
-  }
-
-  const normalizeUrlVirtualPlugin: Plugin = {
-    name: vitePluginUseClient.name + "normalize-url-virtual",
-    resolveId(source, _importer, _options) {
-      if (source.startsWith("virtual:normalize-url/")) {
-        return "\0" + source;
-      }
-      return;
-    },
-    load(id, _options) {
-      if (id.startsWith("\0virtual:normalize-url/")) {
-        id = id.slice("\0virtual:normalize-url/".length);
-        id = decodeURIComponent(id);
-        return `export default () => import("${id}")`;
       }
       return;
     },
@@ -295,7 +276,7 @@ function vitePluginUseClient(): PluginOption {
     },
   );
 
-  return [transformPlugin, virtualPlugin, normalizeUrlVirtualPlugin];
+  return [transformPlugin, virtualPlugin];
 }
 
 function vitePluginServerAction(): PluginOption {
@@ -417,4 +398,42 @@ function vitePluginServerAction(): PluginOption {
   };
 
   return [transformPlugin, virtualServerReference, patchPlugin];
+}
+
+async function normalizeReferenceId(id: string, name: string) {
+  if (manager.config.command === "build") {
+    return path.relative(id, manager.config.root);
+  }
+
+  // need to align with what Vite import analysis would rewrite
+  // to avoid double modules on browser and ssr.
+  const transformed = await $__global.server.environments[
+    name
+  ].transformRequest("virtual:normalize-url/" + encodeURIComponent(id));
+  tinyassert(transformed);
+  const m = transformed.code.match(/import\("(.*)"\)/);
+  tinyassert(m && 1 in m);
+  const runtimeId = m[1];
+  return runtimeId;
+}
+
+function virtualNormalizeUrlPlugin(): Plugin {
+  return {
+    name: virtualNormalizeUrlPlugin.name,
+    apply: "serve",
+    resolveId(source, _importer, _options) {
+      if (source.startsWith("virtual:normalize-url/")) {
+        return "\0" + source;
+      }
+      return;
+    },
+    load(id, _options) {
+      if (id.startsWith("\0virtual:normalize-url/")) {
+        id = id.slice("\0virtual:normalize-url/".length);
+        id = decodeURIComponent(id);
+        return `export default () => import("${id}")`;
+      }
+      return;
+    },
+  };
 }
