@@ -225,6 +225,8 @@ importers:
         specifier: 6.0.0-alpha.16
         version: 6.0.0-alpha.16(@types/node@20.11.30)
 
+  examples/remote-runner: {}
+
   packages/workerd:
     dependencies:
       miniflare:
