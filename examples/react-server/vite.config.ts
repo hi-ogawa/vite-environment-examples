@@ -121,6 +121,10 @@ class PluginStateManager {
 
 export type { PluginStateManager };
 
+if (!process.argv.includes("build")) {
+  delete (globalThis as any).__VITE_REACT_SERVER_MANAGER;
+}
+
 const manager: PluginStateManager = ((
   globalThis as any
 ).__VITE_REACT_SERVER_MANAGER ??= new PluginStateManager());
