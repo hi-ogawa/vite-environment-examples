@@ -20,14 +20,14 @@
     "react-server-dom-webpack": "19.0.0-rc-4c2e457c7c-20240522"
   },
   "devDependencies": {
-    "@hiogawa/transforms": "0.0.0-pre.8",
+    "@hiogawa/transforms": "0.0.0",
     "@hiogawa/vite-plugin-ssr-middleware-alpha": "workspace:*",
     "@types/estree": "^1.0.5",
-    "@types/react": "18.3.1",
+    "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
-    "happy-dom": "^14.7.1",
+    "happy-dom": "^14.12.3",
     "magic-string": "^0.30.10",
-    "unocss": "0.58.9"
+    "unocss": "0.61.5"
   },
   "volta": {
     "extends": "../../package.json"

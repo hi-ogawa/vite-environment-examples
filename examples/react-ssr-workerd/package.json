@@ -11,9 +11,9 @@
     "react-dom": "19.0.0-rc-4c2e457c7c-20240522"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240405.0",
+    "@cloudflare/workers-types": "^4.20240718.0",
     "@hiogawa/vite-plugin-workerd": "workspace:*",
-    "@types/react": "18.3.1",
+    "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0"
   },
   "volta": {
