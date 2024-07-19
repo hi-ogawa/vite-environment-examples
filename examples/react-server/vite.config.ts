@@ -102,18 +102,18 @@ export default defineConfig((_env) => ({
   },
 }));
 
-// singleton to pass data through environment build
-class ReactServerPluginManager {
+// singleton to survive multiple environment builds
+class PluginStateManager {
   buildStep?: "scan";
   clientReferences = new Set<string>();
   serverReferences = new Set<string>();
 }
 
-export type { ReactServerPluginManager };
+export type { PluginStateManager };
 
-const manager: ReactServerPluginManager = ((
+const manager: PluginStateManager = ((
   globalThis as any
-).__VITE_REACT_SERVER_MANAGER ??= new ReactServerPluginManager());
+).__VITE_REACT_SERVER_MANAGER ??= new PluginStateManager());
 
 function vitePluginReactServer(): PluginOption {
   const environmentPlugin: Plugin = {

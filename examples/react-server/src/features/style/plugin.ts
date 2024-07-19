@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { tinyassert } from "@hiogawa/utils";
 import type { DevEnvironment, Manifest, PluginOption } from "vite";
-import type { ReactServerPluginManager } from "../../../vite.config";
+import type { PluginStateManager } from "../../../vite.config";
 import { $__global } from "../../global";
 import { ENTRY_BROWSER_BOOTSTRAP } from "../bootstrap/plugin";
 import { createVirtualPlugin } from "../utils/plugin";
@@ -12,7 +12,7 @@ export const VIRTUAL_COPY_SERVER_CSS = "virtual:copy-server-css.js";
 export function vitePluginServerCss({
   manager,
 }: {
-  manager: ReactServerPluginManager;
+  manager: PluginStateManager;
 }): PluginOption {
   return [
     //
