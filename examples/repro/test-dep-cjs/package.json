@@ -1,0 +1,5 @@
+{
+  "name": "test-deps-cjs",
+  "type": "commonjs",
+  "exports": "./index.js"
+}

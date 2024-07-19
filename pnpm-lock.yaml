@@ -153,6 +153,12 @@ importers:
         specifier: 18.3.0
         version: 18.3.0
 
+  examples/repro:
+    dependencies:
+      test-dep-cjs:
+        specifier: file:./test-dep-cjs
+        version: test-deps-cjs@file:examples/repro/test-dep-cjs
+
   examples/vue-ssr:
     dependencies:
       vue:
@@ -2383,6 +2389,9 @@ packages:
     resolution: {integrity: sha512-pAfYn3NIZLyZpa83ZKigvj6Rn9c/vd5KfYGX7cN1mnzqgDcxWvrU5ZtAfIKhEXz9nRecw4z3LXkjaq96/qZqAA==}
     engines: {node: '>=10'}
     hasBin: true
+
+  test-deps-cjs@file:examples/repro/test-dep-cjs:
+    resolution: {directory: examples/repro/test-dep-cjs, type: directory}
 
   thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
@@ -4788,6 +4797,8 @@ snapshots:
       acorn: 8.12.1
       commander: 2.20.3
       source-map-support: 0.5.21
+
+  test-deps-cjs@file:examples/repro/test-dep-cjs: {}
 
   thenify-all@1.6.0:
     dependencies:

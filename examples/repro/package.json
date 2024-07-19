@@ -1,0 +1,15 @@
+{
+  "name": "@hiogawa/vite-environment-examples-repro",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "repro": "tsx src/repro.ts"
+  },
+  "dependencies": {
+    "test-dep-cjs": "file:./test-dep-cjs"
+  },
+  "devDependencies": {},
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
