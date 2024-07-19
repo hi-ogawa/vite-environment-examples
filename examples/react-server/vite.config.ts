@@ -449,5 +449,5 @@ function virtualNormalizeUrlPlugin(): Plugin {
 }
 
 export function hashString(v: string) {
-  return createHash("sha256").update(v).digest().toString("hex").slice(0, 10);
+  return createHash("sha256").update(v).digest().toString("hex");
 }
