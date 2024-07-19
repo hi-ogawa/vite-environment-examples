@@ -51,6 +51,15 @@ export default defineConfig((_env) => ({
         optimizeDeps: {
           // [feedback] no optimizeDeps.entries for initial scan?
           // entries: []
+          include: [
+            "react",
+            "react/jsx-runtime",
+            "react/jsx-dev-runtime",
+            "react-dom",
+            "react-dom/client",
+            "react-server-dom-webpack/client.browser",
+            "@hiogawa/utils",
+          ],
         },
       },
       build: {
