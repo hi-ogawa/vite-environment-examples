@@ -6,9 +6,11 @@
     "build": "pnpm '--filter=./packages/*' build",
     "tsc": "tsc -b packages/*/tsconfig.json examples/*/tsconfig.json",
     "tsc-dev": "pnpm tsc --watch --preserveWatchOutput",
-    "test:vite-ecosystem-ci": "bash misc/vite-ecosystem-ci.sh",
     "lint": "biome check --write .",
-    "lint-check": "biome check ."
+    "lint-check": "biome check .",
+    "vite-ecosystem-ci:build": "pnpm build",
+    "vite-ecosystem-ci:before-test": "playwright install chromium",
+    "vite-ecosystem-ci:test": "bash misc/vite-ecosystem-ci.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
