@@ -6,6 +6,7 @@
     "build": "pnpm '--filter=./packages/*' build",
     "tsc": "tsc -b packages/*/tsconfig.json examples/*/tsconfig.json",
     "tsc-dev": "pnpm tsc --watch --preserveWatchOutput",
+    "test:vite-ecosystem-ci": "bash misc/vite-ecosystem-ci.sh",
     "lint": "biome check --write .",
     "lint-check": "biome check ."
   },
