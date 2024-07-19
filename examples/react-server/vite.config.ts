@@ -1,4 +1,5 @@
-import { resolve } from "node:path";
+import { createHash } from "node:crypto";
+import path from "node:path";
 import {
   transformDirectiveProxyExport,
   transformServerActionServer,
@@ -8,9 +9,9 @@ import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
 import react from "@vitejs/plugin-react";
 import {
-  DevEnvironment,
   type Plugin,
   type PluginOption,
+  type ResolvedConfig,
   createServerModuleRunner,
   defineConfig,
   parseAstAsync,
@@ -40,7 +41,7 @@ export default defineConfig((_env) => ({
     vitePluginLogger(),
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
-      preview: resolve("./dist/ssr/index.js"),
+      preview: path.resolve("./dist/ssr/index.js"),
     }),
     !!process.env["VITEST"] && vitePluginTestReactServerStream(),
   ],
@@ -102,18 +103,23 @@ export default defineConfig((_env) => ({
   },
 }));
 
-// singleton to pass data through environment build
-class ReactServerPluginManager {
+// singleton to survive multiple environment builds
+class PluginStateManager {
+  config!: ResolvedConfig;
   buildStep?: "scan";
-  clientReferences = new Set<string>();
-  serverReferences = new Set<string>();
+  clientReferenceMap = new Map<string, string>();
+  serverReferenceMap = new Map<string, string>();
 }
 
-export type { ReactServerPluginManager };
+export type { PluginStateManager };
 
-const manager: ReactServerPluginManager = ((
+if (!process.argv.includes("build")) {
+  delete (globalThis as any).__VITE_REACT_SERVER_MANAGER;
+}
+
+const manager: PluginStateManager = ((
   globalThis as any
-).__VITE_REACT_SERVER_MANAGER ??= new ReactServerPluginManager());
+).__VITE_REACT_SERVER_MANAGER ??= new PluginStateManager());
 
 function vitePluginReactServer(): PluginOption {
   const environmentPlugin: Plugin = {
@@ -149,6 +155,9 @@ function vitePluginReactServer(): PluginOption {
         },
       };
     },
+    configResolved(config) {
+      manager.config = config;
+    },
     async configureServer(server) {
       const reactServerEnv = server.environments["react-server"];
       tinyassert(reactServerEnv);
@@ -168,7 +177,7 @@ function vitePluginReactServer(): PluginOption {
           });
           // client reference id is also in react server module graph,
           // but we skip RSC HMR for this case since Client HMR handles it.
-          if (!ids.some((id) => manager.clientReferences.has(id))) {
+          if (!ids.some((id) => manager.clientReferenceMap.has(id))) {
             console.log("[react-server:hmr]", ctx.file);
             $__global.server.environments.client.hot.send({
               type: "custom",
@@ -192,6 +201,7 @@ function vitePluginReactServer(): PluginOption {
     vitePluginServerAction(),
     vitePluginEntryBootstrap(),
     vitePluginServerCss({ manager }),
+    virtualNormalizeUrlPlugin(),
   ];
 }
 
@@ -211,23 +221,20 @@ function vitePluginUseClient(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
-      tinyassert(this.environment);
       if (this.environment.name !== "react-server") {
         return;
       }
-      manager.clientReferences.delete(id);
+      manager.clientReferenceMap.delete(id);
       if (code.includes("use client")) {
+        const runtimeId = await normalizeReferenceId(id, "react-server");
         const ast = await parseAstAsync(code);
         let output = await transformDirectiveProxyExport(ast, {
           directive: "use client",
-          id:
-            this.environment.mode === "dev"
-              ? await normalizeUrl(id, $__global.server.environments.client)
-              : id,
+          id: runtimeId,
           runtime: "$$register",
         });
         if (output) {
-          manager.clientReferences.add(id);
+          manager.clientReferenceMap.set(id, runtimeId);
           if (manager.buildStep === "scan") {
             return;
           }
@@ -236,36 +243,6 @@ function vitePluginUseClient(): PluginOption {
           );
           return { code: output.toString(), map: output.generateMap() };
         }
-      }
-      return;
-    },
-  };
-
-  // need to align with what Vite import analysis would rewrite
-  // to avoid double modules on browser and ssr.
-  async function normalizeUrl(id: string, devEnv: DevEnvironment) {
-    const transformed = await devEnv.transformRequest(
-      "virtual:normalize-url/" + encodeURIComponent(id),
-    );
-    tinyassert(transformed);
-    const m = transformed.code.match(/import\("(.*)"\)/);
-    tinyassert(m && 1 in m);
-    return m[1];
-  }
-
-  const normalizeUrlVirtualPlugin: Plugin = {
-    name: vitePluginUseClient.name + "normalize-url-virtual",
-    resolveId(source, _importer, _options) {
-      if (source.startsWith("virtual:normalize-url/")) {
-        return "\0" + source;
-      }
-      return;
-    },
-    load(id, _options) {
-      if (id.startsWith("\0virtual:normalize-url/")) {
-        id = id.slice("\0virtual:normalize-url/".length);
-        id = decodeURIComponent(id);
-        return `export default () => import("${id}")`;
       }
       return;
     },
@@ -285,17 +262,18 @@ function vitePluginUseClient(): PluginOption {
     function () {
       tinyassert(this.environment?.name !== "react-server");
       tinyassert(this.environment?.mode === "build");
+
       return [
         `export default {`,
-        ...Array.from(manager.clientReferences).map(
-          (id) => `"${id}": () => import("${id}"),`,
+        ...[...manager.clientReferenceMap.entries()].map(
+          ([id, runtimeId]) => `"${runtimeId}": () => import("${id}"),\n`,
         ),
         `}`,
       ].join("\n");
     },
   );
 
-  return [transformPlugin, virtualPlugin, normalizeUrlVirtualPlugin];
+  return [transformPlugin, virtualPlugin];
 }
 
 function vitePluginServerAction(): PluginOption {
@@ -320,22 +298,19 @@ function vitePluginServerAction(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginServerAction.name + ":transform",
     async transform(code, id) {
-      if (!code.includes("use server")) {
+      if (!code.includes("use server") || id.includes("/.vite/deps/")) {
         return;
       }
       const ast = await parseAstAsync(code);
       tinyassert(this.environment);
-      // TODO: workaround https://github.com/hi-ogawa/vite-environment-examples/pull/91
-      if (id.startsWith(this.environment.config.root)) {
-        id = id.slice(this.environment.config.root.length);
-      }
+      const runtimeId = await normalizeReferenceId(id, "react-server");
       if (this.environment.name === "react-server") {
         const { output } = await transformServerActionServer(code, ast, {
-          id,
+          id: runtimeId,
           runtime: "$$register",
         });
         if (output.hasChanged()) {
-          manager.serverReferences.add(id);
+          manager.serverReferenceMap.set(id, runtimeId);
           output.prepend(
             `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`,
           );
@@ -343,12 +318,12 @@ function vitePluginServerAction(): PluginOption {
         }
       } else {
         let output = await transformDirectiveProxyExport(ast, {
-          id,
+          id: runtimeId,
           runtime: "$$proxy",
           directive: "use server",
         });
         if (output) {
-          manager.serverReferences.add(id);
+          manager.serverReferenceMap.set(id, runtimeId);
           const runtime =
             this.environment.name === "client" ? "browser" : "ssr";
           output.prepend(
@@ -378,10 +353,11 @@ function vitePluginServerAction(): PluginOption {
       }
       tinyassert(this.environment?.name === "react-server");
       tinyassert(this.environment.mode === "build");
-      const ids = [...manager.serverReferences];
       return [
         "export default {",
-        ...ids.map((id) => `"${id}": () => import("${id}"),\n`),
+        ...[...manager.serverReferenceMap.entries()].map(
+          ([id, runtimeId]) => `"${runtimeId}": () => import("${id}"),\n`,
+        ),
         "}",
       ].join("\n");
     },
@@ -417,4 +393,61 @@ function vitePluginServerAction(): PluginOption {
   };
 
   return [transformPlugin, virtualServerReference, patchPlugin];
+}
+
+async function normalizeReferenceId(
+  id: string,
+  name: "client" | "react-server",
+) {
+  if (manager.config.command === "build") {
+    return hashString(path.relative(manager.config.root, id));
+  }
+
+  // need to align with what Vite import analysis would rewrite
+  // to avoid double modules on browser and ssr.
+  const devEnv = $__global.server.environments[name];
+  const transformed = await devEnv.transformRequest(
+    "virtual:normalize-url/" + encodeURIComponent(id),
+  );
+  tinyassert(transformed);
+  let runtimeId: string | undefined;
+  switch (name) {
+    case "client": {
+      const m = transformed.code.match(/import\("(.*)"\)/);
+      runtimeId = m?.[1];
+      break;
+    }
+    case "react-server": {
+      // `dynamicDeps` is available for ssrTransform
+      runtimeId = transformed.dynamicDeps?.[0];
+      break;
+    }
+  }
+  tinyassert(runtimeId);
+  return runtimeId;
+}
+
+function virtualNormalizeUrlPlugin(): Plugin {
+  return {
+    name: virtualNormalizeUrlPlugin.name,
+    apply: "serve",
+    resolveId(source, _importer, _options) {
+      if (source.startsWith("virtual:normalize-url/")) {
+        return "\0" + source;
+      }
+      return;
+    },
+    load(id, _options) {
+      if (id.startsWith("\0virtual:normalize-url/")) {
+        id = id.slice("\0virtual:normalize-url/".length);
+        id = decodeURIComponent(id);
+        return `export default () => import("${id}")`;
+      }
+      return;
+    },
+  };
+}
+
+export function hashString(v: string) {
+  return createHash("sha256").update(v).digest().toString("hex");
 }
