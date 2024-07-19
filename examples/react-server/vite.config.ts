@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import path from "node:path";
 import {
   transformDirectiveProxyExport,
@@ -106,17 +107,8 @@ export default defineConfig((_env) => ({
 class PluginStateManager {
   config!: ResolvedConfig;
   buildStep?: "scan";
-  clientReferences = new Set<string>();
-  serverReferences = new Set<string>();
-  // TODO
-  clientReferenceMap = new Map<
-    string,
-    { normalied: string; runtime: string }
-  >();
-  serverReferenceMap = new Map<
-    string,
-    { normalied: string; runtime: string }
-  >();
+  clientReferenceMap = new Map<string, string>();
+  serverReferenceMap = new Map<string, string>();
 }
 
 export type { PluginStateManager };
@@ -185,7 +177,7 @@ function vitePluginReactServer(): PluginOption {
           });
           // client reference id is also in react server module graph,
           // but we skip RSC HMR for this case since Client HMR handles it.
-          if (!ids.some((id) => manager.clientReferences.has(id))) {
+          if (!ids.some((id) => manager.clientReferenceMap.has(id))) {
             console.log("[react-server:hmr]", ctx.file);
             $__global.server.environments.client.hot.send({
               type: "custom",
@@ -229,20 +221,20 @@ function vitePluginUseClient(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
-      tinyassert(this.environment);
       if (this.environment.name !== "react-server") {
         return;
       }
-      manager.clientReferences.delete(id);
+      manager.clientReferenceMap.delete(id);
       if (code.includes("use client")) {
+        const runtimeId = await normalizeReferenceId(id, "react-server");
         const ast = await parseAstAsync(code);
         let output = await transformDirectiveProxyExport(ast, {
           directive: "use client",
-          id: await normalizeReferenceId(id, "client"),
+          id: runtimeId,
           runtime: "$$register",
         });
         if (output) {
-          manager.clientReferences.add(id);
+          manager.clientReferenceMap.set(id, runtimeId);
           if (manager.buildStep === "scan") {
             return;
           }
@@ -270,10 +262,11 @@ function vitePluginUseClient(): PluginOption {
     function () {
       tinyassert(this.environment?.name !== "react-server");
       tinyassert(this.environment?.mode === "build");
+
       return [
         `export default {`,
-        ...Array.from(manager.clientReferences).map(
-          (id) => `"${id}": () => import("${id}"),`,
+        ...[...manager.clientReferenceMap.entries()].map(
+          ([id, runtimeId]) => `"${runtimeId}": () => import("${id}"),\n`,
         ),
         `}`,
       ].join("\n");
@@ -305,18 +298,19 @@ function vitePluginServerAction(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginServerAction.name + ":transform",
     async transform(code, id) {
-      if (!code.includes("use server")) {
+      if (!code.includes("use server") || id.includes("/.vite/deps/")) {
         return;
       }
       const ast = await parseAstAsync(code);
       tinyassert(this.environment);
+      const runtimeId = await normalizeReferenceId(id, "react-server");
       if (this.environment.name === "react-server") {
         const { output } = await transformServerActionServer(code, ast, {
-          id: await normalizeReferenceId(id, "react-server"),
+          id: runtimeId,
           runtime: "$$register",
         });
         if (output.hasChanged()) {
-          manager.serverReferences.add(id);
+          manager.serverReferenceMap.set(id, runtimeId);
           output.prepend(
             `import { registerServerReference as $$register } from "/src/features/server-action/server";\n`,
           );
@@ -324,12 +318,12 @@ function vitePluginServerAction(): PluginOption {
         }
       } else {
         let output = await transformDirectiveProxyExport(ast, {
-          id,
+          id: runtimeId,
           runtime: "$$proxy",
           directive: "use server",
         });
         if (output) {
-          manager.serverReferences.add(id);
+          manager.serverReferenceMap.set(id, runtimeId);
           const runtime =
             this.environment.name === "client" ? "browser" : "ssr";
           output.prepend(
@@ -359,10 +353,11 @@ function vitePluginServerAction(): PluginOption {
       }
       tinyassert(this.environment?.name === "react-server");
       tinyassert(this.environment.mode === "build");
-      const ids = [...manager.serverReferences];
       return [
         "export default {",
-        ...ids.map((id) => `"${id}": () => import("${id}"),\n`),
+        ...[...manager.serverReferenceMap.entries()].map(
+          ([id, runtimeId]) => `"${runtimeId}": () => import("${id}"),\n`,
+        ),
         "}",
       ].join("\n");
     },
@@ -405,8 +400,7 @@ async function normalizeReferenceId(
   name: "client" | "react-server",
 ) {
   if (manager.config.command === "build") {
-    // TODO: relative + hash
-    return id;
+    return hashString(path.relative(manager.config.root, id));
   }
 
   // need to align with what Vite import analysis would rewrite
@@ -452,4 +446,8 @@ function virtualNormalizeUrlPlugin(): Plugin {
       return;
     },
   };
+}
+
+export function hashString(v: string) {
+  return createHash("sha256").update(v).digest().toString("hex").slice(0, 10);
 }
