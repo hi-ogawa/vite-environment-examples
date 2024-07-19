@@ -1,27 +1,41 @@
-# workerd-cli
+# repro
 
 ```sh
-$ pnpm cli
-[mf:inf] Ready on http://127.0.0.1:44031
+$ pnpm -C examples/repro repro
 
-> env
-{ kv: KvNamespace {} }
+> @hiogawa/vite-environment-examples-repro@ repro /home/hiroshi/code/personal/vite-environment-examples/examples/repro
+> tsx src/repro.ts
 
-> env.kv.list()
-{ keys: [], list_complete: true, cacheStatus: null }
+6:00:18 PM [vite] (ssr) Error when evaluating SSR module /entry:
+|- ReferenceError: module is not defined
+    at eval (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/test-deps-cjs@file+examples+repro+test-dep-cjs/node_modules/test-deps-cjs/index.js:1:8)
+    at ESModulesEvaluator.runInlinedModule (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:1007:6)
+    at ModuleRunner.directRequest (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:980:82)
+    at ModuleRunner.cachedRequest (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:895:28)
+    at request (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:930:116)
+    at async eval (/home/hiroshi/code/personal/vite-environment-examples/examples/repro/src/entry.js:3:44)
+    at ESModulesEvaluator.runInlinedModule (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:999:5)
+    at ModuleRunner.directRequest (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:980:61)
+    at ModuleRunner.cachedRequest (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:896:76)
+    at ModuleRunner.import (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:843:12)
 
-> env.kv.put("hello", "world")
+node:internal/process/promises:289
+            triggerUncaughtException(err, true /* fromPromise */);
+            ^
 
-> env.kv.list()
-{ keys: [ { name: 'hello' } ], list_complete: true, cacheStatus: null }
+ReferenceError: module is not defined
+    at eval (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/test-deps-cjs@file+examples+repro+test-dep-cjs/node_modules/test-deps-cjs/index.js:1:8)
+    at ESModulesEvaluator.runInlinedModule (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:1007:6)
+    at ModuleRunner.directRequest (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:980:82)
+    at ModuleRunner.cachedRequest (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:895:28)
+    at request (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:930:116)
+    at async eval (/home/hiroshi/code/personal/vite-environment-examples/examples/repro/src/entry.js:3:44)
+    at ESModulesEvaluator.runInlinedModule (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:999:5)
+    at ModuleRunner.directRequest (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:980:61)
+    at ModuleRunner.cachedRequest (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:896:76)
+    at ModuleRunner.import (/home/hiroshi/code/personal/vite-environment-examples/node_modules/.pnpm/vite@6.0.0-alpha.18_@types+node@20.14.11_terser@5.31.3/node_modules/vite/dist/node/module-runner.js:843:12)
 
-> env.kv.get("hello")
-world
+Node.js v20.12.0
+ ELIFECYCLE  Command failed with exit code 1.
 
-> (await import("/wrangler.toml?raw")).default
-compatibility_date = "2024-01-01"
-compatibility_flags = ["nodejs_compat"]
-kv_namespaces = [
-  { binding = "kv", id = "test-namespace" }
-]
 ```
