@@ -310,13 +310,9 @@ function vitePluginServerAction(): PluginOption {
       }
       const ast = await parseAstAsync(code);
       tinyassert(this.environment);
-      // TODO: workaround https://github.com/hi-ogawa/vite-environment-examples/pull/91
-      if (id.startsWith(this.environment.config.root)) {
-        id = id.slice(this.environment.config.root.length);
-      }
       if (this.environment.name === "react-server") {
         const { output } = await transformServerActionServer(code, ast, {
-          id,
+          id: await normalizeReferenceId(id, "react-server"),
           runtime: "$$register",
         });
         if (output.hasChanged()) {
@@ -420,9 +416,20 @@ async function normalizeReferenceId(
     "virtual:normalize-url/" + encodeURIComponent(id),
   );
   tinyassert(transformed);
-  const m = transformed.code.match(/import\("(.*)"\)/);
-  tinyassert(m && 1 in m);
-  const runtimeId = m[1];
+  let runtimeId: string | undefined;
+  switch (name) {
+    case "client": {
+      const m = transformed.code.match(/import\("(.*)"\)/);
+      runtimeId = m?.[1];
+      break;
+    }
+    case "react-server": {
+      // `dynamicDeps` is available for ssrTransform
+      runtimeId = transformed.dynamicDeps?.[0];
+      break;
+    }
+  }
+  tinyassert(runtimeId);
   return runtimeId;
 }
 
