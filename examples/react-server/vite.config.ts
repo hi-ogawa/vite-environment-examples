@@ -407,9 +407,10 @@ async function normalizeReferenceId(id: string, name: string) {
 
   // need to align with what Vite import analysis would rewrite
   // to avoid double modules on browser and ssr.
-  const transformed = await $__global.server.environments[
-    name
-  ].transformRequest("virtual:normalize-url/" + encodeURIComponent(id));
+  const devEnv = $__global.server.environments[name];
+  const transformed = await devEnv.transformRequest(
+    "virtual:normalize-url/" + encodeURIComponent(id),
+  );
   tinyassert(transformed);
   const m = transformed.code.match(/import\("(.*)"\)/);
   tinyassert(m && 1 in m);
