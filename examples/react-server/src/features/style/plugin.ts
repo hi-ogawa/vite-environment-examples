@@ -66,7 +66,7 @@ export function vitePluginServerCss({
       return collectStyle($__global.server.environments["client"], [
         ENTRY_BROWSER_BOOTSTRAP,
         // TODO: split css per-route?
-        ...manager.clientReferenceMap.values(),
+        ...manager.clientReferenceMap.keys(),
       ]);
     }),
     //
