@@ -226,7 +226,7 @@ function vitePluginUseClient(): PluginOption {
       }
       manager.clientReferenceMap.delete(id);
       if (code.includes("use client")) {
-        const runtimeId = await normalizeReferenceId(id, "react-server");
+        const runtimeId = await normalizeReferenceId(id, "client");
         const ast = await parseAstAsync(code);
         let output = await transformDirectiveProxyExport(ast, {
           directive: "use client",
