@@ -51,4 +51,10 @@ export default defineConfig((_env) => ({
       },
     },
   },
+  builder: {
+    async buildApp(builder) {
+      await builder.build(builder.environments["client"]!);
+      await builder.build(builder.environments["workerd"]!);
+    },
+  },
 }));

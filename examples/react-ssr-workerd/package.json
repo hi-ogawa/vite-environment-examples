@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --app",
+    "build": "vite build --app && rm -rf dist/client/index.html",
     "preview": "wrangler dev",
     "test-e2e": "playwright test"
   },
