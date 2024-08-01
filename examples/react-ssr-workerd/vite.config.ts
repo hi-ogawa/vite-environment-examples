@@ -24,10 +24,16 @@ export default defineConfig((_env) => ({
     vitePluginVirtualIndexHtml(),
   ],
   environments: {
+    client: {
+      build: {
+        outDir: "dist/client",
+      },
+    },
     workerd: {
       webCompatible: true,
       resolve: {
         noExternal: true,
+        external: ["node:util"],
       },
       dev: {
         optimizeDeps: {
@@ -39,6 +45,16 @@ export default defineConfig((_env) => ({
           ],
         },
       },
+      build: {
+        ssr: true,
+        outDir: "dist/server",
+      },
+    },
+  },
+  builder: {
+    async buildApp(builder) {
+      await builder.build(builder.environments["client"]!);
+      await builder.build(builder.environments["workerd"]!);
     },
   },
 }));
