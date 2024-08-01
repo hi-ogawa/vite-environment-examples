@@ -24,10 +24,16 @@ export default defineConfig((_env) => ({
     vitePluginVirtualIndexHtml(),
   ],
   environments: {
+    client: {
+      build: {
+        outDir: "dist/client",
+      },
+    },
     workerd: {
       webCompatible: true,
       resolve: {
         noExternal: true,
+        external: ["node:util"],
       },
       dev: {
         optimizeDeps: {
@@ -38,6 +44,10 @@ export default defineConfig((_env) => ({
             "react-dom/server.edge",
           ],
         },
+      },
+      build: {
+        ssr: true,
+        outDir: "dist/server",
       },
     },
   },

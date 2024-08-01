@@ -117,7 +117,6 @@ function createRunner(env: RunnerEnv, webSocket: WebSocket) {
         Object.freeze(context.__vite_ssr_exports__);
       },
       async runExternalModule(filepath) {
-        console.log("[runExternalModule]", filepath);
         return import(filepath);
       },
     },
