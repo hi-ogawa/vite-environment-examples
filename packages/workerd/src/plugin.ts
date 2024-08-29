@@ -67,6 +67,7 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
       if (!entry) {
         return;
       }
+      // @ts-ignore https://github.com/vitejs/vite/pull/17967
       const devEnv = server.environments["workerd"] as WorkerdDevEnvironment;
       const nodeMiddleware = createMiddleware(
         (ctx) => devEnv.api.dispatchFetch(entry, ctx.request),
