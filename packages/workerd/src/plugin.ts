@@ -11,7 +11,7 @@ import {
 import {
   type CustomPayload,
   DevEnvironment,
-  type HMRChannel,
+  type HotChannel,
   type Plugin,
   type ResolvedConfig,
 } from "vite";
@@ -165,7 +165,6 @@ export async function createWorkerdDevEnvironment(
 
   // websocket hmr channgel
   const hot = createSimpleHMRChannel({
-    name,
     post: (data) => webSocket.send(data),
     on: (listener) => {
       webSocket.addEventListener("message", listener);
@@ -245,17 +244,15 @@ export async function createWorkerdDevEnvironment(
 // https://github.com/vitejs/vite/blob/feat/environment-api/packages/vite/src/node/server/hmr.ts/#L909-L910
 // https://github.com/vitejs/vite/blob/feat/environment-api/packages/vite/src/node/ssr/runtime/serverHmrConnector.ts/#L33-L34
 function createSimpleHMRChannel(options: {
-  name: string;
   post: (data: any) => any;
   on: (listener: (data: any) => void) => () => void;
   serialize: (v: any) => any;
   deserialize: (v: any) => any;
-}): HMRChannel {
+}): HotChannel {
   const listerMap = new DefaultMap<string, Set<Function>>(() => new Set());
   let dispose: (() => void) | undefined;
 
   return {
-    name: options.name,
     listen() {
       dispose = options.on((data) => {
         const payload = options.deserialize(data) as CustomPayload;

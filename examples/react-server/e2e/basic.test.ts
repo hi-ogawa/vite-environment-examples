@@ -26,20 +26,24 @@ test("client hmr @dev", async ({ page }) => {
   await waitForHydration(page);
 
   using editor = createEditor("src/routes/_client.tsx");
-  await using reloadChecker = await createReloadChecker(page);
 
   await page.getByRole("heading", { name: "Hello Client Component" }).click();
+  await page.getByTestId("client-component").getByText("Count: 0").click();
+  await page
+    .getByTestId("client-component")
+    .getByRole("button", { name: "+" })
+    .click();
+  await page.getByTestId("client-component").getByText("Count: 1").click();
   editor.edit((s) =>
     s.replace("Hello Client Component", "Hello [EDIT] Client Component"),
   );
   await page
     .getByRole("heading", { name: "Hello [EDIT] Client Component" })
     .click();
+  await page.getByTestId("client-component").getByText("Count: 1").click();
 
-  await reloadChecker.check();
   const res = await page.reload();
   await waitForHydration(page);
-  await reloadChecker.reset();
   const resText = await res?.text();
   expect(resText).toContain("Hello [EDIT] Client Component");
 });
@@ -89,6 +93,48 @@ test("shared hmr @dev", async ({ page }) => {
   const resText = await res?.text();
   expect(resText).toContain("Shared [EDIT] Component (<!-- -->server<!-- -->)");
   expect(resText).toContain("Shared [EDIT] Component (<!-- -->client<!-- -->)");
+});
+
+// this is a test to make sure client reference points to the
+// same module as the last browser hmr module
+// cf. https://github.com/hi-ogawa/vite-plugins/pull/316
+test("mixed hmr @dev", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/");
+  await waitForHydration(page);
+
+  // browser hmr
+  using clientFile = createEditor("src/routes/_client.tsx");
+  await page.getByRole("heading", { name: "Hello Client Component" }).click();
+  await page.getByTestId("client-component").getByText("Count: 0").click();
+  await page
+    .getByTestId("client-component")
+    .getByRole("button", { name: "+" })
+    .click();
+  await page.getByTestId("client-component").getByText("Count: 1").click();
+  clientFile.edit((s) =>
+    s.replace("Hello Client Component", "Hello [EDIT] Client Component"),
+  );
+  await page
+    .getByRole("heading", { name: "Hello [EDIT] Client Component" })
+    .click();
+  await page.getByTestId("client-component").getByText("Count: 1").click();
+
+  // server hmr
+  using serverFile = createEditor("src/routes/layout.tsx");
+  await page.getByRole("heading", { name: "Hello Server Component" }).click();
+  serverFile.edit((s) =>
+    s.replace("Hello Server Component", "Hello [EDIT] Server Component"),
+  );
+  await page
+    .getByRole("heading", { name: "Hello [EDIT] Server Component" })
+    .click();
+
+  // client component state should be preserved
+  await page
+    .getByRole("heading", { name: "Hello [EDIT] Client Component" })
+    .click();
+  await page.getByTestId("client-component").getByText("Count: 1").click();
 });
 
 test("server action 1 @js", async ({ page }) => {
@@ -141,6 +187,19 @@ testNoJs("server action 4 @nojs", async ({ page }) => {
   usePageErrorChecker(page);
   await page.goto("/action");
   await testServerAction(page, "counter4");
+});
+
+test("server action 5 @js", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/action");
+  await waitForHydration(page);
+  await testServerAction(page, "counter5");
+});
+
+testNoJs("server action 5 @nojs", async ({ page }) => {
+  usePageErrorChecker(page);
+  await page.goto("/action");
+  await testServerAction(page, "counter5");
 });
 
 async function testServerAction(page: Page, testId: string) {
