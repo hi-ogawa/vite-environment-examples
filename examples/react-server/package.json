@@ -15,9 +15,9 @@
     "cf-release": "cd misc/cloudflare-workers && wrangler deploy"
   },
   "dependencies": {
-    "react": "19.0.0-rc-e56f4ae3-20240830",
-    "react-dom": "19.0.0-rc-e56f4ae3-20240830",
-    "react-server-dom-webpack": "19.0.0-rc-e56f4ae3-20240830"
+    "react": "19.0.0-rc-eb3ad065-20240822",
+    "react-dom": "19.0.0-rc-eb3ad065-20240822",
+    "react-server-dom-webpack": "19.0.0-rc-eb3ad065-20240822"
   },
   "devDependencies": {
     "@hiogawa/transforms": "0.0.0",

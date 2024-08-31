@@ -9,8 +9,8 @@
     "test-e2e": "playwright test"
   },
   "dependencies": {
-    "react": "19.0.0-rc-e56f4ae3-20240830",
-    "react-dom": "19.0.0-rc-e56f4ae3-20240830"
+    "react": "19.0.0-rc-eb3ad065-20240822",
+    "react-dom": "19.0.0-rc-eb3ad065-20240822"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240718.0",
