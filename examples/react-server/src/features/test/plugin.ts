@@ -1,3 +1,4 @@
+import MagicString from "magic-string";
 import type { Plugin } from "vite";
 import { $__global } from "../../global";
 
@@ -6,6 +7,7 @@ export function vitePluginTestReactServerStream(): Plugin {
 
   return {
     name: vitePluginTestReactServerStream.name,
+    enforce: "pre",
     resolveId(source, _importer, _options) {
       if (source.startsWith(prefix)) {
         return "\0" + source;
@@ -34,6 +36,21 @@ export function vitePluginTestReactServerStream(): Plugin {
           }).pipeThrough(new TextEncoderStream());
         `;
         return code;
+      }
+      return;
+    },
+    transform(code) {
+      // Workaround module runner `import.meta.env` usage inside Vitest
+      //   Error: [module runner] Dynamic access of "import.meta.env" is not supported. Please, use "import.meta.env.DEV" instead.
+      if (code.includes("import.meta.env.DEV")) {
+        const output = new MagicString(code);
+        for (const match of code.matchAll(/\bimport\.meta\.env\.DEV\b/dg)) {
+          const [start, end] = match.indices![0];
+          output.update(start, end, "true");
+        }
+        if (output.hasChanged()) {
+          return { code: output.toString(), map: output.generateMap() };
+        }
       }
       return;
     },
