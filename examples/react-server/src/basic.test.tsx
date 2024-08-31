@@ -51,7 +51,7 @@ async function testRender(container: reactDomClient.Container, page: string) {
   await mounted;
 }
 
-test.skip("basic", async () => {
+test("basic", async () => {
   await testRender(document.body, "/src/routes/page");
   expect(document.firstElementChild).toMatchSnapshot();
 });
