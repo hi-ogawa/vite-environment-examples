@@ -19,7 +19,6 @@ test("server error stack", async ({ request }) => {
   expect(res.status()).toBe(500);
 
   let text = await res.text();
-  text = text.replaceAll(/[/].*node_modules/gm, "__NODE_MODULES__");
   text = text.replaceAll(process.cwd(), "__CWD__");
   expect(text).toMatch(`\
 Error: crash ssr
