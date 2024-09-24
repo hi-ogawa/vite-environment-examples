@@ -162,9 +162,8 @@ function vitePluginReactServer(): PluginOption {
     async configureServer(server) {
       const reactServerEnv = server.environments["react-server"];
       tinyassert(reactServerEnv);
-      const reactServerRunner = createServerModuleRunner(reactServerEnv, {
-        hmr: false,
-      });
+      // no hmr setup for custom node environment
+      const reactServerRunner = createServerModuleRunner(reactServerEnv);
       $__global.server = server;
       $__global.reactServerRunner = reactServerRunner;
     },
