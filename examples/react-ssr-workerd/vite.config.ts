@@ -1,3 +1,4 @@
+import { tinyassert } from "@hiogawa/utils";
 import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginWorkerd } from "@hiogawa/vite-plugin-workerd";
 import react from "@vitejs/plugin-react";
@@ -22,6 +23,16 @@ export default defineConfig((_env) => ({
       },
     }),
     vitePluginVirtualIndexHtml(),
+    {
+      name: "test-hot",
+      configureServer(server) {
+        const devEnv = server.environments["workerd"];
+        tinyassert(devEnv);
+        devEnv.hot.on("send-to-server", (e) => {
+          devEnv.hot.send("send-to-runner", { server: e });
+        });
+      },
+    },
   ],
   environments: {
     client: {

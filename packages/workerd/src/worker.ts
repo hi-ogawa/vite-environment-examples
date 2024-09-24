@@ -101,7 +101,7 @@ function createRunner(env: RunnerEnv, webSocket: WebSocket) {
             });
           },
           send(messages) {
-            webSocket.send(JSON.stringify(messages));
+            webSocket.send(messages);
           },
         },
       },
