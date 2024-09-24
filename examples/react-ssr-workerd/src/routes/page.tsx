@@ -1,7 +1,6 @@
 import React from "react";
-import { CrashSsr } from "./crash";
 
-export default function Page(props: { url: string }) {
+export default function Page() {
   const [count, setCount] = React.useState<number>();
 
   const [hydrated, setHydrated] = React.useState(false);
@@ -16,7 +15,6 @@ export default function Page(props: { url: string }) {
       <div>Count: {count ?? "..."}</div>
       <button onClick={async () => changeCount(-1).then(setCount)}>-1</button>
       <button onClick={async () => changeCount(+1).then(setCount)}>+1</button>
-      <CrashSsr url={props.url} />
     </div>
   );
 }
