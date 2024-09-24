@@ -174,7 +174,7 @@ function vitePluginReactServer(): PluginOption {
           // client reference id is also in react server module graph,
           // but we skip RSC HMR for this case since Client HMR handles it.
           if (!ids.some((id) => manager.clientReferenceMap.has(id))) {
-            console.log("[react-server:hmr]", ctx.file);
+            debug("[react-server:hmr]", ctx.file);
             $__global.server.environments.client.hot.send({
               type: "custom",
               event: "react-server:update",
