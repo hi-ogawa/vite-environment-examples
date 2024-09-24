@@ -42,6 +42,7 @@ export default defineConfig((_env) => ({
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
       preview: path.resolve("./dist/ssr/index.js"),
+      hmr: false,
     }),
     !!process.env["VITEST"] && vitePluginTestReactServerStream(),
   ],
@@ -161,24 +162,19 @@ function vitePluginReactServer(): PluginOption {
     async configureServer(server) {
       const reactServerEnv = server.environments["react-server"];
       tinyassert(reactServerEnv);
+      // no hmr setup for custom node environment
       const reactServerRunner = createServerModuleRunner(reactServerEnv);
       $__global.server = server;
       $__global.reactServerRunner = reactServerRunner;
     },
     hotUpdate(ctx) {
-      if (ctx.environment.name === "react-server") {
+      if (this.environment.name === "react-server") {
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
         if (ids.length > 0) {
-          const invalidated =
-            $__global.reactServerRunner.moduleCache.invalidateDepTree(ids);
-          debug("[react-server:hotUpdate]", {
-            ids,
-            invalidated: [...invalidated],
-          });
           // client reference id is also in react server module graph,
           // but we skip RSC HMR for this case since Client HMR handles it.
           if (!ids.some((id) => manager.clientReferenceMap.has(id))) {
-            console.log("[react-server:hmr]", ctx.file);
+            debug("[react-server:hmr]", ctx.file);
             $__global.server.environments.client.hot.send({
               type: "custom",
               event: "react-server:update",
@@ -187,10 +183,8 @@ function vitePluginReactServer(): PluginOption {
               },
             });
           }
-          return [];
         }
       }
-      return;
     },
   };
 

@@ -8,9 +8,11 @@ import {
 export function vitePluginSsrMiddleware({
   entry,
   preview,
+  hmr,
 }: {
   entry: string;
   preview?: string;
+  hmr?: false;
 }): PluginOption {
   const plugin: Plugin = {
     name: vitePluginSsrMiddleware.name,
@@ -33,7 +35,10 @@ export function vitePluginSsrMiddleware({
     },
 
     configureServer(server) {
-      const runner = createServerModuleRunner(server.environments.ssr);
+      const runner = createServerModuleRunner(
+        server.environments.ssr,
+        hmr === false ? { hmr: false } : undefined,
+      );
 
       const handler: Connect.NextHandleFunction = async (req, res, next) => {
         try {
