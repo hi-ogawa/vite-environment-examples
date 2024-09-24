@@ -29,7 +29,6 @@ export default defineConfig((_env) => ({
         const devEnv = server.environments["workerd"];
         tinyassert(devEnv);
         devEnv.hot.on("send-to-server", (e) => {
-          console.log("[send-to-server]", e);
           devEnv.hot.send("send-to-runner", { server: e });
         });
       },

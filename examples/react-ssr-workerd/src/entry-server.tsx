@@ -18,7 +18,6 @@ export async function handler(request: Request) {
     const promise = Promise.withResolvers<any>();
     const hot = import.meta.hot;
     hot.on("send-to-runner", function handler(e) {
-      console.log("[send-to-runner]", e);
       hot.off("send-to-runner", handler);
       promise.resolve(JSON.stringify(e));
     });
