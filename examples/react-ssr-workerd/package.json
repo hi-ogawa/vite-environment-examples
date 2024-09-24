@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build --app && rm -rf dist/client/index.html",
     "preview": "wrangler dev",
-    "test-e2e": "playwright test"
+    "test-e2e": "rm -rf .mf && playwright test"
   },
   "dependencies": {
     "react": "19.0.0-rc-eb3ad065-20240822",

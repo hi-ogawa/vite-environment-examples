@@ -1,4 +1,5 @@
 import ReactDomServer from "react-dom/server.edge";
+import { crashSsr } from "./crash-ssr";
 import Page from "./routes/page";
 
 export async function handler(request: Request) {
@@ -9,6 +10,9 @@ export async function handler(request: Request) {
   if (url.pathname === "/nodejs-compat") {
     const util = await import("node:util");
     return new Response(util.format("hello %s", "world"));
+  }
+  if (url.pathname === "/crash-ssr") {
+    crashSsr("crash ssr");
   }
 
   const ssrHtml = ReactDomServer.renderToString(<Page />);
