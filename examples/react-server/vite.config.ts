@@ -42,6 +42,7 @@ export default defineConfig((_env) => ({
     vitePluginSsrMiddleware({
       entry: process.env["SERVER_ENTRY"] ?? "/src/adapters/node",
       preview: path.resolve("./dist/ssr/index.js"),
+      hmr: false,
     }),
     !!process.env["VITEST"] && vitePluginTestReactServerStream(),
   ],
