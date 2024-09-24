@@ -7,7 +7,7 @@ async function main() {
   const el = document.getElementById("root");
   tinyassert(el);
   React.startTransition(() => {
-    ReactDomClient.hydrateRoot(el, <Page />);
+    ReactDomClient.hydrateRoot(el, <Page url={window.location.href} />);
   });
 }
 

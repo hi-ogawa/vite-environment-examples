@@ -33,7 +33,6 @@ export default defineConfig((_env) => ({
       webCompatible: true,
       resolve: {
         noExternal: true,
-        external: ["node:util"],
       },
       dev: {
         optimizeDeps: {

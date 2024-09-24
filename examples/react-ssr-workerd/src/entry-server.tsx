@@ -11,7 +11,7 @@ export async function handler(request: Request) {
     return new Response(util.format("hello %s", "world"));
   }
 
-  const ssrHtml = ReactDomServer.renderToString(<Page />);
+  const ssrHtml = ReactDomServer.renderToString(<Page url={request.url} />);
   let html = (await import("virtual:index-html")).default;
   html = html.replace("<body>", () => `<body><div id="root">${ssrHtml}</div>`);
   return new Response(html, { headers: { "content-type": "text/html" } });
