@@ -14,6 +14,17 @@ export async function handler(request: Request) {
   if (url.pathname === "/crash-ssr") {
     crashSsr("crash ssr");
   }
+  if (url.pathname === "/hot-custom" && import.meta.hot) {
+    const promise = Promise.withResolvers<any>();
+    const hot = import.meta.hot;
+    hot.on("send-to-runner", function handler(e) {
+      console.log("[send-to-runner]", e);
+      hot.off("send-to-runner", handler);
+      promise.resolve(JSON.stringify(e));
+    });
+    hot.send("send-to-server", { runner: "ok" });
+    return new Response(await promise.promise);
+  }
 
   const ssrHtml = ReactDomServer.renderToString(<Page />);
   let html = (await import("virtual:index-html")).default;
