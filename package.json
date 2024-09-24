@@ -23,13 +23,13 @@
     "@types/node": "^20.14.11",
     "@vitejs/plugin-react": "^4.3.1",
     "esbuild": "^0.23.0",
-    "miniflare": "^3.20240712.0",
+    "miniflare": "^3.20240909.5",
     "tsup": "^8.1.2",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3",
     "vite": "6.0.0-beta.1",
     "vitest": "^2.0.3",
-    "wrangler": "^3.65.0"
+    "wrangler": "^3.78.8"
   },
   "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903",
   "volta": {
