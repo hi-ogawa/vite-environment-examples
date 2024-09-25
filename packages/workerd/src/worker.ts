@@ -1,5 +1,9 @@
 import { objectPickBy, tinyassert } from "@hiogawa/utils";
-import { ModuleRunner } from "vite/module-runner";
+import {
+  ModuleRunner,
+  ssrImportMetaKey,
+  ssrModuleExportsKey,
+} from "vite/module-runner";
 import {
   ANY_URL,
   type EvalFn,
@@ -114,10 +118,10 @@ function createRunner(env: RunnerEnv, webSocket: WebSocket) {
         const code = `${codeDefinition}${transformed}\n}}`;
         const fn = env.__viteUnsafeEval.eval(
           code,
-          context.__vite_ssr_import_meta__.filename,
+          context[ssrImportMetaKey].filename,
         );
         await fn(...Object.values(context));
-        Object.freeze(context.__vite_ssr_exports__);
+        Object.freeze(context[ssrModuleExportsKey]);
       },
       async runExternalModule(filepath) {
         return import(filepath);
