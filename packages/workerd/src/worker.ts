@@ -112,7 +112,7 @@ function createRunner(env: RunnerEnv, webSocket: WebSocket) {
           ",",
         )})=>{{`;
         const code = `${codeDefinition}${transformed}\n}}`;
-        const fn = env.__viteUnsafeEval.eval(code, id);
+        const fn = env.__viteUnsafeEval.eval(code, env.__viteRoot + id);
         await fn(...Object.values(context));
         Object.freeze(context.__vite_ssr_exports__);
       },
