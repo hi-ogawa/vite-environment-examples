@@ -104,8 +104,11 @@ function createRunner(env: RunnerEnv, webSocket: WebSocket) {
               callback(JSON.parse(event.data));
             });
           },
-          send(messages) {
-            webSocket.send(messages);
+          send(payload) {
+            // compat to support both before and after https://github.com/vitejs/vite/pull/18186
+            // @ts-ignore
+            // biome-ignore format:
+            webSocket.send(typeof payload === "string" ? payload : JSON.stringify(payload));
           },
         },
       },
