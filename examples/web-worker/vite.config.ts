@@ -62,7 +62,7 @@ function vitePluginWorkerRunner(): Plugin[] {
         return `export default ${JSON.stringify(workerUrl)}`;
       }
 
-      // rewrite worker entry to execute it on runner
+      // rewrite worker entry to import it from runner
       if (id.endsWith("?worker-runner-file")) {
         const options = {
           root: this.environment.config.root,
