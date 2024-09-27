@@ -6,10 +6,14 @@ export function Root() {
       <div>Rendered in web worker</div>
       <pre>[rendered at {new Date().toISOString()}]</pre>
       <React.Suspense
-        fallback={<div>[Suspense:fallback] Sleeping 2 sec...</div>}
+        fallback={
+          <div>
+            [Suspense:fallback] <pre>Sleeping 1 sec...</pre>
+          </div>
+        }
       >
         <div>
-          [Suspense:OK] <Sleep ms={2000} />
+          [Suspense:OK] <Sleep ms={1000} />
         </div>
       </React.Suspense>
     </div>
