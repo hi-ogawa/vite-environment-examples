@@ -1,12 +1,6 @@
 {
   "extends": "@tsconfig/strictest/tsconfig.json",
-  "include": [
-    "src",
-    "vite.config.ts",
-    "vite.config.workerd.ts",
-    "e2e",
-    "playwright.config.ts"
-  ],
+  "include": ["src", "e2e", "*.ts"],
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "verbatimModuleSyntax": true,
