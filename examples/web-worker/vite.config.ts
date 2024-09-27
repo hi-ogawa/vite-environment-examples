@@ -79,8 +79,9 @@ function vitePluginWorkerRunner(): Plugin[] {
       return;
     },
     hotUpdate(ctx) {
+      // full reload browser on worker code change
       if (this.environment.name === "worker" && ctx.modules.length > 0) {
-        this.environment;
+        ctx.server.ws.send({ type: "full-reload", path: ctx.file });
       }
     },
   };
