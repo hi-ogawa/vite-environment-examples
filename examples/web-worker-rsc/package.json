@@ -1,0 +1,25 @@
+{
+  "name": "@hiogawa/vite-environment-examples-web-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --app",
+    "preview": "vite preview",
+    "test-e2e": "playwright test",
+    "test-e2e-preview": "E2E_PREVIEW=1 playwright test"
+  },
+  "dependencies": {
+    "react": "19.0.0-rc-eb3ad065-20240822",
+    "react-dom": "19.0.0-rc-eb3ad065-20240822"
+  },
+  "devDependencies": {
+    "@hiogawa/vite-plugin-ssr-middleware-alpha": "workspace:*",
+    "@hiogawa/vite-plugin-workerd": "workspace:*",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
