@@ -12,11 +12,6 @@ export default defineConfig((_env) => ({
           exclude: ["vite/module-runner"],
         },
       },
-      build: {
-        minify: false,
-        sourcemap: true,
-        outDir: "dist/client",
-      },
     },
     worker: {
       webCompatible: true,
@@ -34,20 +29,6 @@ export default defineConfig((_env) => ({
           ],
         },
       },
-      build: {
-        outDir: "dist/worker",
-        rollupOptions: {
-          input: {
-            index: "/src/entry-worker",
-          },
-        },
-      },
-    },
-  },
-
-  builder: {
-    async buildApp(builder) {
-      await builder.build(builder.environments["client"]!);
     },
   },
 }));
