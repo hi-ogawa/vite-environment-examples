@@ -219,6 +219,28 @@ importers:
         specifier: 18.3.0
         version: 18.3.0
 
+  examples/web-worker-rsc:
+    dependencies:
+      react:
+        specifier: 19.0.0-rc-eb3ad065-20240822
+        version: 19.0.0-rc-eb3ad065-20240822
+      react-dom:
+        specifier: 19.0.0-rc-eb3ad065-20240822
+        version: 19.0.0-rc-eb3ad065-20240822(react@19.0.0-rc-eb3ad065-20240822)
+    devDependencies:
+      '@hiogawa/vite-plugin-ssr-middleware-alpha':
+        specifier: workspace:*
+        version: link:../../packages/ssr-middleware
+      '@hiogawa/vite-plugin-workerd':
+        specifier: workspace:*
+        version: link:../../packages/workerd
+      '@types/react':
+        specifier: 18.3.3
+        version: 18.3.3
+      '@types/react-dom':
+        specifier: 18.3.0
+        version: 18.3.0
+
   examples/workerd-cli:
     devDependencies:
       '@hiogawa/vite-plugin-workerd':

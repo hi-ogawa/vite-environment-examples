@@ -33,7 +33,7 @@ export default defineConfig((_env) => ({
   },
 }));
 
-function vitePluginWorkerRunner(): Plugin[] {
+export function vitePluginWorkerRunner(): Plugin[] {
   const workerEntryPlugin: Plugin = {
     name: vitePluginWorkerRunner.name + ":entry",
     transform(_code, id) {
