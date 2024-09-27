@@ -1,3 +1,4 @@
+import "./polyfill-webpack";
 import ReactDomClient from "react-dom/client";
 import { App } from "./app";
 

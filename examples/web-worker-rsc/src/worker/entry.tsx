@@ -1,14 +1,6 @@
-import "./polyfill";
+import "../polyfill-webpack";
 import ReactServer from "react-server-dom-webpack/server";
-import dep from "./dep";
+import { Root } from "./root";
 
-const root = (
-  <div>
-    <div>Rendered in web worker</div>
-    <div>{dep}</div>
-  </div>
-);
-
-const stream = ReactServer.renderToReadableStream(root, {}, {});
-console.log(stream);
-self.postMessage("TODO");
+const stream = ReactServer.renderToReadableStream(<Root />, {}, {});
+self.postMessage(stream, { transfer: [stream] });
