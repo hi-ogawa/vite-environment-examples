@@ -5,8 +5,12 @@ export function Root() {
     <div>
       <div>Rendered in web worker</div>
       <pre>[rendered at {new Date().toISOString()}]</pre>
-      <React.Suspense fallback={<div>Sleeping 1 sec...</div>}>
-        <Sleep ms={1000} />
+      <React.Suspense
+        fallback={<div>[Suspense:fallback] Sleeping 2 sec...</div>}
+      >
+        <div>
+          [Suspense:OK] <Sleep ms={2000} />
+        </div>
       </React.Suspense>
     </div>
   );

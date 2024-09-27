@@ -1,16 +1,20 @@
 import React from "react";
+import ReactClient from "react-server-dom-webpack/client";
 import workerUrl from "./worker/entry?worker-runner";
 
 export function App() {
   const [count, setCount] = React.useState(0);
-  const [workerMessage, setWorkerMessage] = React.useState(
+  const [workerMessage, setWorkerMessage] = React.useState<React.ReactNode>(
     "Waiting for worker...",
   );
 
   React.useEffect(() => {
     const worker = new Worker(workerUrl, { type: "module" });
-    worker.addEventListener("message", (e) => {
-      setWorkerMessage(e.data);
+    worker.addEventListener("message", async (e) => {
+      const root = await ReactClient.createFromReadableStream<React.ReactNode>(
+        e.data,
+      );
+      setWorkerMessage(root);
     });
     return () => {
       worker.terminate();
@@ -25,10 +29,7 @@ export function App() {
       <button onClick={() => setCount((c) => c + 1)}>+1</button>
       <hr />
       <h4>Worker</h4>
-      <div
-        data-testid="worker-message"
-        dangerouslySetInnerHTML={{ __html: workerMessage }}
-      ></div>
+      <div data-testid="worker-message">{workerMessage}</div>
     </div>
   );
 }
