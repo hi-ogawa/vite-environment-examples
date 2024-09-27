@@ -17,10 +17,7 @@ export default defineConfig((_env) => ({
     worker: {
       webCompatible: true,
       resolve: {
-        conditions: [
-          // "react-server",
-          "worker",
-        ],
+        conditions: ["react-server"],
         noExternal: true,
       },
       dev: {
@@ -29,7 +26,7 @@ export default defineConfig((_env) => ({
             "react",
             "react/jsx-runtime",
             "react/jsx-dev-runtime",
-            "react-dom/server",
+            "react-server-dom-webpack/server",
           ],
         },
       },

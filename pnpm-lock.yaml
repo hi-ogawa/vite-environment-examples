@@ -227,6 +227,9 @@ importers:
       react-dom:
         specifier: 19.0.0-rc-eb3ad065-20240822
         version: 19.0.0-rc-eb3ad065-20240822(react@19.0.0-rc-eb3ad065-20240822)
+      react-server-dom-webpack:
+        specifier: 19.0.0-rc-eb3ad065-20240822
+        version: 19.0.0-rc-eb3ad065-20240822(react-dom@19.0.0-rc-eb3ad065-20240822(react@19.0.0-rc-eb3ad065-20240822))(react@19.0.0-rc-eb3ad065-20240822)(webpack@5.93.0(esbuild@0.23.0))
     devDependencies:
       '@hiogawa/vite-plugin-ssr-middleware-alpha':
         specifier: workspace:*

@@ -1,4 +1,5 @@
-import ReactDomServer from "react-dom/server";
+import "./polyfill";
+import ReactServer from "react-server-dom-webpack/server";
 import dep from "./dep";
 
 const root = (
@@ -8,5 +9,6 @@ const root = (
   </div>
 );
 
-const result = ReactDomServer.renderToString(root);
-self.postMessage(result);
+const stream = ReactServer.renderToReadableStream(root, {}, {});
+console.log(stream);
+self.postMessage("TODO");

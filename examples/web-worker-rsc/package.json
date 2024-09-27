@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "react": "19.0.0-rc-eb3ad065-20240822",
-    "react-dom": "19.0.0-rc-eb3ad065-20240822"
+    "react-dom": "19.0.0-rc-eb3ad065-20240822",
+    "react-server-dom-webpack": "19.0.0-rc-eb3ad065-20240822"
   },
   "devDependencies": {
     "@hiogawa/vite-plugin-ssr-middleware-alpha": "workspace:*",
