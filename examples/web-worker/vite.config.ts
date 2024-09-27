@@ -19,7 +19,21 @@ export default defineConfig((_env) => ({
       },
     },
     worker: {
-      resolve: {},
+      webCompatible: true,
+      resolve: {
+        conditions: ["worker"],
+        noExternal: true,
+      },
+      dev: {
+        optimizeDeps: {
+          include: [
+            "react",
+            "react/jsx-runtime",
+            "react/jsx-dev-runtime",
+            "react-dom/server",
+          ],
+        },
+      },
       build: {
         outDir: "dist/worker",
         rollupOptions: {
