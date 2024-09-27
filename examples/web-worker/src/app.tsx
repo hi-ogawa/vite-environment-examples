@@ -24,7 +24,10 @@ export function App() {
       <button onClick={() => setCount((c) => c - 1)}>-1</button>
       <button onClick={() => setCount((c) => c + 1)}>+1</button>
       <hr />
-      <div dangerouslySetInnerHTML={{ __html: workerMessage }}></div>
+      <div
+        data-testid="worker-message"
+        dangerouslySetInnerHTML={{ __html: workerMessage }}
+      ></div>
     </div>
   );
 }
