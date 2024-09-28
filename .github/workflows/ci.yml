@@ -23,6 +23,7 @@ jobs:
       - run: pnpm -C examples/workerd-cli test
       - run: pnpm -C examples/browser-cli test
       - run: pnpm -C examples/web-worker test-e2e
+      - run: pnpm -C examples/web-worker-rsc test-e2e
       - run: pnpm -C examples/react-server test-e2e
       - run: pnpm -C examples/react-server build
       - run: pnpm -C examples/react-server test-e2e-preview
