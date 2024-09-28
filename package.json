@@ -14,7 +14,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
-    "@hattip/adapter-node": "^0.0.46",
     "@hiogawa/utils": "1.7.0",
     "@hiogawa/utils-node": "^0.0.2",
     "@hiogawa/vite-plugin-ssr-middleware": "^0.0.3",
