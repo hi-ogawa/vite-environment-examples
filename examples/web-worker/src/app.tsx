@@ -37,17 +37,18 @@ export function App() {
 
   return (
     <div>
-      <h4>Client</h4>
-      <div>Count: {count}</div>
-      <button onClick={() => setCount((c) => c - 1)}>-1</button>
-      <button onClick={() => setCount((c) => c + 1)}>+1</button>
-      <div>test-dep-conditions: {depCondition}</div>
+      <div data-testid="client">
+        <h4>Client</h4>
+        <div>Count: {count}</div>
+        <button onClick={() => setCount((c) => c - 1)}>-1</button>
+        <button onClick={() => setCount((c) => c + 1)}>+1</button>
+        <div>test-dep-conditions: {depCondition}</div>
+      </div>
       <hr />
-      <h4>Worker</h4>
-      <div
-        data-testid="worker-message"
-        dangerouslySetInnerHTML={{ __html: workerMessage }}
-      ></div>
+      <div data-testid="worker">
+        <h4>Worker</h4>
+        <div dangerouslySetInnerHTML={{ __html: workerMessage }} />
+      </div>
     </div>
   );
 }
