@@ -1,5 +1,4 @@
 import repl from "node:repl";
-import nodeStream from "node:stream";
 import { createManualPromise, tinyassert } from "@hiogawa/utils";
 import { chromium } from "@playwright/test";
 import {
@@ -8,7 +7,7 @@ import {
   createServer,
   parseAstAsync,
 } from "vite";
-import type { ModuleRunner } from "vite/module-runner";
+import type { FetchFunction, ModuleRunner } from "vite/module-runner";
 
 const headless = !process.env["CLI_HEADED"];
 const extension = process.env["CLI_EXTENSION"] ?? "tsx";
@@ -17,7 +16,11 @@ async function main() {
   const server = await createServer({
     clearScreen: false,
     appType: "custom",
-    plugins: [vitePluginVirtualEval({ extension }), vitePluginBrowserRunner()],
+    plugins: [
+      vitePluginVirtualEval({ extension }),
+      vitePluginBrowserRunner(),
+      vitePluginFetchModuleServer(),
+    ],
     optimizeDeps: {
       noDiscovery: true,
     },
@@ -160,12 +163,6 @@ function vitePluginBrowserRunner(): Plugin {
   return {
     name: vitePluginBrowserRunner.name,
     configureServer(server) {
-      // use custom (or ssr) environment since
-      // client.fetchModule doesn't apply ssrTransform,
-      // which is necessary for module runner execution.
-      const devEnv = server.environments["custom"];
-      tinyassert(devEnv);
-
       return () => {
         server.middlewares.use(async (req, res, next) => {
           tinyassert(req.url);
@@ -187,15 +184,6 @@ function vitePluginBrowserRunner(): Plugin {
             return;
           }
 
-          // API endpoint for fetchModule
-          if (url.pathname === "/__viteFetchModule") {
-            tinyassert(req.method === "POST");
-            const stream = nodeStream.Readable.toWeb(req) as ReadableStream;
-            const args = JSON.parse(await streamToString(stream));
-            const result = await devEnv.fetchModule(...(args as [any, any]));
-            res.end(JSON.stringify(result));
-            return;
-          }
           next();
         });
       };
@@ -203,16 +191,25 @@ function vitePluginBrowserRunner(): Plugin {
   };
 }
 
-async function streamToString(stream: ReadableStream<Uint8Array>) {
-  let result = "";
-  await stream.pipeThrough(new TextDecoderStream()).pipeTo(
-    new WritableStream({
-      write(chunk) {
-        result += chunk;
-      },
-    }),
-  );
-  return result;
+// https://github.com/vitejs/vite/discussions/18191
+function vitePluginFetchModuleServer(): Plugin {
+  return {
+    name: vitePluginFetchModuleServer.name,
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const url = new URL(req.url ?? "/", "https://any.local");
+        if (url.pathname === "/@vite/fetchModule") {
+          const [name, ...args] = JSON.parse(url.searchParams.get("payload")!);
+          const result = await server.environments[name]!.fetchModule(
+            ...(args as Parameters<FetchFunction>),
+          );
+          res.end(JSON.stringify(result));
+          return;
+        }
+        next();
+      });
+    },
+  };
 }
 
 main();
