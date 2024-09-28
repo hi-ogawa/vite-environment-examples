@@ -36,7 +36,12 @@ export default defineConfig((_env) => ({
       build: {
         outDir: "dist/worker",
         minify: false,
-        ssr: true,
+        modulePreload: false,
+        rollupOptions: {
+          input: {
+            unused: `data:text/javascript,console.log("unused")`,
+          },
+        },
       },
     },
   },
@@ -45,7 +50,7 @@ export default defineConfig((_env) => ({
     async buildApp(builder) {
       // TODO
       await builder.build(builder.environments["client"]!);
-      // await builder.build(builder.environments["worker"]!);
+      await builder.build(builder.environments["worker"]!);
     },
   },
 }));
