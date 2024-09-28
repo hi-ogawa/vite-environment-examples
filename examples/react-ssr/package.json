@@ -13,15 +13,10 @@
     "vc-build": "SERVER_ENTRY=/src/adapters/vercel-edge.ts pnpm build && bash misc/vercel-edge/build.sh",
     "vc-release": "vercel deploy --prebuilt misc/vercel-edge --prod"
   },
-  "dependencies": {
-    "react": "19.0.0-rc-eb3ad065-20240822",
-    "react-dom": "19.0.0-rc-eb3ad065-20240822"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@hiogawa/vite-plugin-ssr-middleware-alpha": "workspace:*",
-    "@hiogawa/vite-plugin-workerd": "workspace:*",
-    "@types/react": "18.3.3",
-    "@types/react-dom": "18.3.0"
+    "@hiogawa/vite-plugin-workerd": "workspace:*"
   },
   "volta": {
     "extends": "../../package.json"

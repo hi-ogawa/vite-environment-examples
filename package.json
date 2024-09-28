@@ -14,16 +14,20 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
-    "@hattip/adapter-node": "^0.0.46",
     "@hiogawa/utils": "1.7.0",
     "@hiogawa/utils-node": "^0.0.2",
     "@hiogawa/vite-plugin-ssr-middleware": "^0.0.3",
     "@playwright/test": "^1.45.2",
     "@tsconfig/strictest": "^2.0.5",
     "@types/node": "^20.14.11",
+    "@types/react": "^18.3.10",
+    "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "esbuild": "^0.23.0",
     "miniflare": "^3.20240909.5",
+    "react": "19.0.0-rc-eb3ad065-20240822",
+    "react-dom": "19.0.0-rc-eb3ad065-20240822",
+    "react-server-dom-webpack": "19.0.0-rc-eb3ad065-20240822",
     "tsup": "^8.1.2",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3",
@@ -31,9 +35,9 @@
     "vitest": "^2.0.3",
     "wrangler": "^3.78.8"
   },
-  "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903",
+  "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b",
   "volta": {
-    "node": "20.12.0"
+    "node": "20.17.0"
   },
   "pnpm": {
     "overrides": {
