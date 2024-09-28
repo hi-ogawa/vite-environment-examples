@@ -8,15 +8,10 @@
     "preview": "wrangler dev",
     "test-e2e": "rm -rf .mf && playwright test"
   },
-  "dependencies": {
-    "react": "19.0.0-rc-eb3ad065-20240822",
-    "react-dom": "19.0.0-rc-eb3ad065-20240822"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240919.0",
-    "@hiogawa/vite-plugin-workerd": "workspace:*",
-    "@types/react": "18.3.3",
-    "@types/react-dom": "18.3.0"
+    "@hiogawa/vite-plugin-workerd": "workspace:*"
   },
   "volta": {
     "extends": "../../package.json"
