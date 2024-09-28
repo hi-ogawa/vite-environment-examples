@@ -12,6 +12,10 @@ export default defineConfig((_env) => ({
           exclude: ["vite/module-runner"],
         },
       },
+      build: {
+        outDir: "dist/client",
+        minify: false,
+      },
     },
     worker: {
       webCompatible: true,
@@ -29,6 +33,19 @@ export default defineConfig((_env) => ({
           ],
         },
       },
+      build: {
+        outDir: "dist/worker",
+        minify: false,
+        ssr: true,
+      },
+    },
+  },
+
+  builder: {
+    async buildApp(builder) {
+      // TODO
+      await builder.build(builder.environments["client"]!);
+      // await builder.build(builder.environments["worker"]!);
     },
   },
 }));
