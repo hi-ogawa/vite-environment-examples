@@ -36,10 +36,9 @@ export default defineConfig((_env) => ({
       build: {
         outDir: "dist/worker",
         minify: false,
-        modulePreload: false,
         rollupOptions: {
           input: {
-            unused: `data:text/javascript,console.log("unused")`,
+            _unused: "data:text/javascript,console.log(`unused`)",
           },
         },
       },
@@ -48,21 +47,51 @@ export default defineConfig((_env) => ({
 
   builder: {
     async buildApp(builder) {
-      // TODO
+      // extra build to discover worker imports
+      // TODO: need to discvoer worker in worker as well
+      manager.workerScan = true;
       await builder.build(builder.environments["client"]!);
+      manager.workerScan = false;
+
       await builder.build(builder.environments["worker"]!);
+      await builder.build(builder.environments["client"]!);
     },
   },
 }));
 
+// plugin needs `sharedDuringBuild: true` to access manager as singleton
+const manager = new (class PluginStateManager {
+  workerScan = false;
+  workerEntries = new Set<string>();
+  workerReferenceIdMap = new Map<string, string>();
+})();
+
 export function vitePluginWorkerRunner(): Plugin[] {
-  const workerEntryPlugin: Plugin = {
-    name: vitePluginWorkerRunner.name + ":entry",
+  const workerImportPlugin: Plugin = {
+    name: vitePluginWorkerRunner.name + ":import",
+    sharedDuringBuild: true,
     transform(_code, id) {
       // rewrite ?worker-runner import
       if (id.endsWith("?worker-runner")) {
         const workerUrl = id.replace("?worker-runner", "?worker-runner-file");
-        return `export default ${JSON.stringify(workerUrl)}`;
+        // dev: pass url directly to `new Worker("<id>?worker-runner-file")`
+        if (this.environment.mode === "dev") {
+          return `export default ${JSON.stringify(workerUrl)}`;
+        }
+        // build:
+        if (this.environment.mode === "build") {
+          if (manager.workerScan) {
+            // client -> worker (scan)
+            manager.workerEntries.add(id.replace("?worker-runner", ""));
+          } else if (this.environment.name === "worker") {
+            // worker -> worker (build)
+            // TODO
+          } else if (this.environment.name === "client") {
+            // client -> worker (build)
+            // TODO
+          }
+        }
+        return `export default "todo-build"`;
       }
 
       // rewrite worker entry to import it from runner
@@ -89,5 +118,22 @@ export function vitePluginWorkerRunner(): Plugin[] {
     },
   };
 
-  return [workerEntryPlugin];
+  const workerBuildPlugin: Plugin = {
+    name: vitePluginWorkerRunner.name + ":build",
+    apply: "build",
+    sharedDuringBuild: true,
+    buildStart() {
+      if (this.environment.name === "worker") {
+        for (const entry of manager.workerEntries) {
+          const referenceId = this.emitFile({
+            type: "chunk",
+            id: entry,
+          });
+          manager.workerReferenceIdMap.set(entry, referenceId);
+        }
+      }
+    },
+  };
+
+  return [workerImportPlugin, workerBuildPlugin];
 }
