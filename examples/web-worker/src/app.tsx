@@ -15,7 +15,9 @@ export function App() {
       }
       if (e.data.type === "render") {
         setWorkerMessage(e.data.data);
-        worker.postMessage({ type: "error" });
+        if (window.location.search.includes("error-stack")) {
+          worker.postMessage({ type: "error" });
+        }
       }
     });
     return () => {

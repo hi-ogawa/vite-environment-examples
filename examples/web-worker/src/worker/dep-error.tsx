@@ -7,5 +7,5 @@ export function depThrowError() {
 }
 
 function depThrowError2() {
-  throw new Error("test-stacktrace");
+  throw new Error("test-error-stack");
 }
