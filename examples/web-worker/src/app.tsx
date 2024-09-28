@@ -10,9 +10,16 @@ export function App() {
   React.useEffect(() => {
     const worker = new Worker(workerUrl, { type: "module" });
     worker.addEventListener("message", (e) => {
-      setWorkerMessage(e.data);
+      if (e.data.type === "ready") {
+        worker.postMessage({ type: "render" });
+      }
+      if (e.data.type === "render") {
+        setWorkerMessage(e.data.data);
+        if (window.location.search.includes("error-stack")) {
+          worker.postMessage({ type: "error" });
+        }
+      }
     });
-    worker.postMessage("ping");
     return () => {
       worker.terminate();
     };

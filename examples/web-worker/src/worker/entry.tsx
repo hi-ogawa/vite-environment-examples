@@ -1,12 +1,21 @@
 import ReactDomServer from "react-dom/server";
 import dep from "./dep";
+import { depThrowError } from "./dep-error";
 
-const root = (
-  <div>
-    <div>Rendered in web worker</div>
-    <div>{dep}</div>
-  </div>
-);
+self.addEventListener("message", (e) => {
+  if (e.data.type === "render") {
+    const root = (
+      <div>
+        <div>Rendered in web worker</div>
+        <div>{dep}</div>
+      </div>
+    );
+    const result = ReactDomServer.renderToString(root);
+    self.postMessage({ type: "render", data: result });
+  }
+  if (e.data.type === "error") {
+    depThrowError();
+  }
+});
 
-const result = ReactDomServer.renderToString(root);
-self.postMessage(result);
+self.postMessage({ type: "ready" });
