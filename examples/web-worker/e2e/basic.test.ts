@@ -16,3 +16,10 @@ test("erorr stack", async ({ page }) => {
   const error = await errorPromise;
   expect(error.message).toBe("test-error-stack");
 });
+
+test("worker in worker", async ({ page }) => {
+  await page.goto("/?worker-in-worker");
+  await expect(page.getByTestId("worker-message")).toContainText(
+    "Rendered in web worker in web worker",
+  );
+});

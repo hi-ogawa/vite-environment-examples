@@ -20,12 +20,14 @@ export default defineConfig((_env) => ({
       },
     },
     worker: {
+      // consumer: "client", // TODO: is this desired? this would require explicitly setting `moduleRunnerTransform: true` etc...
       webCompatible: true,
       resolve: {
         conditions: ["worker"],
         noExternal: true,
       },
       dev: {
+        // moduleRunnerTransform: true,
         optimizeDeps: {
           include: [
             "react",
@@ -43,6 +45,11 @@ export default defineConfig((_env) => ({
           input: {
             // emit actual worker entries during `buildStart`
             _noop: "data:text/javascript,console.log()",
+          },
+          output: {
+            // force false since vite enables it when `consumer: "server"` and `webCompatible: true`
+            // https://github.com/vitejs/vite/blob/95020ab49e12d143262859e095025cf02423c1d9/packages/vite/src/node/build.ts#L761-L766
+            inlineDynamicImports: false,
           },
         },
       },
@@ -84,29 +91,37 @@ export function vitePluginWorkerRunner(): Plugin[] {
             map: null,
           };
         }
-        // build:
+        // build
         if (this.environment.mode === "build") {
           const entry = id.replace("?worker-runner", "");
+          let code: string;
           if (manager.workerScan) {
             // client -> worker (scan)
             manager.workerMap[entry] = {};
+            // import worker as is to collect worker in worker during scan
+            code = `
+              import ${JSON.stringify(entry)};
+              export default "noop";
+            `;
           } else if (this.environment.name === "worker") {
             // worker -> worker (build)
-            // TODO
+            const referenceId = manager.workerMap[entry]!.referenceId;
+            code = `export default import.meta.ROLLUP_FILE_URL_${referenceId}`;
           } else if (this.environment.name === "client") {
             // client -> worker (build)
             const fileName = manager.workerMap[entry]!.fileName;
-            return {
-              code: `export default ${JSON.stringify("/" + fileName)}`,
-              map: null,
-            };
+            code = `export default ${JSON.stringify("/" + fileName)}`;
+          } else {
+            throw new Error("unreachable");
           }
+          return { code, map: null };
         }
-        return { code: `export default "todo"`, map: null };
       }
 
       // rewrite worker entry to import it from runner
       if (id.endsWith("?worker-runner-file")) {
+        console.assert(this.environment.name === "client");
+        console.assert(this.environment.mode === "dev");
         const options = {
           root: this.environment.config.root,
           environmentName: "worker",
@@ -146,6 +161,7 @@ export function vitePluginWorkerRunner(): Plugin[] {
         meta.fileName = this.getFileName(meta.referenceId!);
       }
       delete bundle["_noop.js"];
+      delete bundle["_noop.js.map"];
     },
   };
 
