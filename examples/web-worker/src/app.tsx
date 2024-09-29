@@ -1,5 +1,5 @@
 import React from "react";
-import workerUrl from "./worker/entry?worker-runner";
+import workerUrl from "./worker/entry?worker-env";
 
 export function App() {
   const [count, setCount] = React.useState(0);
