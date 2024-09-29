@@ -5,7 +5,11 @@ import { vitePluginFetchModuleServer } from "./src/lib/fetch-module-server";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
-  plugins: [react(), vitePluginWorkerRunner(), vitePluginFetchModuleServer()],
+  plugins: [
+    react(),
+    vitePluginWorkerEnvironment(),
+    vitePluginFetchModuleServer(),
+  ],
   environments: {
     client: {
       dev: {
@@ -76,9 +80,9 @@ const manager = new (class PluginStateManager {
   workerMap: Record<string, { referenceId?: string; fileName?: string }> = {};
 })();
 
-export function vitePluginWorkerRunner(): Plugin[] {
+export function vitePluginWorkerEnvironment(): Plugin[] {
   const workerImportPlugin: Plugin = {
-    name: vitePluginWorkerRunner.name + ":import",
+    name: vitePluginWorkerEnvironment.name + ":import",
     sharedDuringBuild: true,
     transform(_code, id) {
       // rewrite ?worker-env import
@@ -145,7 +149,7 @@ export function vitePluginWorkerRunner(): Plugin[] {
   };
 
   const workerBuildPlugin: Plugin = {
-    name: vitePluginWorkerRunner.name + ":build",
+    name: vitePluginWorkerEnvironment.name + ":build",
     applyToEnvironment: (env) => env.mode === "build" && env.name === "worker",
     sharedDuringBuild: true,
     buildStart() {
