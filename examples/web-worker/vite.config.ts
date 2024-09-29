@@ -20,6 +20,7 @@ export default defineConfig((_env) => ({
       },
     },
     worker: {
+      consumer: "client",
       webCompatible: true,
       resolve: {
         conditions: ["worker"],
@@ -154,6 +155,7 @@ export function vitePluginWorkerRunner(): Plugin[] {
         meta.fileName = this.getFileName(meta.referenceId!);
       }
       delete bundle["_noop.js"];
+      delete bundle["_noop.js.map"];
     },
   };
 
