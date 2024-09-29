@@ -87,22 +87,28 @@ export function vitePluginWorkerRunner(): Plugin[] {
         // build:
         if (this.environment.mode === "build") {
           const entry = id.replace("?worker-runner", "");
+          let code: string;
           if (manager.workerScan) {
             // client -> worker (scan)
             manager.workerMap[entry] = {};
+            // import worker entry to discover worker in worker
+            code = `
+              import ${JSON.stringify(entry)};
+              export default "noop";
+            `;
           } else if (this.environment.name === "worker") {
             // worker -> worker (build)
-            // TODO
+            const referenceId = manager.workerMap[entry]!.referenceId;
+            code = `export default import.meta.ROLLUP_FILE_URL_${referenceId}`;
           } else if (this.environment.name === "client") {
             // client -> worker (build)
             const fileName = manager.workerMap[entry]!.fileName;
-            return {
-              code: `export default ${JSON.stringify("/" + fileName)}`,
-              map: null,
-            };
+            code = `export default ${JSON.stringify("/" + fileName)}`;
+          } else {
+            throw new Error("unreachable");
           }
+          return { code, map: null };
         }
-        return { code: `export default "todo"`, map: null };
       }
 
       // rewrite worker entry to import it from runner
