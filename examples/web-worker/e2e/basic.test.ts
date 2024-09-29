@@ -9,10 +9,17 @@ test("basic", async ({ page }) => {
 
 test("erorr stack", async ({ page }) => {
   // TODO:
-  // error event's stacktrace doesn't have sourcemap applied.
-  // it needs to be verified from devtools console error message.
+  // playwright's error stack doesn't have sourcemap applied.
+  // it needs to be manually verified from devtools console error message.
   const errorPromise = page.waitForEvent("pageerror");
   await page.goto("/?error-stack");
   const error = await errorPromise;
   expect(error.message).toBe("test-error-stack");
+});
+
+test("worker in worker", async ({ page }) => {
+  await page.goto("/?worker-in-worker");
+  await expect(page.getByTestId("worker-message")).toContainText(
+    "Rendered in web worker in web worker",
+  );
 });
