@@ -20,13 +20,14 @@ export default defineConfig((_env) => ({
       },
     },
     worker: {
-      // consumer: "client", // TODO: breaks dev
+      // consumer: "client", // TODO: is this desired? this would require explicitly setting `moduleRunnerTransform: true` etc...
       webCompatible: true,
       resolve: {
         conditions: ["worker"],
         noExternal: true,
       },
       dev: {
+        // moduleRunnerTransform: true,
         optimizeDeps: {
           include: [
             "react",
