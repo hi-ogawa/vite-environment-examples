@@ -9,7 +9,9 @@
     "test-e2e": "playwright test",
     "test-e2e-preview": "E2E_PREVIEW=1 playwright test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "test-dep-conditions": "file:./fixtures/test-dep-conditions"
+  },
   "devDependencies": {},
   "volta": {
     "extends": "../../package.json"

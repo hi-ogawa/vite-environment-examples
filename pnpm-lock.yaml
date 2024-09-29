@@ -160,7 +160,11 @@ importers:
         specifier: ^2.0.26
         version: 2.0.26(typescript@5.5.3)
 
-  examples/web-worker: {}
+  examples/web-worker:
+    dependencies:
+      test-dep-conditions:
+        specifier: file:./fixtures/test-dep-conditions
+        version: test-dep-browser-or-worker@file:examples/web-worker/fixtures/test-dep-conditions
 
   examples/web-worker-rsc: {}
 
@@ -2546,6 +2550,9 @@ packages:
     resolution: {integrity: sha512-pAfYn3NIZLyZpa83ZKigvj6Rn9c/vd5KfYGX7cN1mnzqgDcxWvrU5ZtAfIKhEXz9nRecw4z3LXkjaq96/qZqAA==}
     engines: {node: '>=10'}
     hasBin: true
+
+  test-dep-browser-or-worker@file:examples/web-worker/fixtures/test-dep-conditions:
+    resolution: {directory: examples/web-worker/fixtures/test-dep-conditions, type: directory}
 
   thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
@@ -5069,6 +5076,8 @@ snapshots:
       acorn: 8.12.1
       commander: 2.20.3
       source-map-support: 0.5.21
+
+  test-dep-browser-or-worker@file:examples/web-worker/fixtures/test-dep-conditions: {}
 
   thenify-all@1.6.0:
     dependencies:
