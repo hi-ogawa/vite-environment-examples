@@ -20,7 +20,7 @@ export default defineConfig((_env) => ({
       },
     },
     worker: {
-      consumer: "client",
+      // consumer: "client", // TODO: breaks dev
       webCompatible: true,
       resolve: {
         conditions: ["worker"],
@@ -44,6 +44,11 @@ export default defineConfig((_env) => ({
           input: {
             // emit actual worker entries during `buildStart`
             _noop: "data:text/javascript,console.log()",
+          },
+          output: {
+            // force false since vite enables it when `consumer: "server"` and `webCompatible: true`
+            // https://github.com/vitejs/vite/blob/95020ab49e12d143262859e095025cf02423c1d9/packages/vite/src/node/build.ts#L761-L766
+            inlineDynamicImports: false,
           },
         },
       },
