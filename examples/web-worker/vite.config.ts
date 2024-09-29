@@ -1,3 +1,4 @@
+import { rmSync } from "node:fs";
 import react from "@vitejs/plugin-react";
 import { type Plugin, defineConfig } from "vite";
 import { vitePluginFetchModuleServer } from "./src/lib/fetch-module-server";
@@ -11,6 +12,11 @@ export default defineConfig((_env) => ({
         optimizeDeps: {
           exclude: ["vite/module-runner"],
         },
+      },
+      build: {
+        emptyOutDir: false, // preserve worker build
+        minify: false,
+        sourcemap: true,
       },
     },
     worker: {
@@ -29,18 +35,74 @@ export default defineConfig((_env) => ({
           ],
         },
       },
+      build: {
+        assetsDir: "_worker",
+        minify: false,
+        sourcemap: true,
+        rollupOptions: {
+          input: {
+            // emit actual worker entries during `buildStart`
+            _noop: "data:text/javascript,console.log()",
+          },
+        },
+      },
+    },
+  },
+
+  builder: {
+    async buildApp(builder) {
+      // extra build to discover worker reference from client
+      manager.workerScan = true;
+      await builder.build(builder.environments["client"]!);
+      rmSync("dist", { recursive: true, force: true });
+      manager.workerScan = false;
+
+      await builder.build(builder.environments["worker"]!);
+      await builder.build(builder.environments["client"]!);
     },
   },
 }));
 
+// plugin needs `sharedDuringBuild: true` to access manager as singleton
+const manager = new (class PluginStateManager {
+  workerScan = false;
+  workerMap: Record<string, { referenceId?: string; fileName?: string }> = {};
+})();
+
 export function vitePluginWorkerRunner(): Plugin[] {
-  const workerEntryPlugin: Plugin = {
-    name: vitePluginWorkerRunner.name + ":entry",
+  const workerImportPlugin: Plugin = {
+    name: vitePluginWorkerRunner.name + ":import",
+    sharedDuringBuild: true,
     transform(_code, id) {
       // rewrite ?worker-runner import
       if (id.endsWith("?worker-runner")) {
         const workerUrl = id.replace("?worker-runner", "?worker-runner-file");
-        return `export default ${JSON.stringify(workerUrl)}`;
+        // dev: pass url directly to `new Worker("<id>?worker-runner-file")`
+        if (this.environment.mode === "dev") {
+          return {
+            code: `export default ${JSON.stringify(workerUrl)}`,
+            map: null,
+          };
+        }
+        // build:
+        if (this.environment.mode === "build") {
+          const entry = id.replace("?worker-runner", "");
+          if (manager.workerScan) {
+            // client -> worker (scan)
+            manager.workerMap[entry] = {};
+          } else if (this.environment.name === "worker") {
+            // worker -> worker (build)
+            // TODO
+          } else if (this.environment.name === "client") {
+            // client -> worker (build)
+            const fileName = manager.workerMap[entry]!.fileName;
+            return {
+              code: `export default ${JSON.stringify("/" + fileName)}`,
+              map: null,
+            };
+          }
+        }
+        return { code: `export default "todo"`, map: null };
       }
 
       // rewrite worker entry to import it from runner
@@ -67,5 +129,25 @@ export function vitePluginWorkerRunner(): Plugin[] {
     },
   };
 
-  return [workerEntryPlugin];
+  const workerBuildPlugin: Plugin = {
+    name: vitePluginWorkerRunner.name + ":build",
+    applyToEnvironment: (env) => env.mode === "build" && env.name === "worker",
+    sharedDuringBuild: true,
+    buildStart() {
+      for (const [id, meta] of Object.entries(manager.workerMap)) {
+        meta.referenceId = this.emitFile({
+          type: "chunk",
+          id,
+        });
+      }
+    },
+    generateBundle(_options, bundle) {
+      for (const meta of Object.values(manager.workerMap)) {
+        meta.fileName = this.getFileName(meta.referenceId!);
+      }
+      delete bundle["_noop.js"];
+    },
+  };
+
+  return [workerImportPlugin, workerBuildPlugin];
 }
