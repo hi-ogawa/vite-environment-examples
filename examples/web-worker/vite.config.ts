@@ -84,14 +84,14 @@ export function vitePluginWorkerRunner(): Plugin[] {
             map: null,
           };
         }
-        // build:
+        // build
         if (this.environment.mode === "build") {
           const entry = id.replace("?worker-runner", "");
           let code: string;
           if (manager.workerScan) {
             // client -> worker (scan)
             manager.workerMap[entry] = {};
-            // import worker entry to discover worker in worker
+            // import worker as is to collect worker in worker during scan
             code = `
               import ${JSON.stringify(entry)};
               export default "noop";
@@ -113,6 +113,8 @@ export function vitePluginWorkerRunner(): Plugin[] {
 
       // rewrite worker entry to import it from runner
       if (id.endsWith("?worker-runner-file")) {
+        console.assert(this.environment.name === "client");
+        console.assert(this.environment.mode === "dev");
         const options = {
           root: this.environment.config.root,
           environmentName: "worker",
