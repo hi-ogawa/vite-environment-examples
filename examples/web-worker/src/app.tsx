@@ -1,4 +1,5 @@
 import React from "react";
+import depCondition from "test-dep-conditions";
 import workerUrl from "./worker/entry?worker-runner";
 
 export function App() {
@@ -36,10 +37,13 @@ export function App() {
 
   return (
     <div>
+      <h4>Client</h4>
       <div>Count: {count}</div>
       <button onClick={() => setCount((c) => c - 1)}>-1</button>
       <button onClick={() => setCount((c) => c + 1)}>+1</button>
+      <div>test-dep-conditions: {depCondition}</div>
       <hr />
+      <h4>Worker</h4>
       <div
         data-testid="worker-message"
         dangerouslySetInnerHTML={{ __html: workerMessage }}

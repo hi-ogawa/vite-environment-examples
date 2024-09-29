@@ -35,6 +35,8 @@ export default defineConfig((_env) => ({
             "react/jsx-dev-runtime",
             "react-dom/server",
           ],
+          // TODO: worker condition not working when optimized?
+          // exclude: ["test-dep-conditions"],
         },
       },
       build: {
