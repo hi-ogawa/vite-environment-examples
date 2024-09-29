@@ -9,8 +9,8 @@ test("basic", async ({ page }) => {
 
 test("erorr stack", async ({ page }) => {
   // TODO:
-  // playwright's error stack doesn't have sourcemap applied.
-  // it needs to be manually verified from devtools console error message.
+  // error event's stacktrace doesn't have sourcemap applied.
+  // it needs to be verified from devtools console error message.
   const errorPromise = page.waitForEvent("pageerror");
   await page.goto("/?error-stack");
   const error = await errorPromise;
