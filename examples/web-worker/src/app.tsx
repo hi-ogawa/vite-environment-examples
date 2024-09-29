@@ -11,16 +11,19 @@ export function App() {
     const worker = new Worker(workerUrl, { type: "module" });
     worker.addEventListener("message", (e) => {
       if (e.data.type === "ready") {
+        if (window.location.search.includes("error")) {
+          worker.postMessage({ type: "error" });
+          setWorkerMessage("See devtool console");
+          return;
+        }
+        if (window.location.search.includes("worker-in-worker")) {
+          worker.postMessage({ type: "worker-in-worker" });
+          return;
+        }
         worker.postMessage({ type: "render" });
       }
       if (e.data.type === "render") {
         setWorkerMessage(e.data.data);
-        if (window.location.search.includes("error-stack")) {
-          worker.postMessage({ type: "error" });
-        }
-        if (window.location.search.includes("worker-in-worker")) {
-          worker.postMessage({ type: "worker-in-worker" });
-        }
       }
       if (e.data.type === "worker-in-worker") {
         setWorkerMessage(e.data.data);
