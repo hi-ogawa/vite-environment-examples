@@ -18,6 +18,12 @@ export function App() {
         if (window.location.search.includes("error-stack")) {
           worker.postMessage({ type: "error" });
         }
+        if (window.location.search.includes("worker-in-worker")) {
+          worker.postMessage({ type: "worker-in-worker" });
+        }
+      }
+      if (e.data.type === "worker-in-worker") {
+        setWorkerMessage(e.data.data);
       }
     });
     return () => {
