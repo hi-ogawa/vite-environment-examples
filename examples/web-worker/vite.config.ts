@@ -102,13 +102,17 @@ export function vitePluginWorkerEnvironment(): Plugin[] {
           if (manager.workerScan) {
             // client -> worker (scan)
             manager.workerMap[entry] = {};
-            // import worker as is to collect worker in worker during scan
-            code = `
-              import ${JSON.stringify(entry)};
-              export default "noop";
-            `;
+            code = `export default "__unused"`;
           } else if (this.environment.name === "worker") {
             // worker -> worker (build)
+            if (!(entry in manager.workerMap)) {
+              manager.workerMap[entry] = {
+                referenceId: this.emitFile({
+                  type: "chunk",
+                  id,
+                }),
+              };
+            }
             const referenceId = manager.workerMap[entry]!.referenceId;
             code = `export default import.meta.ROLLUP_FILE_URL_${referenceId}`;
           } else if (this.environment.name === "client") {
