@@ -13,28 +13,38 @@ import workerUrl from "./worker.ts?worker-env";
 const worker = new Worker(workerUrl, { type: "module" });
 ```
 
-## during dev
+__during dev__
 
 ```ts
-// /path-to/worker.ts?worker-env
+//// transform of /path-to/worker.ts?worker-env
 export default "/path-to/worker.ts?worker-env-file";
 ```
 
 ```ts
-// /path-to/worker.ts?worker-env-file
+//// transform of /path-to/worker.ts?worker-env-file
 import { createFetchRunner } from "/src/lib/runner";
 const runner = createFetchRunner({ root: "...", environmentName: "worker" });
 runner.import("/path-to/worker.ts");
 ```
 
-## during build
+__during build__
 
-TODO
+Build pipeline (notably it requires building client twice):
+
+- 1st client build: discover `./worker.ts?worker-env` imports,
+- worker build: `emitFile({ type: "chunk", id: "/path-to/worker.ts" })` for discovered `?worker-env` imports,
+- 2nd client build: transform `./worker.ts?worker-env` using worker build chunks,
+
+```ts
+//// transform of /path-to/worker.ts?worker-env
+export default "/path-to-emitted-chunk/worker-xxyyzzww.js";
+```
 
 ## tbd
 
 - need parallel client/worker build to avoid extra client build for discovering worker references
 - only esm supports multi worker entries
+- resolve conditions bug https://github.com/vitejs/vite/issues/18222
 
 ## related
 
