@@ -109,7 +109,7 @@ export function vitePluginWorkerEnvironment(): Plugin[] {
               manager.workerMap[entry] = {
                 referenceId: this.emitFile({
                   type: "chunk",
-                  id,
+                  id: entry,
                 }),
               };
             }
