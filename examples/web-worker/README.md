@@ -54,7 +54,8 @@ export default "/path-to-emitted-chunk/worker-xxyyzzww.js";
 
 - need parallel client/worker build to avoid extra client build for discovering worker references
 - only esm supports multi worker entries
-- how to optimizeDeps
+- optimizeDeps
+- hmr
 - resolve conditions bug https://github.com/vitejs/vite/issues/18222
 
 ## Related
