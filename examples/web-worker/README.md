@@ -39,10 +39,12 @@ runner.import("/path-to/worker.ts");
 
 __transform during build__
 
-Plugin ensures a following build steps to handle client's worker import:
+This plugin orchestrates a following build steps:
 
 - client `buildEnd` kicks off worker `buildStart`
-- worker `generateBundle` kicks off client `renderChunk`
+  - worker build starts with `emitFile` of worker references from client.
+- worker `generateBundle` kicks off client `renderChunk`:
+  - `__VITE_WORKER_URL_PLACEHOLDER["<entry>"]` inside client chunk is replaced with actual worker build's output url.
 
 ```ts
 //// transform of /path-to/worker.ts?worker-env
