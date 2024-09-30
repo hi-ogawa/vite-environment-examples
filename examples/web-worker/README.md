@@ -6,7 +6,17 @@ pnpm build
 pnpm preview
 ```
 
-## how it works
+## Why
+
+This approach can potentially solve following issues:
+
+- https://github.com/vitejs/vite/issues/7439
+- https://github.com/vitejs/vite/issues/18068
+
+Also [`worker`](https://vitejs.dev/config/worker-options.html#worker-options) options can be integrated into `environments.worker` options
+and plugins run similarly both dev and build without dedicated `worker.plugins`.
+
+## How it works
 
 Example code:
 
@@ -42,13 +52,15 @@ Build pipeline (notably it requires building client twice):
 export default "/path-to-emitted-chunk/worker-xxyyzzww.js";
 ```
 
-## tbd
+## TBD
 
 - need parallel client/worker build to avoid extra client build for discovering worker references
 - only esm supports multi worker entries
+- how to optimizeDeps
 - resolve conditions bug https://github.com/vitejs/vite/issues/18222
 
-## related
+## Related
 
 - https://github.com/vitejs/vite/discussions/18191
 - https://github.com/vitejs/vite/issues/7439
+- https://github.com/vitejs/vite/issues/18068
