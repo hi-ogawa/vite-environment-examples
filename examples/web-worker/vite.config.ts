@@ -5,7 +5,11 @@ import { vitePluginFetchModuleServer } from "./src/lib/fetch-module-server";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
-  plugins: [react(), vitePluginWorkerRunner(), vitePluginFetchModuleServer()],
+  plugins: [
+    react(),
+    vitePluginWorkerEnvironment(),
+    vitePluginFetchModuleServer(),
+  ],
   environments: {
     client: {
       dev: {
@@ -76,15 +80,15 @@ const manager = new (class PluginStateManager {
   workerMap: Record<string, { referenceId?: string; fileName?: string }> = {};
 })();
 
-export function vitePluginWorkerRunner(): Plugin[] {
+export function vitePluginWorkerEnvironment(): Plugin[] {
   const workerImportPlugin: Plugin = {
-    name: vitePluginWorkerRunner.name + ":import",
+    name: vitePluginWorkerEnvironment.name + ":import",
     sharedDuringBuild: true,
     transform(_code, id) {
-      // rewrite ?worker-runner import
-      if (id.endsWith("?worker-runner")) {
-        const workerUrl = id.replace("?worker-runner", "?worker-runner-file");
-        // dev: pass url directly to `new Worker("<id>?worker-runner-file")`
+      // rewrite ?worker-env import
+      if (id.endsWith("?worker-env")) {
+        const workerUrl = id.replace("?worker-env", "?worker-env-file");
+        // dev: pass url directly to `new Worker("<id>?worker-env-file")`
         if (this.environment.mode === "dev") {
           return {
             code: `export default ${JSON.stringify(workerUrl)}`,
@@ -93,7 +97,7 @@ export function vitePluginWorkerRunner(): Plugin[] {
         }
         // build
         if (this.environment.mode === "build") {
-          const entry = id.replace("?worker-runner", "");
+          const entry = id.replace("?worker-env", "");
           let code: string;
           if (manager.workerScan) {
             // client -> worker (scan)
@@ -119,14 +123,14 @@ export function vitePluginWorkerRunner(): Plugin[] {
       }
 
       // rewrite worker entry to import it from runner
-      if (id.endsWith("?worker-runner-file")) {
+      if (id.endsWith("?worker-env-file")) {
         console.assert(this.environment.name === "client");
         console.assert(this.environment.mode === "dev");
         const options = {
           root: this.environment.config.root,
           environmentName: "worker",
         };
-        const entryId = id.replace("?worker-runner-file", "");
+        const entryId = id.replace("?worker-env-file", "");
         const output = `
           import { createFetchRunner } from "/src/lib/runner";
           const runner = createFetchRunner(${JSON.stringify(options)});
@@ -145,7 +149,7 @@ export function vitePluginWorkerRunner(): Plugin[] {
   };
 
   const workerBuildPlugin: Plugin = {
-    name: vitePluginWorkerRunner.name + ":build",
+    name: vitePluginWorkerEnvironment.name + ":build",
     applyToEnvironment: (env) => env.mode === "build" && env.name === "worker",
     sharedDuringBuild: true,
     buildStart() {
