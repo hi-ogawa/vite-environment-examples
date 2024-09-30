@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { createEditor } from "./helper";
 
 test("basic", async ({ page }) => {
   await page.goto("/");
@@ -22,4 +23,12 @@ test("worker in worker", async ({ page }) => {
   await expect(page.getByTestId("worker-message")).toContainText(
     "Rendered in web worker in web worker",
   );
+});
+
+test("reload", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("worker-message")).toContainText("dep-ok");
+  using file = createEditor("./src/worker/dep.tsx");
+  file.edit((s) => s.replace(`"dep-ok"`, `"dep-edit-ok"`));
+  await expect(page.getByTestId("worker-message")).toContainText("dep-edit-ok");
 });
