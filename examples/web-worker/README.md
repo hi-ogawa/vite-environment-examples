@@ -23,7 +23,7 @@ import workerUrl from "./worker.ts?worker-env";
 const worker = new Worker(workerUrl, { type: "module" });
 ```
 
-__transform during dev__
+__Transform during dev__
 
 ```ts
 //// transform of /path-to/worker.ts?worker-env
@@ -37,7 +37,7 @@ const runner = createFetchRunner({ root: "...", environmentName: "worker" });
 runner.import("/path-to/worker.ts");
 ```
 
-__transform during build__
+__Transform during build__
 
 This plugin orchestrates a following build steps:
 
@@ -51,9 +51,9 @@ This plugin orchestrates a following build steps:
 export default "/path-to-emitted-chunk/worker-xxyyzzww.js";
 ```
 
-## TBD
+## TODO
 
-- only esm supports multi worker entries
+- only esm can support multi worker entries. what to do with iife?
 - optimizeDeps
 - hmr
 - resolve conditions bug https://github.com/vitejs/vite/issues/18222
