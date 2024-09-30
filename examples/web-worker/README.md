@@ -8,12 +8,14 @@ pnpm preview
 
 ## how it works
 
+Example code:
+
 ```ts
 import workerUrl from "./worker.ts?worker-env";
 const worker = new Worker(workerUrl, { type: "module" });
 ```
 
-__during dev__
+__transform during dev__
 
 ```ts
 //// transform of /path-to/worker.ts?worker-env
@@ -27,7 +29,7 @@ const runner = createFetchRunner({ root: "...", environmentName: "worker" });
 runner.import("/path-to/worker.ts");
 ```
 
-__during build__
+__transform during build__
 
 Build pipeline (notably it requires building client twice):
 
