@@ -10,11 +10,9 @@ pnpm preview
 
 This approach can potentially solve following issues:
 
-- https://github.com/vitejs/vite/issues/7439
-- https://github.com/vitejs/vite/issues/18068
-
-Also [`worker`](https://vitejs.dev/config/worker-options.html#worker-options) options can be integrated into `environments.worker` options
-and plugins run similarly both dev and build without dedicated `worker.plugins`.
+- resolve `worker` conditions both during dev and build (cf. https://github.com/vitejs/vite/issues/7439)
+- multiple esm workers sharing code split chunks (cf. https://github.com/vitejs/vite/issues/18068)
+- [`worker`](https://vitejs.dev/config/worker-options.html#worker-options) options can be integrated into `environments.worker` options and plugins run more consistently during dev and build.
 
 ## How it works
 
