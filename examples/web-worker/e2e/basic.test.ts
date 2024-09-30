@@ -25,7 +25,7 @@ test("worker in worker", async ({ page }) => {
   );
 });
 
-test("reload", async ({ page }) => {
+test("reload worker change @dev", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("worker-message")).toContainText("dep-ok");
   using file = createEditor("./src/worker/dep.tsx");
