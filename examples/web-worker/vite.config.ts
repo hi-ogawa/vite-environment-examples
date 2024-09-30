@@ -1,5 +1,6 @@
 import { rmSync } from "node:fs";
 import react from "@vitejs/plugin-react";
+import MagicString from "magic-string";
 import { type Plugin, defineConfig } from "vite";
 import { vitePluginFetchModuleServer } from "./src/lib/fetch-module-server";
 
@@ -65,18 +66,19 @@ export default defineConfig((_env) => ({
     async buildApp(builder) {
       rmSync("dist", { recursive: true, force: true });
       await Promise.all([
-        builder.build(builder.environments["worker"]!),
         builder.build(builder.environments["client"]!),
+        builder.build(builder.environments["worker"]!),
       ]);
     },
   },
 }));
 
 export function vitePluginWorkerEnvironment(): Plugin[] {
+  // states for build orchestration (not used during dev)
   const workerMap: Record<string, { referenceId?: string; fileName?: string }> =
     {};
-
   const events = {
+    // TODO: does it get stack on build error?
     clientBuildEnd: PromiseWithReoslvers<void>(),
     workerGenerateBundle: PromiseWithReoslvers<void>(),
   };
@@ -103,7 +105,7 @@ export function vitePluginWorkerEnvironment(): Plugin[] {
             // client -> worker (build)
             // track worker entry and delay worker url replacement until renderChunk.
             workerMap[entry] = {};
-            code = `export default __VITE_GET_WORKER_FILE_NAME(${JSON.stringify(entry)})`;
+            code = `export default ${JSON.stringify("__VITE_WORKER_URL_PLACEHOLDER[" + entry + "]")}`;
           } else if (this.environment.name === "worker") {
             // worker -> worker (build)
             if (!(entry in workerMap)) {
@@ -155,14 +157,16 @@ export function vitePluginWorkerEnvironment(): Plugin[] {
     name: vitePluginWorkerEnvironment.name + ":build",
     apply: "build",
     sharedDuringBuild: true,
+    // client buildEnd
     async buildEnd() {
       if (this.environment.name === "client") {
+        // kick off worker buildStart
         events.clientBuildEnd.resolve();
       }
     },
+    // worker buildStart
     async buildStart() {
       if (this.environment.name === "worker") {
-        // wait until client buildEnd to collect worker reference from client
         await events.clientBuildEnd.promise;
         for (const [id, meta] of Object.entries(workerMap)) {
           meta.referenceId = this.emitFile({
@@ -172,18 +176,41 @@ export function vitePluginWorkerEnvironment(): Plugin[] {
         }
       }
     },
+    // worker generateBundle
     async generateBundle(_options, bundle) {
       if (this.environment.name === "worker") {
+        for (const meta of Object.values(workerMap)) {
+          meta.fileName = this.getFileName(meta.referenceId!);
+        }
         delete bundle["_noop.js"];
         delete bundle["_noop.js.map"];
+
+        // kick off client renderChunk
         events.workerGenerateBundle.resolve();
       }
     },
-    async renderChunk() {
+    // client renderChunk
+    async renderChunk(code) {
       if (this.environment.name === "client") {
-        await events.workerGenerateBundle.promise;
-        // TODO
+        const output = new MagicString(code);
+        const matches = code.matchAll(
+          /"__VITE_WORKER_URL_PLACEHOLDER\[(.*)\]"/dg,
+        );
+        for (const match of matches) {
+          await events.workerGenerateBundle.promise;
+          const entry = JSON.parse(`"${match[1]!}"`);
+          const fileName = workerMap[entry]!.fileName;
+          const [start, end] = match.indices![0]!;
+          output.update(start, end, JSON.stringify("/" + fileName));
+        }
+        if (output.hasChanged()) {
+          return {
+            code: output.toString(),
+            map: output.generateMap(),
+          };
+        }
       }
+      return;
     },
   };
 
