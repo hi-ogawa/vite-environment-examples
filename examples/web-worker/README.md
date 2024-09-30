@@ -23,7 +23,7 @@ import workerUrl from "./worker.ts?worker-env";
 const worker = new Worker(workerUrl, { type: "module" });
 ```
 
-__transform during dev__
+__Transform during dev__
 
 ```ts
 //// transform of /path-to/worker.ts?worker-env
@@ -37,23 +37,23 @@ const runner = createFetchRunner({ root: "...", environmentName: "worker" });
 runner.import("/path-to/worker.ts");
 ```
 
-__transform during build__
+__Transform during build__
 
-Build pipeline (notably it requires building client twice):
+This plugin orchestrates a following build steps:
 
-- 1st client build: discover `./worker.ts?worker-env` imports,
-- worker build: `emitFile({ type: "chunk", id: "/path-to/worker.ts" })` for discovered `?worker-env` imports,
-- 2nd client build: transform `./worker.ts?worker-env` using worker build chunks,
+- client `buildEnd` kicks off worker `buildStart`
+  - worker build starts with `emitFile` of worker references from client.
+- worker `generateBundle` kicks off client `renderChunk`:
+  - `__VITE_WORKER_URL_PLACEHOLDER["<entry>"]` inside client chunk is replaced with actual worker build's output url.
 
 ```ts
 //// transform of /path-to/worker.ts?worker-env
 export default "/path-to-emitted-chunk/worker-xxyyzzww.js";
 ```
 
-## TBD
+## TODO
 
-- need parallel client/worker build to avoid extra client build for discovering worker references
-- only esm supports multi worker entries
+- only esm can support multi worker entries. what to do with iife?
 - optimizeDeps
 - hmr
 - resolve conditions bug https://github.com/vitejs/vite/issues/18222
