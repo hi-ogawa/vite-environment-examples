@@ -39,11 +39,10 @@ runner.import("/path-to/worker.ts");
 
 __transform during build__
 
-Build pipeline (notably it requires building client twice):
+Plugin ensures a following build steps to handle client's worker import:
 
-- 1st client build: discover `./worker.ts?worker-env` imports,
-- worker build: `emitFile({ type: "chunk", id: "/path-to/worker.ts" })` for discovered `?worker-env` imports,
-- 2nd client build: transform `./worker.ts?worker-env` using worker build chunks,
+- client `buildEnd` kicks off worker `buildStart`
+- worker `generateBundle` kicks off client `renderChunk`
 
 ```ts
 //// transform of /path-to/worker.ts?worker-env
@@ -52,7 +51,6 @@ export default "/path-to-emitted-chunk/worker-xxyyzzww.js";
 
 ## TBD
 
-- need parallel client/worker build to avoid extra client build for discovering worker references
 - only esm supports multi worker entries
 - optimizeDeps
 - hmr
