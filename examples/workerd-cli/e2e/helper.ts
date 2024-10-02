@@ -23,7 +23,9 @@ export function createProcessHelper(
       listeners.add(listener);
     });
     const timeout = sleep(5000).then(() => {
-      throw new Error("waitFor timeout", { cause: stdout });
+      const error = new Error("waitFor timeout", { cause: stdout });
+      Error.captureStackTrace(error, waitFor);
+      throw error;
     });
     return Promise.race([promise, timeout]);
   }
