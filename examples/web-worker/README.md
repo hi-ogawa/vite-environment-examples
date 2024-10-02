@@ -41,6 +41,10 @@ __Transform during build__
 
 This plugin orchestrates a following build steps:
 
+```sh
+(client build phase) -> (worker build/generate phase) -> (client generate phase)
+```
+
 - client `buildEnd` kicks off worker `buildStart`
   - worker build starts with `emitFile` of worker references from client.
 - worker `generateBundle` kicks off client `renderChunk`:
