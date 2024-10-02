@@ -1,6 +1,6 @@
 name = "vite-environment-examples-vue-ssr"
 
 main = "dist/server/index.js"
-assets = "dist/client"
+assets = { directory = "dist/client" }
 workers_dev = true
 compatibility_date = "2024-01-01"
