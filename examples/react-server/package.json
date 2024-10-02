@@ -18,7 +18,7 @@
   "devDependencies": {
     "@hiogawa/transforms": "0.0.0",
     "@hiogawa/vite-plugin-ssr-middleware-alpha": "workspace:*",
-    "@types/estree": "^1.0.5",
+    "@types/estree": "^1.0.6",
     "happy-dom": "^14.12.3",
     "magic-string": "^0.30.10",
     "unocss": "0.61.5"
