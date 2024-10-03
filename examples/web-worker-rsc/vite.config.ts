@@ -21,7 +21,7 @@ export default defineConfig((_env) => ({
     worker: {
       webCompatible: true,
       resolve: {
-        conditions: ["react-server"],
+        conditions: ["rsc"],
         noExternal: true,
       },
       dev: {
