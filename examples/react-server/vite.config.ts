@@ -129,7 +129,7 @@ function vitePluginReactServer(): PluginOption {
       tinyassert(config.environments);
       config.environments["rsc"] = {
         resolve: {
-          conditions: ["rsc"],
+          conditions: ["react-server"],
           noExternal: true,
         },
         dev: {
