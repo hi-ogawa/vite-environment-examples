@@ -32,7 +32,7 @@
     "tsup": "^8.1.2",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3",
-    "vite": "6.0.0-beta.2",
+    "vite": "https://pkg.pr.new/vite@87949fe",
     "vitest": "^2.0.3",
     "wrangler": "^3.79.0"
   },

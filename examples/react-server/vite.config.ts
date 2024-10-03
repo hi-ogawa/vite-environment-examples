@@ -90,10 +90,10 @@ export default defineConfig((_env) => ({
       // by traversing server module graph and going over client boundary
       // TODO: this causes single plugin to be reused by two react-server builds
       manager.buildStep = "scan";
-      await builder.build(builder.environments["react-server"]!);
+      await builder.build(builder.environments["rsc"]!);
       manager.buildStep = undefined;
 
-      await builder.build(builder.environments["react-server"]!);
+      await builder.build(builder.environments["rsc"]!);
       await builder.build(builder.environments["client"]!);
       await builder.build(builder.environments["ssr"]!);
     },
@@ -127,7 +127,7 @@ function vitePluginReactServer(): PluginOption {
     name: vitePluginReactServer.name,
     config(config, _env) {
       tinyassert(config.environments);
-      config.environments["react-server"] = {
+      config.environments["rsc"] = {
         resolve: {
           conditions: ["react-server"],
           noExternal: true,
@@ -160,7 +160,7 @@ function vitePluginReactServer(): PluginOption {
       manager.config = config;
     },
     async configureServer(server) {
-      const reactServerEnv = server.environments["react-server"];
+      const reactServerEnv = server.environments["rsc"];
       tinyassert(reactServerEnv);
       // no hmr setup for custom node environment
       const reactServerRunner = createServerModuleRunner(reactServerEnv);
@@ -168,7 +168,7 @@ function vitePluginReactServer(): PluginOption {
       $__global.reactServerRunner = reactServerRunner;
     },
     hotUpdate(ctx) {
-      if (this.environment.name === "react-server") {
+      if (this.environment.name === "rsc") {
         const ids = ctx.modules.map((mod) => mod.id).filter(typedBoolean);
         if (ids.length > 0) {
           // client reference id is also in react server module graph,
@@ -215,7 +215,7 @@ function vitePluginUseClient(): PluginOption {
   const transformPlugin: Plugin = {
     name: vitePluginUseClient.name + ":transform",
     async transform(code, id, _options) {
-      if (this.environment.name !== "react-server") {
+      if (this.environment.name !== "rsc") {
         return;
       }
       manager.clientReferenceMap.delete(id);
@@ -254,7 +254,7 @@ function vitePluginUseClient(): PluginOption {
   const virtualPlugin: Plugin = createVirtualPlugin(
     "client-references",
     function () {
-      tinyassert(this.environment?.name !== "react-server");
+      tinyassert(this.environment?.name !== "rsc");
       tinyassert(this.environment?.mode === "build");
 
       return [
@@ -297,8 +297,8 @@ function vitePluginServerAction(): PluginOption {
       }
       const ast = await parseAstAsync(code);
       tinyassert(this.environment);
-      const runtimeId = await normalizeReferenceId(id, "react-server");
-      if (this.environment.name === "react-server") {
+      const runtimeId = await normalizeReferenceId(id, "rsc");
+      if (this.environment.name === "rsc") {
         const { output } = await transformServerActionServer(code, ast, {
           id: runtimeId,
           runtime: "$$register",
@@ -345,7 +345,7 @@ function vitePluginServerAction(): PluginOption {
       if (manager.buildStep === "scan") {
         return `export default {}`;
       }
-      tinyassert(this.environment?.name === "react-server");
+      tinyassert(this.environment?.name === "rsc");
       tinyassert(this.environment.mode === "build");
       return [
         "export default {",
@@ -361,7 +361,7 @@ function vitePluginServerAction(): PluginOption {
     name: "patch-react-server-dom-webpack",
     transform(code, id, _options) {
       if (
-        this.environment?.name === "react-server" &&
+        this.environment?.name === "rsc" &&
         id.includes("react-server-dom-webpack")
       ) {
         // rename webpack markers in react server runtime
@@ -389,10 +389,7 @@ function vitePluginServerAction(): PluginOption {
   return [transformPlugin, virtualServerReference, patchPlugin];
 }
 
-async function normalizeReferenceId(
-  id: string,
-  name: "client" | "react-server",
-) {
+async function normalizeReferenceId(id: string, name: "client" | "rsc") {
   if (manager.config.command === "build") {
     return hashString(path.relative(manager.config.root, id));
   }
@@ -411,7 +408,7 @@ async function normalizeReferenceId(
       runtimeId = m?.[1];
       break;
     }
-    case "react-server": {
+    case "rsc": {
       // `dynamicDeps` is available for ssrTransform
       runtimeId = transformed.dynamicDeps?.[0];
       break;
