@@ -7,7 +7,6 @@ import type { ViteDevServer } from "vite";
 import type { StreamData } from "./entry-rsc";
 
 export default async function handler(request: Request): Promise<Response> {
-  console.log(request.url);
   const url = new URL(request.url);
   const response = await handleRsc(request);
   if (url.searchParams.has("__f")) {

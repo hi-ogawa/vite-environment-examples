@@ -18,7 +18,8 @@ export default defineConfig((_env) => ({
         return () => {
           server.middlewares.use(
             webToNodeHandler(async (request) => {
-              if (1) {
+              if (0) {
+                // debug
                 return (server.environments["rsc"] as any).dispatchFetch(
                   "/src/entry-rsc.tsx",
                   request,
@@ -36,8 +37,9 @@ export default defineConfig((_env) => ({
   ],
   environments: {
     rsc: {
+      // TODO: avoid mixed condition for ssr/rsc envs https://github.com/vitejs/vite/issues/18222
+      webCompatible: true,
       resolve: {
-        conditions: ["react-server"],
         externalConditions: ["react-server"],
       },
       dev: {
