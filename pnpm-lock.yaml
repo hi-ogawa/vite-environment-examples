@@ -80,6 +80,8 @@ importers:
 
   examples/browser-cli: {}
 
+  examples/fetch: {}
+
   examples/react-server:
     devDependencies:
       '@hiogawa/transforms':
