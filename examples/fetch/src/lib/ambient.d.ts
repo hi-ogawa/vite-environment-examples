@@ -1,4 +1,4 @@
-declare module "react-server-dom-webpack/server" {
+declare module "react-server-dom-webpack/server.edge" {
   export function renderToReadableStream<T>(
     data: T,
     bundlerConfig: unknown,

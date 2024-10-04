@@ -8,13 +8,35 @@ import { DevEnvironment, defineConfig } from "vite";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: "app",
+      configureServer(server) {
+        return () => {
+          server.middlewares.use(
+            webToNodeHandler((request) =>
+              (server.environments["rsc"] as any).dispatchFetch(
+                "/src/entry-rsc.tsx",
+                request,
+              ),
+            ),
+          );
+        };
+      },
+    },
+  ],
   environments: {
     rsc: {
+      resolve: {
+        externalConditions: ["react-server"],
+      },
       dev: {
         createEnvironment(name, config, _context) {
           const command = [
             "node",
+            "--conditions",
+            "react-server",
             join(import.meta.dirname, "./src/lib/vite/runtime/node.js"),
           ];
 
@@ -90,7 +112,7 @@ export default defineConfig((_env) => ({
                   reject(e);
                 });
               });
-              await this.childUrlPromise.promise;
+              this.childUrl = await this.childUrlPromise.promise;
             };
 
             override close: DevEnvironment["close"] = async (...args) => {

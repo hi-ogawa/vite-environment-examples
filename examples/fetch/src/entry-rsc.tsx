@@ -1,5 +1,5 @@
 import "./lib/polyfill-webpack";
-import ReactServer from "react-server-dom-webpack/server";
+import ReactServer from "react-server-dom-webpack/server.edge";
 import Page from "./routes/page";
 
 export default function handler(request: Request) {
