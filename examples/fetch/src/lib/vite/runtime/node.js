@@ -1,12 +1,40 @@
+import assert from "node:assert";
 import http from "node:http";
 import { webToNodeHandler } from "@hiogawa/utils-node";
-import { createFetchRunner } from "../client.js";
-
-/** @type {import("vite/module-runner").ModuleRunner} */
-let runner;
+import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
 
 async function main() {
-  const listener = webToNodeHandler(handler);
+  // @ts-ignore
+  const { bridgeUrl, root } = JSON.parse(process.argv[2]);
+
+  /** @type {import("vite/module-runner").ModuleRunner} */
+  const runner = new ModuleRunner(
+    {
+      root,
+      transport: {
+        fetchModule: async (...args) => {
+          const response = await fetch(bridgeUrl + "/rpc", {
+            method: "POST",
+            body: JSON.stringify({ method: "fetchModule", args }),
+          });
+          const result = response.json();
+          return result;
+        },
+      },
+      hmr: false,
+    },
+    new ESModulesEvaluator(),
+  );
+
+  const listener = webToNodeHandler(async (request) => {
+    const headers = request.headers;
+    // @ts-ignore
+    const meta = JSON.parse(headers.get("x-vite-meta"));
+    headers.delete("x-vite-meta");
+    assert(meta);
+    const mod = await runner.import(meta.entry);
+    return mod.default(new Request(meta.url, { ...request, headers }));
+  });
 
   const server = http.createServer((req, res) => {
     listener(req, res, (e) => {
@@ -14,7 +42,7 @@ async function main() {
         console.error(e);
         res.statusCode = 500;
         res.end(
-          "[vite runner error]\n" +
+          "[runner error]\n" +
             (e instanceof Error ? `${e.stack ?? e.message}` : ""),
         );
       } else {
@@ -23,41 +51,16 @@ async function main() {
     });
   });
 
-  createFetchRunner;
-
-  server.listen(() => {
+  server.listen(async () => {
     const address = server.address();
-    if (!address || typeof address === "string") throw "todo";
-
-    // TODO: need to know vite server origin..
-    // fetch(new URL("./")),
-    address.port;
-
-    console.log(server.address());
-    // fetch("http://localhost:???/__vite_ready");
+    assert(address && typeof address !== "string");
+    const childUrl = `http://localhost:${address.port}`;
+    const response = await fetch(bridgeUrl + "/rpc", {
+      method: "POST",
+      body: JSON.stringify({ method: "register", args: [childUrl] }),
+    });
+    assert(response.ok);
   });
-}
-
-/**
- *
- * @param {Request} request
- * @returns {Promise<Response>}
- */
-async function handler(request) {
-  const url = new URL(request.url);
-  if (url.pathname === "/__vite_init") {
-  }
-
-  const headers = request.headers;
-  // @ts-ignore
-  const meta = JSON.parse(headers.get("x-vite-meta"));
-  headers.delete("x-vite-meta");
-  if (!meta) throw "todo";
-
-  runner;
-
-  const mod = await import(meta.entry);
-  return mod.default(new Request(meta.url, { ...request, headers }));
 }
 
 main();
