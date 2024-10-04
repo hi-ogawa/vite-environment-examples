@@ -4,23 +4,31 @@ import http from "node:http";
 import { join } from "node:path";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import react from "@vitejs/plugin-react";
-import { DevEnvironment, defineConfig } from "vite";
+import { DevEnvironment, defineConfig, isRunnableDevEnvironment } from "vite";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
+  appType: "custom",
   plugins: [
     react(),
     {
       name: "app",
       configureServer(server) {
+        Object.assign(globalThis, { __vite_server__: server });
         return () => {
           server.middlewares.use(
-            webToNodeHandler((request) =>
-              (server.environments["rsc"] as any).dispatchFetch(
-                "/src/entry-rsc.tsx",
-                request,
-              ),
-            ),
+            webToNodeHandler(async (request) => {
+              if (1) {
+                return (server.environments["rsc"] as any).dispatchFetch(
+                  "/src/entry-rsc.tsx",
+                  request,
+                );
+              }
+              const ssrEnv = server.environments.ssr;
+              assert(isRunnableDevEnvironment(ssrEnv));
+              const mod = await ssrEnv.runner.import("/src/entry-ssr.tsx");
+              return mod.default(request);
+            }),
           );
         };
       },
@@ -29,17 +37,24 @@ export default defineConfig((_env) => ({
   environments: {
     rsc: {
       resolve: {
+        conditions: ["react-server"],
         externalConditions: ["react-server"],
       },
       dev: {
+        // TODO: refactor to factory
         createEnvironment(name, config, _context) {
+          // const command = [
+          //   "bun",
+          //   "run",
+          //   "--conditions",
+          //   "react-server",
+          //   join(import.meta.dirname, "./src/lib/vite/runtime/bun.js"),
+          // ];
           const command = [
-            "bun",
-            "run",
+            "node",
             "--conditions",
             "react-server",
-            join(import.meta.dirname, "./src/lib/vite/runtime/bun.js"),
-            // join(import.meta.dirname, "./src/lib/vite/runtime/node.js"),
+            join(import.meta.dirname, "./src/lib/vite/runtime/node.js"),
           ];
 
           // TODO
