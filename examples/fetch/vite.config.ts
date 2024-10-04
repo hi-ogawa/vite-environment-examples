@@ -34,10 +34,12 @@ export default defineConfig((_env) => ({
       dev: {
         createEnvironment(name, config, _context) {
           const command = [
-            "node",
+            "bun",
+            "run",
             "--conditions",
             "react-server",
-            join(import.meta.dirname, "./src/lib/vite/runtime/node.js"),
+            join(import.meta.dirname, "./src/lib/vite/runtime/bun.js"),
+            // join(import.meta.dirname, "./src/lib/vite/runtime/node.js"),
           ];
 
           // TODO

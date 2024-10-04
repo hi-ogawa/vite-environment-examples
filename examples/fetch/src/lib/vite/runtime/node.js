@@ -39,7 +39,6 @@ async function main() {
     // @ts-ignore
     const meta = JSON.parse(headers.get("x-vite-meta"));
     headers.delete("x-vite-meta");
-    assert(meta);
     const mod = await runner.import(meta.entry);
     return mod.default(new Request(meta.url, { ...request, headers }));
   });
