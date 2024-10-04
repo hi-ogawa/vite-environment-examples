@@ -96,7 +96,6 @@ export default defineConfig((_env) => ({
                   JSON.stringify({
                     bridgeUrl: this.bridgeUrl,
                     root: this.config.root,
-                    environmentName: this.name,
                   }),
                 ],
                 {
@@ -113,11 +112,16 @@ export default defineConfig((_env) => ({
                 });
               });
               this.childUrl = await this.childUrlPromise.promise;
+              console.log("[environment.init]", {
+                bridgeUrl: this.bridgeUrl,
+                childUrl: this.childUrl,
+              });
             };
 
             override close: DevEnvironment["close"] = async (...args) => {
               await super.close(...args);
               this.child?.kill();
+              this.bridge?.close();
             };
 
             async dispatchFetch(
