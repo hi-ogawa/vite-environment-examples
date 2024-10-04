@@ -7,19 +7,27 @@ async function main() {
   // @ts-ignore
   const { bridgeUrl, root } = JSON.parse(process.argv[2]);
 
-  /** @type {import("vite/module-runner").ModuleRunner} */
+  /**
+   *
+   * @param {string} method
+   * @param  {...any} args
+   * @returns
+   */
+  async function bridgeRpc(method, ...args) {
+    const response = await fetch(bridgeUrl + "/rpc", {
+      method: "POST",
+      body: JSON.stringify({ method, args }),
+    });
+    assert(response.ok);
+    const result = response.json();
+    return result;
+  }
+
   const runner = new ModuleRunner(
     {
       root,
       transport: {
-        fetchModule: async (...args) => {
-          const response = await fetch(bridgeUrl + "/rpc", {
-            method: "POST",
-            body: JSON.stringify({ method: "fetchModule", args }),
-          });
-          const result = response.json();
-          return result;
-        },
+        fetchModule: (...args) => bridgeRpc("fetchModule", ...args),
       },
       hmr: false,
     },
@@ -54,12 +62,7 @@ async function main() {
   server.listen(async () => {
     const address = server.address();
     assert(address && typeof address !== "string");
-    const childUrl = `http://localhost:${address.port}`;
-    const response = await fetch(bridgeUrl + "/rpc", {
-      method: "POST",
-      body: JSON.stringify({ method: "register", args: [childUrl] }),
-    });
-    assert(response.ok);
+    await bridgeRpc("register", `http://localhost:${address.port}`);
   });
 }
 
