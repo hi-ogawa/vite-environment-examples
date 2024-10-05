@@ -25,7 +25,12 @@ export default async function handler(request: Request): Promise<Response> {
   );
 
   function Root() {
-    return React.use(rscPromise);
+    return (
+      <>
+        {React.use(rscPromise)}
+        <meta name="node-version" content={process.version} />
+      </>
+    );
   }
 
   const ssrStream = await ReactDomServer.renderToReadableStream(<Root />, {
