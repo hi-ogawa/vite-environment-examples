@@ -27,8 +27,8 @@ export default async function handler(request: Request): Promise<Response> {
   function Root() {
     return (
       <>
-        {React.use(rscPromise)}
         <meta name="node-version" content={process.version} />
+        {React.use(rscPromise)}
       </>
     );
   }
