@@ -80,7 +80,7 @@ importers:
 
   examples/browser-cli: {}
 
-  examples/fetch: {}
+  examples/child-process: {}
 
   examples/react-server:
     devDependencies:

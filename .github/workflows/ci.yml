@@ -34,7 +34,7 @@ jobs:
       - run: pnpm -C examples/react-server test-e2e-preview
       - run: pnpm -C examples/react-server cf-build
       - run: pnpm -C examples/react-server test-e2e-cf-preview
-      - run: pnpm -C examples/fetch test-e2e
+      - run: pnpm -C examples/child-process test-e2e
       # vitest not working
       # - run: pnpm -C examples/react-server test
       - run: pnpm -C examples/vue-ssr test-e2e

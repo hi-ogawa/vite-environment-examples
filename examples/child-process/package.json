@@ -1,5 +1,5 @@
 {
-  "name": "@hiogawa/vite-environment-examples-fetch",
+  "name": "@hiogawa/vite-environment-examples-child-process",
   "private": true,
   "type": "module",
   "scripts": {
