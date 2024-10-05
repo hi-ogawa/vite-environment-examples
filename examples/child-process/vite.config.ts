@@ -45,19 +45,23 @@ export default defineConfig((_env) => ({
       },
       dev: {
         createEnvironment(name, config, _context) {
-          const command = [
-            "bun",
-            "run",
-            "--conditions",
-            "react-server",
-            join(import.meta.dirname, "./src/lib/vite/runtime/bun.js"),
-          ];
-          // const command = [
-          //   "node",
-          //   "--conditions",
-          //   "react-server",
-          //   join(import.meta.dirname, "./src/lib/vite/runtime/node.js"),
-          // ];
+          let command: string[];
+          if (process.env["CHILD_PROCESS_TYPE"] === "node") {
+            command = [
+              "node",
+              "--conditions",
+              "react-server",
+              join(import.meta.dirname, "./src/lib/vite/runtime/node.js"),
+            ];
+          } else {
+            command = [
+              "bun",
+              "run",
+              "--conditions",
+              "react-server",
+              join(import.meta.dirname, "./src/lib/vite/runtime/bun.js"),
+            ];
+          }
           return new ChildProcessFetchDevEnvironment(
             { command },
             name,
