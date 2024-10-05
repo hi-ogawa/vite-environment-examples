@@ -26,6 +26,7 @@ async function main() {
   const runner = new ModuleRunner(
     {
       root,
+      sourcemapInterceptor: "prepareStackTrace",
       transport: {
         fetchModule: (...args) => bridgeRpc("fetchModule", ...args),
       },
