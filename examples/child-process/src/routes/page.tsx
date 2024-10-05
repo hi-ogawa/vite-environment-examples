@@ -5,10 +5,14 @@ export default async function Page(props: { url: URL }) {
 
   return (
     <div>
-      {typeof Bun !== "undefined" && (
+      {typeof Bun !== "undefined" ? (
         <>
           <meta name="bun-version" content={Bun.version} />
           <pre>Bun.version: {Bun.version}</pre>
+        </>
+      ) : (
+        <>
+          <pre>process.version: {process.version}</pre>
         </>
       )}
     </div>
