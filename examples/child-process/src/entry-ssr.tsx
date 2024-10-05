@@ -9,7 +9,15 @@ import type { StreamData } from "./entry-rsc";
 
 export default async function handler(request: Request): Promise<Response> {
   const url = new URL(request.url);
+  if (url.searchParams.has("crash-ssr-handler")) {
+    throw new Error("boom");
+  }
+
   const response = await handleRsc(request);
+  if (!response.ok) {
+    return response;
+  }
+
   if (url.searchParams.has("__f")) {
     return response;
   }

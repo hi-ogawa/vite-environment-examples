@@ -1,4 +1,7 @@
-export default function Page() {
+export default async function Page(props: { url: URL }) {
+  if (props.url.searchParams.has("crash-rsc-page")) {
+    throw new Error("boom");
+  }
   return (
     <div>
       <meta name="bun-version" content={Bun.version} />
