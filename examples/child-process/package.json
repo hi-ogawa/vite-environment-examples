@@ -9,8 +9,9 @@
     "test-e2e": "playwright test",
     "test-e2e-preview": "E2E_PREVIEW=1 playwright test"
   },
-  "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/bun": "^1.1.10"
+  },
   "volta": {
     "extends": "../../package.json"
   }

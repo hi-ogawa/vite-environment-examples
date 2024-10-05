@@ -44,7 +44,6 @@ async function main() {
     return mod.default(new Request(meta.url, { ...request, headers }));
   }
 
-  // @ts-ignore
   const server = Bun.serve({ port: 0, fetch: handler });
   await bridgeRpc("register", `http://localhost:${server.port}`);
 }
