@@ -37,12 +37,20 @@ async function main() {
    * @returns {Promise<Response>}
    */
   async function handler(request) {
-    const headers = request.headers;
-    // @ts-ignore
-    const meta = JSON.parse(headers.get("x-vite-meta"));
-    headers.delete("x-vite-meta");
-    const mod = await runner.import(meta.entry);
-    return mod.default(new Request(meta.url, { ...request, headers }));
+    try {
+      const headers = request.headers;
+      // @ts-ignore
+      const meta = JSON.parse(headers.get("x-vite-meta"));
+      headers.delete("x-vite-meta");
+      const mod = await runner.import(meta.entry);
+      return mod.default(new Request(meta.url, { ...request, headers }));
+    } catch (e) {
+      console.error(e);
+      const message =
+        "[bun runner error]\n" +
+        (e instanceof Error ? `${e.stack ?? e.message}` : "");
+      return new Response(message, { status: 500 });
+    }
   }
 
   const server = Bun.serve({ port: 0, fetch: handler });

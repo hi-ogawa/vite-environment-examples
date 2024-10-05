@@ -35,28 +35,31 @@ async function main() {
     new ESModulesEvaluator(),
   );
 
-  const listener = webToNodeHandler(async (request) => {
-    const headers = request.headers;
-    // @ts-ignore
-    const meta = JSON.parse(headers.get("x-vite-meta"));
-    headers.delete("x-vite-meta");
-    const mod = await runner.import(meta.entry);
-    return mod.default(new Request(meta.url, { ...request, headers }));
-  });
+  /**
+   * @param {Request} request
+   * @returns {Promise<Response>}
+   */
+  async function handler(request) {
+    try {
+      const headers = request.headers;
+      // @ts-ignore
+      const meta = JSON.parse(headers.get("x-vite-meta"));
+      headers.delete("x-vite-meta");
+      const mod = await runner.import(meta.entry);
+      return mod.default(new Request(meta.url, { ...request, headers }));
+    } catch (e) {
+      console.error(e);
+      const message =
+        "[node runner error]\n" +
+        (e instanceof Error ? `${e.stack ?? e.message}` : "");
+      return new Response(message, { status: 500 });
+    }
+  }
+
+  const listener = webToNodeHandler(handler);
 
   const server = http.createServer((req, res) => {
-    listener(req, res, (e) => {
-      if (e) {
-        console.error(e);
-        res.statusCode = 500;
-        res.end(
-          "[runner error]\n" +
-            (e instanceof Error ? `${e.stack ?? e.message}` : ""),
-        );
-      } else {
-        res.statusCode = 404;
-      }
-    });
+    listener(req, res, (e) => console.error(e));
   });
 
   server.listen(async () => {
