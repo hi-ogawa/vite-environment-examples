@@ -27,6 +27,10 @@ export default async function Page(props: { url: URL }) {
 }
 
 async function Sleep(props: { ms: number }) {
-  await Bun.sleep(props.ms);
+  if (typeof Bun !== "undefined") {
+    await Bun.sleep(props.ms);
+  } else {
+    await new Promise((r) => setTimeout(r, props.ms));
+  }
   return <div>Done!</div>;
 }

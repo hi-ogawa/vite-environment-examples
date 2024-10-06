@@ -4,7 +4,12 @@ import http from "node:http";
 import { join } from "node:path";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import react from "@vitejs/plugin-react";
-import { DevEnvironment, defineConfig, isRunnableDevEnvironment } from "vite";
+import {
+  DevEnvironment,
+  type DevEnvironmentOptions,
+  defineConfig,
+  isRunnableDevEnvironment,
+} from "vite";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
@@ -44,34 +49,10 @@ export default defineConfig((_env) => ({
         externalConditions: ["react-server"],
       },
       dev: {
-        createEnvironment(name, config, _context) {
-          let command: string[];
-          if (process.env["CHILD_PROCESS_TYPE"] === "node") {
-            command = [
-              "node",
-              "--conditions",
-              "react-server",
-              join(import.meta.dirname, "./src/lib/vite/runtime/node.js"),
-            ];
-          } else {
-            command = [
-              "bun",
-              "run",
-              "--conditions",
-              "react-server",
-              join(import.meta.dirname, "./src/lib/vite/runtime/bun.js"),
-            ];
-          }
-          return new ChildProcessFetchDevEnvironment(
-            { command },
-            name,
-            config,
-            {
-              // TODO
-              hot: false,
-            },
-          );
-        },
+        createEnvironment: ChildProcessFetchDevEnvironment.createFactory({
+          runtime: (process.env["CHILD_PROCESS_RUNTIME"] ?? "bun") as any,
+          conditions: ["react-server"],
+        }),
       },
     },
   },
@@ -86,6 +67,27 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   public child!: childProcess.ChildProcess;
   public childUrl!: string;
   public childUrlPromise!: PromiseWithResolvers<string>;
+
+  static createFactory(options: {
+    runtime: "node" | "bun";
+    conditions?: string[];
+  }): NonNullable<DevEnvironmentOptions["createEnvironment"]> {
+    return (name, config) => {
+      const command = [
+        options.runtime === "node" ? ["node"] : [],
+        options.runtime === "bun" ? ["bun", "run"] : [],
+        options.conditions ? ["--conditions", ...options.conditions] : [],
+        join(
+          import.meta.dirname,
+          `./src/lib/vite/runtime/${options.runtime}.js`,
+        ),
+      ].flat();
+      return new ChildProcessFetchDevEnvironment({ command }, name, config, {
+        // TODO
+        hot: false,
+      });
+    };
+  }
 
   constructor(
     public extraOptions: { command: string[] },
