@@ -3,9 +3,8 @@ import assert from "node:assert";
 import React from "react";
 import ReactDomServer from "react-dom/server.edge";
 import ReactClient from "react-server-dom-webpack/client.edge";
-import type { ViteDevServer } from "vite";
-import type { ChildProcessFetchDevEnvironment } from "../vite.config";
 import type { StreamData } from "./entry-rsc";
+import type { ChildProcessFetchDevEnvironment } from "./lib/vite/environment";
 
 export default async function handler(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -49,10 +48,8 @@ export default async function handler(request: Request): Promise<Response> {
   return new Response(ssrStream, { headers: { "content-type": "text/html" } });
 }
 
-declare const __vite_server__: ViteDevServer;
+declare const __vite_environment_rsc__: ChildProcessFetchDevEnvironment;
 
 async function handleRsc(request: Request): Promise<Response> {
-  return (
-    __vite_server__.environments["rsc"] as ChildProcessFetchDevEnvironment
-  ).dispatchFetch("/src/entry-rsc.tsx", request);
+  return __vite_environment_rsc__.dispatchFetch("/src/entry-rsc.tsx", request);
 }
