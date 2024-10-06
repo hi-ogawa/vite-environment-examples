@@ -77,24 +77,11 @@ export default defineConfig((_env) => ({
   },
 }));
 
-// TODO
-// can we abstract away child process? FetchBridgeDevEnvironment?
-// multiple children per env (like Vitest)? need different API?
-export class ChildProcessFetchDevEnvironment extends DevEnvironment {
+class BridgeServerDevEnvironment extends DevEnvironment {
   public bridge!: http.Server;
   public bridgeUrl!: string;
-  public child!: childProcess.ChildProcess;
-  public childUrl!: string;
-  public childUrlPromise!: PromiseWithResolvers<string>;
 
-  constructor(
-    public extraOptions: { command: string[] },
-    ...args: ConstructorParameters<typeof DevEnvironment>
-  ) {
-    super(...args);
-  }
-
-  override init: DevEnvironment["init"] = async (...args) => {
+  override async init(...args: Parameters<DevEnvironment["init"]>) {
     await super.init(...args);
 
     const listener = webToNodeHandler(async (request) => {
@@ -130,8 +117,29 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         reject(e);
       });
     });
+  }
 
-    // TODO: separate child process concern?
+  override async close(...args: Parameters<DevEnvironment["close"]>) {
+    await super.close(...args);
+    this.bridge?.close();
+  }
+}
+
+export class ChildProcessFetchDevEnvironment extends BridgeServerDevEnvironment {
+  public child!: childProcess.ChildProcess;
+  public childUrl!: string;
+  public childUrlPromise!: PromiseWithResolvers<string>;
+
+  constructor(
+    public extraOptions: { command: string[] },
+    ...args: ConstructorParameters<typeof DevEnvironment>
+  ) {
+    super(...args);
+  }
+
+  override async init(...args: Parameters<DevEnvironment["init"]>) {
+    await super.init(...args);
+
     this.childUrlPromise = PromiseWithReoslvers();
     const command = this.extraOptions.command;
     const child = childProcess.spawn(
@@ -161,13 +169,12 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
       bridgeUrl: this.bridgeUrl,
       childUrl: this.childUrl,
     });
-  };
+  }
 
-  override close: DevEnvironment["close"] = async (...args) => {
+  override async close(...args: Parameters<DevEnvironment["close"]>) {
     await super.close(...args);
     this.child?.kill();
-    this.bridge?.close();
-  };
+  }
 
   async dispatchFetch(entry: string, request: Request): Promise<Response> {
     const headers = new Headers(request.headers);
