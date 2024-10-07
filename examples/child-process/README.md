@@ -1,10 +1,16 @@
 # child-process
 
-Running module runner inside child process (e.g. node, bun) with `--conditions react-server`, which allows `react` to be externalized.
+Custom environment to run a module runner inside a child process (e.g. node, bun). For example, this allows externalizing `react` deps by running a child process with `--conditions react-server`.
 
 ```sh
 pnpm dev
 ```
+
+## todo
+
+- write a summary
+  - why bridge server instead of vite server middleware
+  - `dispatchFetch(request)` vs `dispatchFetch(entry, request)`
 
 ## related
 

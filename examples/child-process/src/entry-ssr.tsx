@@ -4,7 +4,6 @@ import React from "react";
 import ReactDomServer from "react-dom/server.edge";
 import ReactClient from "react-server-dom-webpack/client.edge";
 import type { StreamData } from "./entry-rsc";
-import type { ChildProcessFetchDevEnvironment } from "./lib/vite/environment";
 
 export default async function handler(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -47,8 +46,6 @@ export default async function handler(request: Request): Promise<Response> {
   rscStream2;
   return new Response(ssrStream, { headers: { "content-type": "text/html" } });
 }
-
-declare const __vite_environment_rsc__: ChildProcessFetchDevEnvironment;
 
 async function handleRsc(request: Request): Promise<Response> {
   return __vite_environment_rsc__.dispatchFetch("/src/entry-rsc.tsx", request);
