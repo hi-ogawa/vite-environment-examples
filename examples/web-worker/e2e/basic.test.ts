@@ -27,10 +27,10 @@ test("worker in worker", async ({ page }) => {
 
 test("reload worker change @dev", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByTestId("worker-message")).toContainText("dep-ok");
+  await expect(page.getByTestId("worker")).toContainText("dep-ok");
   using file = createEditor("./src/worker/dep.tsx");
-  file.edit((s) => s.replace(`"dep-ok"`, `"dep-edit-ok"`));
-  await expect(page.getByTestId("worker-message")).toContainText("dep-edit-ok");
+  file.edit((s) => s.replace(`"user-dep-ok"`, `"user-dep-edit-ok"`));
+  await expect(page.getByTestId("worker")).toContainText("dep-edit-ok");
 });
 
 test("condition", async ({ page }) => {
