@@ -1,0 +1,18 @@
+{
+  "name": "@hiogawa/vite-environment-examples-child-process",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --app",
+    "preview": "vite preview",
+    "test-e2e": "playwright test",
+    "test-e2e-preview": "E2E_PREVIEW=1 playwright test"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.10"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

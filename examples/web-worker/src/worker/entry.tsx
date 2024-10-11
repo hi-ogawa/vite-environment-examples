@@ -2,7 +2,7 @@ import ReactDomServer from "react-dom/server";
 import depCondition from "test-dep-conditions";
 import dep from "./dep";
 import { depThrowError } from "./dep-error";
-import workerInWorkerUrl from "./worker-in-worker?worker-runner";
+import workerInWorkerUrl from "./worker-in-worker?worker-env";
 
 self.addEventListener("message", (e) => {
   if (e.data.type === "render") {

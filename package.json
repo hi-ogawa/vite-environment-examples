@@ -24,16 +24,17 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "esbuild": "^0.23.0",
-    "miniflare": "^3.20240909.5",
+    "magic-string": "^0.30.10",
+    "miniflare": "^3.20240925.0",
     "react": "19.0.0-rc-eb3ad065-20240822",
     "react-dom": "19.0.0-rc-eb3ad065-20240822",
     "react-server-dom-webpack": "19.0.0-rc-eb3ad065-20240822",
     "tsup": "^8.1.2",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3",
-    "vite": "https://pkg.pr.new/vite@95020ab",
+    "vite": "https://pkg.pr.new/vite@87949fe",
     "vitest": "^2.0.3",
-    "wrangler": "^3.78.8"
+    "wrangler": "^3.79.0"
   },
   "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b",
   "volta": {

@@ -33,8 +33,8 @@ async function main() {
           noExternal: true,
         },
         dev: {
-          createEnvironment: (server, name) =>
-            createWorkerdDevEnvironment(server, name, {
+          createEnvironment: (name, config) =>
+            createWorkerdDevEnvironment(name, config, {
               miniflare: {
                 log: new Log(),
               },
