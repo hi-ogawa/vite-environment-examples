@@ -1,4 +1,5 @@
 import ReactDomServer from "react-dom/server";
+import depCondition from "test-dep-conditions";
 import dep from "./dep";
 import { depThrowError } from "./dep-error";
 import workerInWorkerUrl from "./worker-in-worker?worker-env";
@@ -9,6 +10,7 @@ self.addEventListener("message", (e) => {
       <div>
         <div>Rendered in web worker</div>
         <div>{dep}</div>
+        <div>test-dep-conditions: {depCondition}</div>
       </div>
     );
     const result = ReactDomServer.renderToString(root);
