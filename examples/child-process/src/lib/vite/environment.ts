@@ -50,6 +50,9 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         const { method, args } = await request.json();
         assert(method in this);
         const result = await (this as any)[method]!(...args);
+        if (method === "fetchModule") {
+          console.log({ args, result });
+        }
         return Response.json(result);
       }
       return undefined;
