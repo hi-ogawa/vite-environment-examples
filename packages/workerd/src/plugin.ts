@@ -219,9 +219,12 @@ export async function createWorkerdDevEnvironment(
         JSON.stringify({
           entry: ctx.entry,
           fnString: ctx.fn.toString(),
+          stream: ctx.stream,
         } satisfies EvalMetadata),
       );
-      const body = JSON.stringify(ctx.data ?? (null as any));
+      const body: any = ctx.stream
+        ? ctx.data
+        : JSON.stringify(ctx.data ?? (null as any));
       const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
       const response = await fetch_(ANY_URL + RUNNER_EVAL_PATH, {
         method: "POST",
@@ -231,8 +234,8 @@ export async function createWorkerdDevEnvironment(
         duplex: "half",
       });
       tinyassert(response.ok);
-      const result = await response.json();
-      return result as any;
+      const result: any = ctx.stream ? response.body : await response.json();
+      return result;
     },
   };
 
