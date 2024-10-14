@@ -2,6 +2,8 @@ import assert from "node:assert";
 import childProcess from "node:child_process";
 import http from "node:http";
 import { join } from "node:path";
+import readline from "node:readline";
+import { Readable } from "node:stream";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import { DevEnvironment, type DevEnvironmentOptions } from "vite";
 import type { BridgeClientOptions } from "./types";
@@ -14,7 +16,6 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   public bridgeUrl!: string;
   public child!: childProcess.ChildProcess;
   public childUrl!: string;
-  public childUrlPromise!: PromiseWithResolvers<string>;
 
   static createFactory(options: {
     runtime: "node" | "bun";
@@ -44,7 +45,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   override init: DevEnvironment["init"] = async (...args) => {
     await super.init(...args);
 
-    // protect bridgge rpc
+    // protect bridge rpc
     const key = Math.random().toString(36).slice(2);
 
     const listener = webToNodeHandler(async (request) => {
@@ -84,8 +85,6 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
       });
     });
 
-    // TODO: separate child process concern?
-    this.childUrlPromise = PromiseWithReoslvers();
     const command = this.extraOptions.command;
     const child = childProcess.spawn(
       command[0]!,
@@ -98,19 +97,36 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         } satisfies BridgeClientOptions),
       ],
       {
-        stdio: ["ignore", "inherit", "inherit"],
+        // 4th stdio to ease startup communication
+        // TODO: use 1st stdio to make bidirection?
+        // https://github.com/cloudflare/workers-sdk/blob/e5037b92ac13b1b8a94434e1f9bfa70d4abf791a/packages/miniflare/src/runtime/index.ts#L141
+        stdio: ["ignore", "inherit", "inherit", "pipe"],
       },
     );
     this.child = child;
+    assert(child.stdio[3] instanceof Readable);
+    const childOut = readline.createInterface(child.stdio[3]);
     await new Promise<void>((resolve, reject) => {
-      child.on("spawn", () => {
-        resolve();
-      });
+      const timeout = setTimeout(
+        () => reject(new Error("Child process startup timeout")),
+        10_000,
+      );
       child.on("error", (e) => {
+        clearTimeout(timeout);
         reject(e);
       });
+      childOut.once("line", (line) => {
+        clearTimeout(timeout);
+        try {
+          const event = JSON.parse(line);
+          assert(event.type === "register");
+          this.childUrl = `http://localhost:${event.port}`;
+          resolve();
+        } catch (e) {
+          reject(e);
+        }
+      });
     });
-    this.childUrl = await this.childUrlPromise.promise;
     console.log("[environment.init]", {
       bridgeUrl: this.bridgeUrl,
       childUrl: this.childUrl,
@@ -123,28 +139,14 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     this.bridge?.close();
   };
 
+  // TODO: would be more complicated to do proper proxy?
+  // https://github.com/cloudflare/workers-sdk/blob/e5037b92ac13b1b8a94434e1f9bfa70d4abf791a/packages/miniflare/src/index.ts#L1602
   async dispatchFetch(entry: string, request: Request): Promise<Response> {
     const headers = new Headers(request.headers);
     headers.set("x-vite-meta", JSON.stringify({ entry, url: request.url }));
     const url = new URL(request.url);
     const childUrl = new URL(this.childUrl);
     url.host = childUrl.host;
-    return fetch(new Request(url, { ...request, headers }));
+    return fetch(new Request(url, { ...request, headers, redirect: "manual" }));
   }
-
-  /** @internal rpc for runner */
-  async register(childUrl: string) {
-    this.childUrlPromise.resolve(childUrl);
-    return true;
-  }
-}
-
-function PromiseWithReoslvers<T>(): PromiseWithResolvers<T> {
-  let resolve: any;
-  let reject: any;
-  const promise = new Promise<any>((resolve_, reject_) => {
-    resolve = resolve_;
-    reject = reject_;
-  });
-  return { promise, resolve, reject };
 }
