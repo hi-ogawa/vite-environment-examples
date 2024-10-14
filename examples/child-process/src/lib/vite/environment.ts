@@ -131,8 +131,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     const url = new URL(request.url);
     const childUrl = new URL(this.childUrl);
     url.host = childUrl.host;
-    // TODO: redirect: "manual"
-    return fetch(new Request(url, { ...request, headers }));
+    return fetch(new Request(url, { ...request, headers, redirect: "manual" }));
   }
 
   /** @internal rpc for runner */
