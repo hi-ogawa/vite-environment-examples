@@ -25,7 +25,9 @@ async function main() {
   server.listen(async () => {
     const address = server.address();
     assert(address && typeof address !== "string");
-    childOutput.write(JSON.stringify({ port: address.port }) + "\n");
+    childOutput.write(
+      JSON.stringify({ type: "register", port: address.port }) + "\n",
+    );
   });
 }
 

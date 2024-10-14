@@ -46,7 +46,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   override init: DevEnvironment["init"] = async (...args) => {
     await super.init(...args);
 
-    // protect bridgge rpc
+    // protect bridge rpc
     const key = Math.random().toString(36).slice(2);
 
     const listener = webToNodeHandler(async (request) => {
@@ -109,7 +109,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     this.childIO = readline.createInterface(child.stdio[3]);
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(
-        () => reject(new Error("Spawn timeout")),
+        () => reject(new Error("Child process startup timeout")),
         10_000,
       );
       child.on("error", (e) => {
@@ -119,8 +119,10 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
       this.childIO.on("line", (line) => {
         clearTimeout(timeout);
         const event = JSON.parse(line);
-        this.childUrl = `http://localhost:${event.port}`;
-        resolve();
+        if (event.type === "register") {
+          this.childUrl = `http://localhost:${event.port}`;
+          resolve();
+        }
       });
     });
     console.log("[environment.init]", {
