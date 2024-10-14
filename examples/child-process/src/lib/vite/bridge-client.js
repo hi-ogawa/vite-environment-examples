@@ -15,7 +15,7 @@ export function createBridgeClient(options) {
   async function rpc(method, ...args) {
     const response = await fetch(options.bridgeUrl + "/rpc", {
       method: "POST",
-      body: JSON.stringify({ method, args }),
+      body: JSON.stringify({ method, args, key: options.key }),
     });
     assert(response.ok);
     const result = response.json();
