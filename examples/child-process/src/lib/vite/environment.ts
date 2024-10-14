@@ -4,6 +4,7 @@ import http from "node:http";
 import { join } from "node:path";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import { DevEnvironment, type DevEnvironmentOptions } from "vite";
+import type { BridgeClientOptions } from "./types";
 
 // TODO
 // can we abstract away child process? FetchBridgeDevEnvironment?
@@ -43,11 +44,17 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   override init: DevEnvironment["init"] = async (...args) => {
     await super.init(...args);
 
+    // protect bridgge rpc
+    const key = Math.random().toString(36).slice(2);
+
     const listener = webToNodeHandler(async (request) => {
       const url = new URL(request.url);
       // TODO: other than json?
       if (url.pathname === "/rpc") {
-        const { method, args } = await request.json();
+        const { method, args, key: reqKey } = await request.json();
+        if (reqKey !== key) {
+          return Response.json({ message: "invalid key" }, { status: 400 });
+        }
         assert(method in this);
         const result = await (this as any)[method]!(...args);
         return Response.json(result);
@@ -87,7 +94,8 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         JSON.stringify({
           bridgeUrl: this.bridgeUrl,
           root: this.config.root,
-        }),
+          key,
+        } satisfies BridgeClientOptions),
       ],
       {
         stdio: ["ignore", "inherit", "inherit"],
