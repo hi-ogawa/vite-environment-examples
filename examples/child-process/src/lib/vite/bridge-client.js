@@ -1,6 +1,9 @@
 // @ts-check
 
 import assert from "node:assert";
+import fs from "node:fs";
+import readline from "node:readline";
+import { Writable } from "node:stream";
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
 
 /**
@@ -22,12 +25,39 @@ export function createBridgeClient(options) {
     return result;
   }
 
+  // TODO: birpc
+  const childIn = readline.createInterface(process.stdin);
+  const childOut = new Writable({
+    write(chunk, _encoding, callback) {
+      fs.write(3, chunk, callback);
+    },
+  });
+
   const runner = new ModuleRunner(
     {
       root: options.root,
       sourcemapInterceptor: "prepareStackTrace",
       transport: {
-        fetchModule: (...args) => rpc("fetchModule", ...args),
+        fetchModule: async (...args) => {
+          const id = Math.random().toString(36).slice(2);
+          const promise = new Promise((resolve, _reject) => {
+            /**
+             * @param {string} line
+             */
+            function handler(line) {
+              const event = JSON.parse(line);
+              if (event.id === id) {
+                childIn.off("line", handler);
+                resolve(event.result);
+              }
+            }
+            childIn.on("line", handler);
+          });
+          childOut.write(
+            JSON.stringify({ type: "fetchModule", id, args }) + "\n",
+          );
+          return promise;
+        },
       },
       hmr: false,
     },
