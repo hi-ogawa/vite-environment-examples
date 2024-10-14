@@ -16,7 +16,7 @@ async function main() {
     listener(req, res, (e) => console.error(e));
   });
 
-  const childOutput = new Writable({
+  const childOut = new Writable({
     write(chunk, _encoding, callback) {
       fs.write(3, chunk, callback);
     },
@@ -25,7 +25,7 @@ async function main() {
   server.listen(async () => {
     const address = server.address();
     assert(address && typeof address !== "string");
-    childOutput.write(
+    childOut.write(
       JSON.stringify({ type: "register", port: address.port }) + "\n",
     );
   });

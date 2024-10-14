@@ -15,7 +15,6 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   public bridge!: http.Server;
   public bridgeUrl!: string;
   public child!: childProcess.ChildProcess;
-  public childIO!: readline.Interface;
   public childUrl!: string;
 
   static createFactory(options: {
@@ -106,7 +105,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     );
     this.child = child;
     assert(child.stdio[3] instanceof Readable);
-    this.childIO = readline.createInterface(child.stdio[3]);
+    const childOut = readline.createInterface(child.stdio[3]);
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(
         () => reject(new Error("Child process startup timeout")),
@@ -116,7 +115,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         clearTimeout(timeout);
         reject(e);
       });
-      this.childIO.once("line", (line) => {
+      childOut.once("line", (line) => {
         clearTimeout(timeout);
         try {
           const event = JSON.parse(line);

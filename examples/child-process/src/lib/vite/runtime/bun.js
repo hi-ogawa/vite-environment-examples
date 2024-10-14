@@ -5,8 +5,8 @@ async function main() {
   const options = JSON.parse(process.argv[2]);
   const bridgeClient = createBridgeClient(options);
   const server = Bun.serve({ port: 0, fetch: bridgeClient.handler });
-  const childOutput = Bun.file(3).writer();
-  childOutput.write(
+  const childOut = Bun.file(3).writer();
+  childOut.write(
     JSON.stringify({ type: "register", port: server.port }) + "\n",
   );
 }
