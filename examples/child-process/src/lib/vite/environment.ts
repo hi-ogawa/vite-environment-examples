@@ -3,7 +3,7 @@ import childProcess from "node:child_process";
 import http from "node:http";
 import { join } from "node:path";
 import readline from "node:readline";
-import { Readable } from "node:stream";
+import { Readable, Writable } from "node:stream";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import { DevEnvironment, type DevEnvironmentOptions } from "vite";
 import type { BridgeClientOptions } from "./types";
@@ -100,11 +100,13 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         // 4th stdio to ease startup communication
         // TODO: use 1st stdio to make bidirection?
         // https://github.com/cloudflare/workers-sdk/blob/e5037b92ac13b1b8a94434e1f9bfa70d4abf791a/packages/miniflare/src/runtime/index.ts#L141
-        stdio: ["ignore", "inherit", "inherit", "pipe"],
+        stdio: ["pipe", "inherit", "inherit", "pipe"],
       },
     );
     this.child = child;
+    assert(child.stdio[0] instanceof Writable);
     assert(child.stdio[3] instanceof Readable);
+    const childIn = child.stdio[0];
     const childOut = readline.createInterface(child.stdio[3]);
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(
@@ -126,6 +128,14 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
           reject(e);
         }
       });
+    });
+    childOut.on("line", async (line) => {
+      const event = JSON.parse(line);
+      if (event.type === "fetchModule") {
+        const { id, args } = event;
+        const result = await this.fetchModule(...(args as [any]));
+        childIn.write(JSON.stringify({ id, result }) + "\n");
+      }
     });
     console.log("[environment.init]", {
       bridgeUrl: this.bridgeUrl,
