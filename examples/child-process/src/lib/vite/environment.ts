@@ -116,12 +116,15 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         clearTimeout(timeout);
         reject(e);
       });
-      this.childIO.on("line", (line) => {
+      this.childIO.once("line", (line) => {
         clearTimeout(timeout);
-        const event = JSON.parse(line);
-        if (event.type === "register") {
+        try {
+          const event = JSON.parse(line);
+          assert(event.type === "register");
           this.childUrl = `http://localhost:${event.port}`;
           resolve();
+        } catch (e) {
+          reject(e);
         }
       });
     });
