@@ -123,12 +123,15 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     this.bridge?.close();
   };
 
+  // TODO: would be more complicated to do proper proxy?
+  // https://github.com/cloudflare/workers-sdk/blob/e5037b92ac13b1b8a94434e1f9bfa70d4abf791a/packages/miniflare/src/index.ts#L1602
   async dispatchFetch(entry: string, request: Request): Promise<Response> {
     const headers = new Headers(request.headers);
     headers.set("x-vite-meta", JSON.stringify({ entry, url: request.url }));
     const url = new URL(request.url);
     const childUrl = new URL(this.childUrl);
     url.host = childUrl.host;
+    // TODO: redirect: "manual"
     return fetch(new Request(url, { ...request, headers }));
   }
 
