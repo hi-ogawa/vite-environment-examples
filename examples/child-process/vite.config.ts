@@ -31,9 +31,6 @@ export default defineConfig((_env) => ({
   ],
   environments: {
     rsc: {
-      // TODO: for now, we need this to avoid mixed condition for ssr/rsc envs
-      // https://github.com/vitejs/vite/issues/18222
-      webCompatible: true,
       resolve: {
         externalConditions: ["react-server"],
       },
