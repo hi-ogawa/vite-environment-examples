@@ -22,8 +22,8 @@ test("server error stack", async ({ request }) => {
   text = text.replaceAll(process.cwd(), "__CWD__");
   expect(text).toMatch(`\
 Error: crash ssr
-    at Module.crashSsr (__CWD__/src/crash-ssr.ts:7:9)
-    at Module.handler (__CWD__/src/entry-server.tsx:15:5)`);
+    at crashSsr (__CWD__/src/crash-ssr.ts:7:9)
+    at handler (__CWD__/src/entry-server.tsx:15:5)`);
 });
 
 test("hot custom message", async ({ request }) => {
