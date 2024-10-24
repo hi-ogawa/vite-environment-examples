@@ -57,7 +57,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     const listener = webToNodeHandler(async (request) => {
       const url = new URL(request.url);
       // TODO: other than json?
-      if (url.pathname === "/rpc") {
+      if (url.pathname === "/invoke") {
         const { payload, key: reqKey } = (await request.json()) as {
           payload: HotPayload;
           key: string;
@@ -70,6 +70,14 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         assert(handler);
         const result = await handler(payload.data);
         return Response.json(result);
+      }
+      if (url.pathname === "/connect") {
+        const { key: reqKey } = await request.json();
+        if (reqKey !== key) {
+          return Response.json({ message: "invalid key" }, { status: 400 });
+        }
+        // TODO
+        return new Response();
       }
       return undefined;
     });
