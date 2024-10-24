@@ -14,5 +14,8 @@
   },
   "volta": {
     "extends": "../../package.json"
+  },
+  "dependencies": {
+    "event-source-plus": "^0.1.7"
   }
 }
