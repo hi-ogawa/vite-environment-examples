@@ -5,7 +5,11 @@ import { join } from "node:path";
 import readline from "node:readline";
 import { Readable } from "node:stream";
 import { webToNodeHandler } from "@hiogawa/utils-node";
-import { DevEnvironment, type DevEnvironmentOptions } from "vite";
+import {
+  DevEnvironment,
+  type DevEnvironmentOptions,
+  type HotPayload,
+} from "vite";
 import type { BridgeClientOptions } from "./types";
 
 // TODO
@@ -48,16 +52,24 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     // protect bridge rpc
     const key = Math.random().toString(36).slice(2);
 
+    const invokeHandlers = this.getInvokeHandlers();
+
     const listener = webToNodeHandler(async (request) => {
       const url = new URL(request.url);
       // TODO: other than json?
       if (url.pathname === "/rpc") {
-        const { method, args, key: reqKey } = await request.json();
+        const { payload, key: reqKey } = (await request.json()) as {
+          payload: HotPayload;
+          key: string;
+        };
         if (reqKey !== key) {
           return Response.json({ message: "invalid key" }, { status: 400 });
         }
-        assert(method in this);
-        const result = await (this as any)[method]!(...args);
+        assert(payload.type === "custom");
+        const handler = invokeHandlers[payload.event];
+        assert(handler);
+        const result = await handler(payload.data);
+        console.log({ payload, result })
         return Response.json(result);
       }
       return undefined;
