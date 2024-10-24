@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  vite: file:/home/hiroshi/code/others/vite/packages/vite/vite-6.0.0-beta.3.tgz
+  vite: file:./vite-6.0.0-beta.3.tgz
 
 importers:
 
@@ -22,7 +22,7 @@ importers:
         version: 0.0.2
       '@hiogawa/vite-plugin-ssr-middleware':
         specifier: ^0.0.3
-        version: 0.0.3(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
+        version: 0.0.3(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
       '@playwright/test':
         specifier: ^1.45.2
         version: 1.45.2
@@ -40,7 +40,7 @@ importers:
         version: 18.3.0
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.1(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
+        version: 4.3.1(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
       esbuild:
         specifier: ^0.23.0
         version: 0.23.0
@@ -69,8 +69,8 @@ importers:
         specifier: ^5.5.3
         version: 5.5.3
       vite:
-        specifier: file:/home/hiroshi/code/others/vite/packages/vite/vite-6.0.0-beta.3.tgz
-        version: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+        specifier: file:vite-6.0.0-beta.3.tgz
+        version: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
       vitest:
         specifier: ^2.0.3
         version: 2.0.3(@types/node@20.14.11)(happy-dom@14.12.3)(terser@5.31.3)
@@ -105,7 +105,7 @@ importers:
         version: 0.30.10
       unocss:
         specifier: 0.61.5
-        version: 0.61.5(postcss@8.4.47)(rollup@4.23.0)(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
+        version: 0.61.5(postcss@8.4.47)(rollup@4.23.0)(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
 
   examples/react-ssr:
     devDependencies:
@@ -139,7 +139,7 @@ importers:
         version: link:../../packages/workerd
       '@vitejs/plugin-vue':
         specifier: ^5.0.5
-        version: 5.0.5(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))(vue@3.4.32(typescript@5.5.3))
+        version: 5.0.5(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))(vue@3.4.32(typescript@5.5.3))
       vue-tsc:
         specifier: ^2.0.26
         version: 2.0.26(typescript@5.5.3)
@@ -164,7 +164,7 @@ importers:
         version: link:../../packages/workerd
       '@vitejs/plugin-vue':
         specifier: ^5.0.5
-        version: 5.0.5(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))(vue@3.4.32(typescript@5.5.3))
+        version: 5.0.5(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))(vue@3.4.32(typescript@5.5.3))
       vue-tsc:
         specifier: ^2.0.26
         version: 2.0.26(typescript@5.5.3)
@@ -186,8 +186,8 @@ importers:
   packages/ssr-middleware:
     dependencies:
       vite:
-        specifier: file:/home/hiroshi/code/others/vite/packages/vite/vite-6.0.0-beta.3.tgz
-        version: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+        specifier: file:../../vite-6.0.0-beta.3.tgz
+        version: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
 
   packages/workerd:
     devDependencies:
@@ -198,8 +198,8 @@ importers:
         specifier: ^3.20240925.0
         version: 3.20240925.0
       vite:
-        specifier: file:/home/hiroshi/code/others/vite/packages/vite/vite-6.0.0-beta.3.tgz
-        version: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+        specifier: file:../../vite-6.0.0-beta.3.tgz
+        version: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
       wrangler:
         specifier: ^3.79.0
         version: 3.79.0(@cloudflare/workers-types@4.20240925.0)
@@ -1060,7 +1060,7 @@ packages:
     resolution: {integrity: sha512-84bzaAuImty4s4vHjOk5MQMzmDs0W0GP43fOTFhsBfj/MSJCNJ68elmPNZWs57WkIEzcdB4haY/P8Nf4ZGH8Qw==}
     version: 0.0.3
     peerDependencies:
-      vite: file:/home/hiroshi/code/others/vite/packages/vite/vite-6.0.0-beta.3.tgz
+      vite: file:/home/hiroshi/code/personal/vite-environment-examples/vite-6.0.0-beta.3.tgz
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -1347,7 +1347,7 @@ packages:
     resolution: {integrity: sha512-keyh6/EsPMBEiLguaOsh47UcMkWCGT0rW3KV5aYRUfYXlgccSzDd4SLmTNsdlGXIso2XCl/14BJQuwjP0UEU0Q==}
     version: 0.61.5
     peerDependencies:
-      vite: file:/home/hiroshi/code/others/vite/packages/vite/vite-6.0.0-beta.3.tgz
+      vite: file:/home/hiroshi/code/personal/vite-environment-examples/vite-6.0.0-beta.3.tgz
     peerDependenciesMeta:
       vite:
         optional: true
@@ -1429,21 +1429,21 @@ packages:
     resolution: {integrity: sha512-+U5Ey5Z2csjLy7zcaDCtUqs08+ugRK87UWGm65W8yMAGW7me72f36QR8IHJUTqlVVEdhbJVIAy+yNFjGHYffjA==}
     version: 0.61.5
     peerDependencies:
-      vite: file:/home/hiroshi/code/others/vite/packages/vite/vite-6.0.0-beta.3.tgz
+      vite: file:/home/hiroshi/code/personal/vite-environment-examples/vite-6.0.0-beta.3.tgz
 
   '@vitejs/plugin-react@4.3.1':
     resolution: {integrity: sha512-m/V2syj5CuVnaxcUJOQRel/Wr31FFXRFlnOoq1TVtkCxsY5veGMTEmpWHndrhB2U8ScHtCQB1e+4hWYExQc6Lg==}
     version: 4.3.1
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: file:/home/hiroshi/code/others/vite/packages/vite/vite-6.0.0-beta.3.tgz
+      vite: file:/home/hiroshi/code/personal/vite-environment-examples/vite-6.0.0-beta.3.tgz
 
   '@vitejs/plugin-vue@5.0.5':
     resolution: {integrity: sha512-LOjm7XeIimLBZyzinBQ6OSm3UBCNVCpLkxGC0oWmm2YPzVZoxMsdvNVimLTBzpAnR9hl/yn1SHGuRfe6/Td9rQ==}
     version: 5.0.5
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
-      vite: file:/home/hiroshi/code/others/vite/packages/vite/vite-6.0.0-beta.3.tgz
+      vite: file:/home/hiroshi/code/personal/vite-environment-examples/vite-6.0.0-beta.3.tgz
       vue: ^3.2.25
 
   '@vitest/expect@2.0.3':
@@ -2673,7 +2673,7 @@ packages:
     engines: {node: '>=14'}
     peerDependencies:
       '@unocss/webpack': 0.61.5
-      vite: file:/home/hiroshi/code/others/vite/packages/vite/vite-6.0.0-beta.3.tgz
+      vite: file:/home/hiroshi/code/personal/vite-environment-examples/vite-6.0.0-beta.3.tgz
     peerDependenciesMeta:
       '@unocss/webpack':
         optional: true
@@ -2694,8 +2694,8 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
-  vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz:
-    resolution: {integrity: sha512-Qin/3iGUAO15WNQMof63sb1r0p0UKaR4dA9z5t0x1DLM6KLuBevXlayr0ecz4SaiN9rV33LTPNFXGNuJ7XZjZw==, tarball: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz}
+  vite@file:vite-6.0.0-beta.3.tgz:
+    resolution: {integrity: sha512-Qin/3iGUAO15WNQMof63sb1r0p0UKaR4dA9z5t0x1DLM6KLuBevXlayr0ecz4SaiN9rV33LTPNFXGNuJ7XZjZw==, tarball: file:vite-6.0.0-beta.3.tgz}
     version: 6.0.0-beta.3
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -3494,9 +3494,9 @@ snapshots:
 
   '@hiogawa/utils@1.7.0': {}
 
-  '@hiogawa/vite-plugin-ssr-middleware@0.0.3(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))':
+  '@hiogawa/vite-plugin-ssr-middleware@0.0.3(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))':
     dependencies:
-      vite: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+      vite: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
 
   '@iconify/types@2.0.0': {}
 
@@ -3743,13 +3743,13 @@ snapshots:
     dependencies:
       '@types/node': 20.14.11
 
-  '@unocss/astro@0.61.5(rollup@4.23.0)(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))':
+  '@unocss/astro@0.61.5(rollup@4.23.0)(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))':
     dependencies:
       '@unocss/core': 0.61.5
       '@unocss/reset': 0.61.5
-      '@unocss/vite': 0.61.5(rollup@4.23.0)(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
+      '@unocss/vite': 0.61.5(rollup@4.23.0)(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
     optionalDependencies:
-      vite: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+      vite: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
     transitivePeerDependencies:
       - rollup
 
@@ -3880,7 +3880,7 @@ snapshots:
     dependencies:
       '@unocss/core': 0.61.5
 
-  '@unocss/vite@0.61.5(rollup@4.23.0)(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))':
+  '@unocss/vite@0.61.5(rollup@4.23.0)(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@rollup/pluginutils': 5.1.0(rollup@4.23.0)
@@ -3892,24 +3892,24 @@ snapshots:
       chokidar: 3.6.0
       fast-glob: 3.3.2
       magic-string: 0.30.10
-      vite: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+      vite: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
     transitivePeerDependencies:
       - rollup
 
-  '@vitejs/plugin-react@4.3.1(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))':
+  '@vitejs/plugin-react@4.3.1(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))':
     dependencies:
       '@babel/core': 7.24.9
       '@babel/plugin-transform-react-jsx-self': 7.24.7(@babel/core@7.24.9)
       '@babel/plugin-transform-react-jsx-source': 7.24.7(@babel/core@7.24.9)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+      vite: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@5.0.5(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))(vue@3.4.32(typescript@5.5.3))':
+  '@vitejs/plugin-vue@5.0.5(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))(vue@3.4.32(typescript@5.5.3))':
     dependencies:
-      vite: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+      vite: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
       vue: 3.4.32(typescript@5.5.3)
 
   '@vitest/expect@2.0.3':
@@ -5207,9 +5207,9 @@ snapshots:
       pathe: 1.1.2
       ufo: 1.5.4
 
-  unocss@0.61.5(postcss@8.4.47)(rollup@4.23.0)(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)):
+  unocss@0.61.5(postcss@8.4.47)(rollup@4.23.0)(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)):
     dependencies:
-      '@unocss/astro': 0.61.5(rollup@4.23.0)(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
+      '@unocss/astro': 0.61.5(rollup@4.23.0)(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
       '@unocss/cli': 0.61.5(rollup@4.23.0)
       '@unocss/core': 0.61.5
       '@unocss/extractor-arbitrary-variants': 0.61.5
@@ -5228,9 +5228,9 @@ snapshots:
       '@unocss/transformer-compile-class': 0.61.5
       '@unocss/transformer-directives': 0.61.5
       '@unocss/transformer-variant-group': 0.61.5
-      '@unocss/vite': 0.61.5(rollup@4.23.0)(vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
+      '@unocss/vite': 0.61.5(rollup@4.23.0)(vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3))
     optionalDependencies:
-      vite: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+      vite: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
     transitivePeerDependencies:
       - postcss
       - rollup
@@ -5252,7 +5252,7 @@ snapshots:
       debug: 4.3.5
       pathe: 1.1.2
       tinyrainbow: 1.2.0
-      vite: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+      vite: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -5264,7 +5264,7 @@ snapshots:
       - supports-color
       - terser
 
-  vite@file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3):
+  vite@file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3):
     dependencies:
       esbuild: 0.24.0
       postcss: 8.4.47
@@ -5292,7 +5292,7 @@ snapshots:
       tinybench: 2.8.0
       tinypool: 1.0.0
       tinyrainbow: 1.2.0
-      vite: file:../../others/vite/packages/vite/vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
+      vite: file:vite-6.0.0-beta.3.tgz(@types/node@20.14.11)(terser@5.31.3)
       vite-node: 2.0.3(@types/node@20.14.11)(terser@5.31.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
