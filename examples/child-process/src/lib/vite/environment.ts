@@ -56,8 +56,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     const key = Math.random().toString(36).slice(2);
 
     const listener = webToNodeHandler(async (request) => {
-      const url = new URL(request.url);
-      const reqKey = url.searchParams.get("key");
+      const reqKey = request.headers.get("x-key");
       if (reqKey !== key) {
         return Response.json({ message: "invalid key" }, { status: 400 });
       }
@@ -165,12 +164,13 @@ function createHMRChannelSSEHandler() {
     const url = new URL(request.url);
     if (url.pathname === "/send") {
       const data = await request.json();
+      console.log("[send]", data);
       sendListener(data);
       return Response.json({ ok: true });
     }
     if (url.pathname === "/connect") {
       // TODO: handle disconnect?
-      request.signal.addEventListener("abort", () => {});
+      request.signal.addEventListener;
 
       const client = new SSEClientProxy();
       connectClients.add(client);

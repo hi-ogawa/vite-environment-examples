@@ -29,13 +29,13 @@ export function createBridgeClient(options) {
       sourcemapInterceptor: "prepareStackTrace",
       transport: {
         async send(payload) {
-          const response = await fetch(
-            options.bridgeUrl + "/invoke?key" + options.key,
-            {
-              method: "POST",
-              body: JSON.stringify({ payload, key: options.key }),
+          const response = await fetch(options.bridgeUrl + "/send", {
+            method: "POST",
+            body: JSON.stringify({ payload, key: options.key }),
+            headers: {
+              "x-key": options.key,
             },
-          );
+          });
           assert(response.ok);
           return response.json();
         },
