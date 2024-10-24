@@ -69,7 +69,6 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         const handler = invokeHandlers[payload.event];
         assert(handler);
         const result = await handler(payload.data);
-        console.log({ payload, result });
         return Response.json(result);
       }
       return undefined;
