@@ -32,7 +32,7 @@ export function createBridgeClient(options) {
         async send(payload) {
           const response = await fetch(options.bridgeUrl + "/send", {
             method: "POST",
-            body: JSON.stringify({ payload, key: options.key }),
+            body: JSON.stringify(payload),
             headers: {
               "x-key": options.key,
             },
@@ -60,7 +60,7 @@ export function createBridgeClient(options) {
             handlers.onDisconnection();
           });
         },
-        timeout: 1000,
+        timeout: 2000,
       },
       // hmr: true,
     },
