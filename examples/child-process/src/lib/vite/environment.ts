@@ -20,6 +20,7 @@ import type { BridgeClientOptions } from "./types";
 export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   public bridge!: http.Server;
   public bridgeUrl!: string;
+  public bridgeSse: ReturnType<typeof createHMRChannelSSEHandler>;
   public child!: childProcess.ChildProcess;
   public childUrl!: string;
 
@@ -34,18 +35,18 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         options.conditions ? ["--conditions", ...options.conditions] : [],
         join(import.meta.dirname, `./runtime/${options.runtime}.js`),
       ].flat();
-      return new ChildProcessFetchDevEnvironment({ command }, name, config, {
-        // TODO
-        hot: false,
-      });
+      return new ChildProcessFetchDevEnvironment({ command }, name, config);
     };
   }
 
   constructor(
     public extraOptions: { command: string[] },
-    ...args: ConstructorParameters<typeof DevEnvironment>
+    name: ConstructorParameters<typeof DevEnvironment>[0],
+    config: ConstructorParameters<typeof DevEnvironment>[1],
   ) {
-    super(...args);
+    const bridgeSse = createHMRChannelSSEHandler();
+    super(name, config, { hot: true, transport: bridgeSse.channel });
+    this.bridgeSse = bridgeSse;
   }
 
   override init: DevEnvironment["init"] = async (...args) => {
@@ -54,36 +55,13 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     // protect bridge rpc
     const key = Math.random().toString(36).slice(2);
 
-    const invokeHandlers = this.getInvokeHandlers();
-
-    createHMRChannelHelper;
-
     const listener = webToNodeHandler(async (request) => {
       const url = new URL(request.url);
-      // TODO: other than json?
-      if (url.pathname === "/invoke") {
-        const { payload, key: reqKey } = (await request.json()) as {
-          payload: HotPayload;
-          key: string;
-        };
-        if (reqKey !== key) {
-          return Response.json({ message: "invalid key" }, { status: 400 });
-        }
-        assert(payload.type === "custom");
-        const handler = invokeHandlers[payload.event];
-        assert(handler);
-        const result = await handler(payload.data);
-        return Response.json(result);
+      const reqKey = url.searchParams.get("key");
+      if (reqKey !== key) {
+        return Response.json({ message: "invalid key" }, { status: 400 });
       }
-      if (url.pathname === "/connect") {
-        const { key: reqKey } = await request.json();
-        if (reqKey !== key) {
-          return Response.json({ message: "invalid key" }, { status: 400 });
-        }
-        // TODO
-        return new Response();
-      }
-      return undefined;
+      return this.bridgeSse.handler(request);
     });
 
     const bridge = http.createServer((req, res) => {
@@ -174,11 +152,91 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   }
 }
 
-function createHMRChannelHelper(options: {
-  post: (data: any) => any;
-  on: (listener: (data: any) => void) => () => void;
-  serialize: (v: any) => any;
-  deserialize: (v: any) => any;
+//
+// SSE utility from
+// https://github.com/hi-ogawa/js-utils/blob/ee42942580f19abea710595163e55fb522061e99/packages/tiny-rpc/src/message-port/server-sent-event.ts
+//
+
+function createHMRChannelSSEHandler() {
+  const connectClients = new Set<SSEClientProxy>();
+  let sendListener: (payload: CustomPayload) => void;
+
+  async function handler(request: Request): Promise<Response | undefined> {
+    const url = new URL(request.url);
+    if (url.pathname === "/send") {
+      const data = await request.json();
+      sendListener(data);
+      return Response.json({ ok: true });
+    }
+    if (url.pathname === "/connect") {
+      // TODO: handle disconnect?
+      request.signal.addEventListener("abort", () => {});
+
+      const client = new SSEClientProxy();
+      connectClients.add(client);
+      return new Response(client.stream, {
+        headers: {
+          "content-type": "text/event-stream",
+          "cache-control": "no-cache",
+          connection: "keep-alive",
+        },
+      });
+    }
+    return undefined;
+  }
+
+  const channel = createGroupedHMRChannel({
+    send(data) {
+      for (const client of connectClients) {
+        client.postMessage(JSON.stringify(data));
+      }
+    },
+    on(listener_) {
+      sendListener = listener_;
+      return () => {
+        for (const client of connectClients) {
+          client.close();
+        }
+      };
+    },
+  });
+
+  return { channel, handler };
+}
+
+class SSEClientProxy {
+  stream: ReadableStream<string>;
+  controller!: ReadableStreamDefaultController<string>;
+  intervalId: ReturnType<typeof setInterval>;
+
+  constructor() {
+    this.stream = new ReadableStream<string>({
+      start: (controller) => {
+        this.controller = controller;
+        this.controller.enqueue(`:ping\n\n`);
+      },
+    });
+
+    // auto ping from server
+    this.intervalId = setInterval(() => {
+      this.controller.enqueue(`:ping\n\n`);
+    }, 10_000);
+  }
+
+  postMessage(data: string) {
+    this.controller.enqueue(`data: ${data}\n\n`);
+  }
+
+  close() {
+    clearInterval(this.intervalId);
+    this.stream.cancel();
+  }
+}
+
+// helper to manage listeners by event types
+function createGroupedHMRChannel(options: {
+  send: (data: HotPayload) => any;
+  on: (listener: (data: CustomPayload) => void) => () => void;
 }): HotChannel {
   const listerMap: Record<string, Set<Function>> = {};
   const getListerMap = (e: string) => (listerMap[e] ??= new Set());
@@ -186,8 +244,7 @@ function createHMRChannelHelper(options: {
 
   return {
     listen() {
-      dispose = options.on((data) => {
-        const payload = options.deserialize(data) as CustomPayload;
+      dispose = options.on((payload) => {
         for (const f of getListerMap(payload.event)) {
           f(payload.data);
         }
@@ -202,8 +259,6 @@ function createHMRChannelHelper(options: {
     off(event, listener) {
       getListerMap(event).delete(listener);
     },
-    send(payload) {
-      options.post(options.serialize(payload));
-    },
+    send: options.send,
   };
 }

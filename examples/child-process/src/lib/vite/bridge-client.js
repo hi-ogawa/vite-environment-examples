@@ -28,25 +28,19 @@ export function createBridgeClient(options) {
       root: options.root,
       sourcemapInterceptor: "prepareStackTrace",
       transport: {
-        // invoke: async (payload) => {
-        //   const response = await fetch(options.bridgeUrl + "/rpc", {
-        //     method: "POST",
-        //     body: JSON.stringify({ payload, key: options.key }),
-        //   });
-        //   assert(response.ok);
-        //   return response.json();
-        // },
         async send(payload) {
-          const response = await fetch(options.bridgeUrl + "/invoke", {
-            method: "POST",
-            body: JSON.stringify({ payload, key: options.key }),
-          });
+          const response = await fetch(
+            options.bridgeUrl + "/invoke?key" + options.key,
+            {
+              method: "POST",
+              body: JSON.stringify({ payload, key: options.key }),
+            },
+          );
           assert(response.ok);
           return response.json();
         },
         async connect(handlers) {
-          // TODO
-          handlers;
+          // TODO: sse client
           handlers.onMessage;
           handlers.onDisconnection;
         },
