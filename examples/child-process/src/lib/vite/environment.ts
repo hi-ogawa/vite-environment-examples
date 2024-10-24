@@ -6,7 +6,6 @@ import readline from "node:readline";
 import { Readable } from "node:stream";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import {
-  type CustomPayload,
   DevEnvironment,
   type DevEnvironmentOptions,
   type HotChannel,
@@ -157,23 +156,18 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
 
 function createHMRChannelSSEHandler() {
   const connectClients = new Set<SSEClientProxy>();
-
-  function send(payload: HotPayload) {
-    for (const client of connectClients) {
-      client.postMessage(JSON.stringify(payload));
-    }
-  }
+  let listener: (payload: HotPayload) => void;
 
   async function handler(request: Request): Promise<Response | undefined> {
     const url = new URL(request.url);
     if (url.pathname === "/send") {
       const payload = await request.json();
-      console.log("[/send]", payload);
-      handleSend(payload);
+      // console.log("[/send]", payload);
+      listener(payload);
       return Response.json({ ok: true });
     }
     if (url.pathname === "/connect") {
-      console.log("[/connect]");
+      // console.log("[/connect]");
       const client = new SSEClientProxy();
       connectClients.add(client);
       return new Response(client.stream, {
@@ -187,42 +181,21 @@ function createHMRChannelSSEHandler() {
     return undefined;
   }
 
-  const listerMap: Record<string, Set<HotChannelListener>> = {};
-  const getListerMap = (e: string) => (listerMap[e] ??= new Set());
-
-  function handleSend(payload: HotPayload) {
-    if (payload.type === "custom") {
-      for (const lister of getListerMap(payload.event)) {
-        // TODO: do we need to send to all clients?
-        // TODO: type error of `payload.invoke`?
-        lister(payload.data, { send }, payload.invoke as any);
-      }
-    }
-  }
-
-  const channel: HotChannel = {
-    listen() {},
-    close() {
+  const channel = createGroupedHMRChannel({
+    send(payload) {
       for (const client of connectClients) {
-        client.close();
+        client.postMessage(JSON.stringify(payload));
       }
     },
-    on(event: string, listener: HotChannelListener) {
-      console.log("[channel.on]", event, listener);
-      if (event === "connection") {
-        return;
-      }
-      getListerMap(event).add(listener);
+    on(listener_) {
+      listener = listener_;
+      return () => {
+        for (const client of connectClients) {
+          client.close();
+        }
+      };
     },
-    off(event, listener: any) {
-      console.log("[channel.off]", event, listener);
-      if (event === "connection") {
-        return;
-      }
-      getListerMap(event).delete(listener);
-    },
-    send,
-  };
+  });
 
   return { channel, handler };
 }
@@ -256,10 +229,9 @@ class SSEClientProxy {
 }
 
 // helper to manage listeners by event types
-createGroupedHMRChannel;
 function createGroupedHMRChannel(options: {
-  send: (data: HotPayload) => any;
-  on: (listener: (data: CustomPayload) => void) => () => void;
+  send: (data: HotPayload) => void;
+  on: (listener: (data: HotPayload) => void) => () => void;
 }): HotChannel {
   const listerMap: Record<string, Set<HotChannelListener>> = {};
   const getListerMap = (e: string) => (listerMap[e] ??= new Set());
@@ -268,26 +240,30 @@ function createGroupedHMRChannel(options: {
   return {
     listen() {
       dispose = options.on((payload) => {
-        for (const f of getListerMap(payload.event)) {
-          // f(payload.data);
+        if (payload.type === "custom") {
+          for (const lister of getListerMap(payload.event)) {
+            // TODO: do we need to send to all clients?
+            // TODO: type error of `payload.invoke`?
+            lister(payload.data, { send: options.send }, payload.invoke as any);
+          }
         }
       });
     },
     close() {
       dispose();
     },
-    on(event: string, listener: any) {
+    on(event: string, listener: HotChannelListener) {
+      // console.log("[channel.on]", event, listener);
       if (event === "connection") {
         return;
       }
-      console.log("[channel.on]", event, listener);
       getListerMap(event).add(listener);
     },
     off(event, listener: any) {
+      // console.log("[channel.off]", event, listener);
       if (event === "connection") {
         return;
       }
-      console.log("[channel.off]", event, listener);
       getListerMap(event).delete(listener);
     },
     send: options.send,
