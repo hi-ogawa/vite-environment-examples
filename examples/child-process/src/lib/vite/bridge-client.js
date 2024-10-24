@@ -27,7 +27,14 @@ export function createBridgeClient(options) {
       root: options.root,
       sourcemapInterceptor: "prepareStackTrace",
       transport: {
-        fetchModule: (...args) => rpc("fetchModule", ...args),
+        invoke: async (payload) => {
+          const response = await fetch(options.bridgeUrl + "/rpc", {
+            method: "POST",
+            body: JSON.stringify({ payload, key: options.key }),
+          });
+          assert(response.ok);
+          return response.json();
+        },
       },
       hmr: false,
     },
