@@ -6,8 +6,10 @@ import readline from "node:readline";
 import { Readable } from "node:stream";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import {
+  type CustomPayload,
   DevEnvironment,
   type DevEnvironmentOptions,
+  type HotChannel,
   type HotPayload,
 } from "vite";
 import type { BridgeClientOptions } from "./types";
@@ -53,6 +55,8 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     const key = Math.random().toString(36).slice(2);
 
     const invokeHandlers = this.getInvokeHandlers();
+
+    createHMRChannelHelper;
 
     const listener = webToNodeHandler(async (request) => {
       const url = new URL(request.url);
@@ -168,4 +172,38 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     url.host = childUrl.host;
     return fetch(new Request(url, { ...request, headers, redirect: "manual" }));
   }
+}
+
+function createHMRChannelHelper(options: {
+  post: (data: any) => any;
+  on: (listener: (data: any) => void) => () => void;
+  serialize: (v: any) => any;
+  deserialize: (v: any) => any;
+}): HotChannel {
+  const listerMap: Record<string, Set<Function>> = {};
+  const getListerMap = (e: string) => (listerMap[e] ??= new Set());
+  let dispose: () => void;
+
+  return {
+    listen() {
+      dispose = options.on((data) => {
+        const payload = options.deserialize(data) as CustomPayload;
+        for (const f of getListerMap(payload.event)) {
+          f(payload.data);
+        }
+      });
+    },
+    close() {
+      dispose();
+    },
+    on(event: string, listener: Function) {
+      getListerMap(event).add(listener);
+    },
+    off(event, listener) {
+      getListerMap(event).delete(listener);
+    },
+    send(payload) {
+      options.post(options.serialize(payload));
+    },
+  };
 }
