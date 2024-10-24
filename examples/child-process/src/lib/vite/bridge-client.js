@@ -1,6 +1,7 @@
 // @ts-check
 
 import assert from "node:assert";
+import { EventSourcePlus } from "event-source-plus";
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
 
 /**
@@ -40,12 +41,25 @@ export function createBridgeClient(options) {
           return response.json();
         },
         async connect(handlers) {
-          // TODO: sse client
-          handlers.onMessage;
-          handlers.onDisconnection;
+          // https://github.com/joshmossas/event-source-plus
+          const source = new EventSourcePlus(options.bridgeUrl + "/connect", {
+            headers: {
+              "x-key": options.key,
+            },
+          });
+          const controller = source.listen({
+            onMessage(message) {
+              console.log("[runner.onMessage]", message);
+              handlers.onMessage(JSON.parse(message.data));
+            },
+          });
+          controller.signal.addEventListener("abort", (e) => {
+            console.log("[runner.abort]", e);
+            handlers.onDisconnection();
+          });
         },
       },
-      hmr: false,
+      hmr: true,
     },
     new ESModulesEvaluator(),
   );

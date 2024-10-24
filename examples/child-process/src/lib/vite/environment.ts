@@ -164,14 +164,12 @@ function createHMRChannelSSEHandler() {
     const url = new URL(request.url);
     if (url.pathname === "/send") {
       const data = await request.json();
-      console.log("[send]", data);
+      console.log("[/send]", data);
       sendListener(data);
       return Response.json({ ok: true });
     }
     if (url.pathname === "/connect") {
-      // TODO: handle disconnect?
-      request.signal.addEventListener;
-
+      console.log("[/connect]");
       const client = new SSEClientProxy();
       connectClients.add(client);
       return new Response(client.stream, {
@@ -187,6 +185,7 @@ function createHMRChannelSSEHandler() {
 
   const channel = createGroupedHMRChannel({
     send(data) {
+      console.log("[server.send]", data);
       for (const client of connectClients) {
         client.postMessage(JSON.stringify(data));
       }
