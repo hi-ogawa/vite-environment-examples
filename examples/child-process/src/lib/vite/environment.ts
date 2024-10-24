@@ -45,7 +45,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     config: ConstructorParameters<typeof DevEnvironment>[1],
   ) {
     const bridgeSse = createHMRChannelSSEHandler();
-    super(name, config, { hot: true, transport: bridgeSse.channel });
+    super(name, config, { hot: false, transport: bridgeSse.channel });
     this.bridgeSse = bridgeSse;
   }
 
@@ -253,9 +253,11 @@ function createGroupedHMRChannel(options: {
       dispose();
     },
     on(event: string, listener: Function) {
+      console.log("[channel.on]", event, listener);
       getListerMap(event).add(listener);
     },
     off(event, listener) {
+      console.log("[channel.off]", event, listener);
       getListerMap(event).delete(listener);
     },
     send: options.send,
