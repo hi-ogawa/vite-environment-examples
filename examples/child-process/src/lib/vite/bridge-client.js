@@ -32,17 +32,17 @@ export function createBridgeClient(options) {
         async send(payload) {
           const response = await fetch(options.bridgeUrl + "/send", {
             method: "POST",
-            body: JSON.stringify({ payload, key: options.key }),
+            body: JSON.stringify(payload),
             headers: {
               "x-key": options.key,
             },
           });
           assert(response.ok);
-          return response.json();
         },
         async connect(handlers) {
           // https://github.com/joshmossas/event-source-plus
           const source = new EventSourcePlus(options.bridgeUrl + "/connect", {
+            maxRetryCount: 0,
             headers: {
               "x-key": options.key,
             },
@@ -52,14 +52,17 @@ export function createBridgeClient(options) {
               console.log("[runner.onMessage]", message);
               handlers.onMessage(JSON.parse(message.data));
             },
+            onRequestError: (ctx) => console.error("[onRequestError]", ctx),
+            onResponseError: (ctx) => console.error("[onResponseError]", ctx),
           });
           controller.signal.addEventListener("abort", (e) => {
             console.log("[runner.abort]", e);
             handlers.onDisconnection();
           });
         },
+        timeout: 2000,
       },
-      hmr: true,
+      // hmr: true,
     },
     new ESModulesEvaluator(),
   );
