@@ -33,8 +33,7 @@ export function createBridgeClient(options) {
             body: JSON.stringify({ payload, key: options.key }),
           });
           assert(response.ok);
-          const result = response.json();
-          return result;
+          return response.json();
         },
       },
       hmr: false,
