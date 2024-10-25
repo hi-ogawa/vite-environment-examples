@@ -164,14 +164,14 @@ function createHMRChannelSSEHandler() {
     assert(clientId);
     if (url.pathname === "/send") {
       const payload = await request.json();
-      console.log("[/send]", { clientId }, payload);
+      // console.log("[/send]", { clientId }, payload);
       const client = clientMap.get(clientId);
       assert(client);
       listener(payload, client);
       return Response.json({ ok: true });
     }
     if (url.pathname === "/connect") {
-      console.log("[/connect]", { clientId });
+      // console.log("[/connect]", { clientId });
       const client = new SSEClientProxy();
       clientMap.set(clientId, client);
       return new Response(client.stream, {

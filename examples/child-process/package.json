@@ -9,9 +9,6 @@
     "test-e2e": "playwright test",
     "test-e2e-preview": "E2E_PREVIEW=1 playwright test"
   },
-  "dependencies": {
-    "event-source-plus": "^0.1.7"
-  },
   "devDependencies": {
     "@types/bun": "^1.1.10"
   },

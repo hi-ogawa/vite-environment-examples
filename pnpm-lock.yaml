@@ -81,10 +81,6 @@ importers:
   examples/browser-cli: {}
 
   examples/child-process:
-    dependencies:
-      event-source-plus:
-        specifier: ^0.1.7
-        version: 0.1.7
     devDependencies:
       '@types/bun':
         specifier: ^1.1.10
@@ -1859,9 +1855,6 @@ packages:
   estree-walker@3.0.3:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
 
-  event-source-plus@0.1.7:
-    resolution: {integrity: sha512-nOwYi1u4I9q3KuWVUiJVicLleD7EkHb/g6hY3ReUfV+3YnqHtmP4BgS/ifP46CbUBMFlnH7x20wKsFLqqW3QwQ==}
-
   events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
@@ -2215,9 +2208,6 @@ packages:
 
   ofetch@1.3.4:
     resolution: {integrity: sha512-KLIET85ik3vhEfS+3fDlc/BAZiAp+43QEC/yCo5zkNoY2YaKvNkOaFr/6wCFgFH1kuYQM5pMNi0Tg8koiIemtw==}
-
-  ofetch@1.4.1:
-    resolution: {integrity: sha512-QZj2DfGplQAr2oj9KzceK9Hwz6Whxazmn85yYeVuS3u9XTMOGMRx0kO95MQ+vLsj/S/NwBDMMLU5hpxvI6Tklw==}
 
   ohash@1.1.4:
     resolution: {integrity: sha512-FlDryZAahJmEF3VR3w1KogSEdWX3WhA5GPakFx4J81kEAiHyLMpdLLElS8n8dfNadMgAne/MywcvmogzscVt4g==}
@@ -4463,10 +4453,6 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.6
 
-  event-source-plus@0.1.7:
-    dependencies:
-      ofetch: 1.4.1
-
   events@3.3.0: {}
 
   execa@5.1.1:
@@ -4789,12 +4775,6 @@ snapshots:
   object-assign@4.1.1: {}
 
   ofetch@1.3.4:
-    dependencies:
-      destr: 2.0.3
-      node-fetch-native: 1.6.4
-      ufo: 1.5.4
-
-  ofetch@1.4.1:
     dependencies:
       destr: 2.0.3
       node-fetch-native: 1.6.4

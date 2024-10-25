@@ -1,7 +1,6 @@
 // @ts-check
 
 import assert from "node:assert";
-import { EventSourcePlus } from "event-source-plus";
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
 
 /**
@@ -43,27 +42,36 @@ export function createBridgeClient(options) {
           assert(response.ok);
         },
         async connect(handlers) {
-          // TODO
-          // https://github.com/joshmossas/event-source-plus
-          const source = new EventSourcePlus(options.bridgeUrl + "/connect", {
-            maxRetryCount: 0,
+          const response = await fetch(options.bridgeUrl + "/connect", {
+            method: "POST",
+            // TODO: use request stream for bidirectional communication
+            body: null,
             headers: {
               "x-key": options.key,
               "x-client-id": clientId,
             },
           });
-          const controller = source.listen({
-            onMessage(message) {
-              // console.log("[runner.onMessage]", message);
-              handlers.onMessage(JSON.parse(message.data));
-            },
-            onRequestError: (ctx) => console.error("[onRequestError]", ctx),
-            onResponseError: (ctx) => console.error("[onResponseError]", ctx),
-          });
-          controller.signal.addEventListener("abort", (e) => {
-            console.log("[runner.abort]", e);
-            handlers.onDisconnection();
-          });
+          assert(response.body);
+          response.body
+            .pipeThrough(new TextDecoderStream())
+            .pipeThrough(splitTransform("\n\n"))
+            .pipeTo(
+              new WritableStream({
+                write(chunk) {
+                  // console.log("[runner.onMessage]", chunk);
+                  if (chunk.startsWith("data: ")) {
+                    const payload = JSON.parse(chunk.slice("data: ".length));
+                    handlers.onMessage(payload);
+                  }
+                },
+                abort(e) {
+                  console.log("[runner.abort]", e);
+                },
+                close() {
+                  console.log("[runner.close]");
+                },
+              }),
+            );
         },
         timeout: 2000,
       },
@@ -95,4 +103,28 @@ export function createBridgeClient(options) {
   }
 
   return { runner, rpc, handler };
+}
+
+/**
+ * @param {string} sep
+ * @returns {TransformStream<string, string>}
+ */
+function splitTransform(sep) {
+  let pending = "";
+  return new TransformStream({
+    transform(chunk, controller) {
+      while (true) {
+        const i = chunk.indexOf(sep);
+        if (i >= 0) {
+          pending += chunk.slice(0, i);
+          controller.enqueue(pending);
+          pending = "";
+          chunk = chunk.slice(i + sep.length);
+          continue;
+        }
+        pending += chunk;
+        break;
+      }
+    },
+  });
 }
