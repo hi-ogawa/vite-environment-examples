@@ -3,16 +3,6 @@ import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
 import type { BridgeClientOptions } from "./types";
 
 export function createBridgeClient(options: BridgeClientOptions) {
-  async function rpc(method: string, ...args: any[]): Promise<any> {
-    const response = await fetch(options.bridgeUrl + "/rpc", {
-      method: "POST",
-      body: JSON.stringify({ method, args, key: options.key }),
-    });
-    assert(response.ok);
-    const result = await response.json();
-    return result;
-  }
-
   let sseClient: Awaited<ReturnType<typeof createSSEClient>>;
 
   const runner = new ModuleRunner(
@@ -55,7 +45,7 @@ export function createBridgeClient(options: BridgeClientOptions) {
     }
   }
 
-  return { runner, rpc, handler };
+  return { runner, handler };
 }
 
 async function createSSEClient(

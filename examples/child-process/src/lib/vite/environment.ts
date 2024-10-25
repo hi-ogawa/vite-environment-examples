@@ -161,7 +161,7 @@ function createHMRChannelSSEHandler() {
   }
 
   const clientMap = new Map<string, SSEClient>();
-  const manager = createListenerManager();
+  const listenerManager = createListenerManager();
 
   async function handler(request: Request): Promise<Response | undefined> {
     const url = new URL(request.url);
@@ -172,7 +172,7 @@ function createHMRChannelSSEHandler() {
         const client = clientMap.get(senderId);
         assert(client);
         const payload = await request.json();
-        manager.handle(payload, client);
+        listenerManager.handle(payload, client);
         return Response.json({ ok: true });
       }
       // otherwise handle `connect`
@@ -219,8 +219,8 @@ function createHMRChannelSSEHandler() {
         client.close();
       }
     },
-    on: manager.on,
-    off: manager.off,
+    on: listenerManager.on,
+    off: listenerManager.off,
     send: (payload) => {
       for (const client of clientMap.values()) {
         client.send(payload);
@@ -231,6 +231,7 @@ function createHMRChannelSSEHandler() {
   return { channel, handler };
 }
 
+// wrapper to simplify listener management
 function createListenerManager(): Pick<HotChannel, "on" | "off"> & {
   handle: (
     payload: HotPayload,
