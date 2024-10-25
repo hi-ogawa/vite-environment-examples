@@ -26,12 +26,9 @@ export function createBridgeClient(options: BridgeClientOptions) {
         },
         async connect(handlers) {
           sseClient = await createSSEClient(
-            options.bridgeUrl + "/connect",
-            {
-              headers: {
-                "x-key": options.key,
-              },
-            },
+            options.bridgeUrl +
+              "/sse?" +
+              new URLSearchParams({ key: options.key }),
             handlers,
           );
         },
@@ -63,27 +60,15 @@ export function createBridgeClient(options: BridgeClientOptions) {
 
 async function createSSEClient(
   url: string,
-  requestInit: RequestInit,
   handlers: {
     onMessage: (payload: any) => void;
     onDisconnection: () => void;
   },
 ) {
-  let requestController: ReadableStreamDefaultController<string>;
-  const requestStream = new ReadableStream({
-    start: (controller) => {
-      requestController = controller;
-      requestController.enqueue(`:ping\n\n`);
-    },
-  }).pipeThrough(new TextEncoderStream());
-  const response = await fetch(url, {
-    ...requestInit,
-    method: "POST",
-    body: requestStream,
-    // @ts-ignore undici
-    duplex: "half",
-  });
+  const response = await fetch(url);
   assert(response.ok);
+  const clientId = response.headers.get("x-client-id");
+  assert(clientId);
   assert(response.body);
   response.body
     .pipeThrough(new TextDecoderStream())
@@ -91,7 +76,7 @@ async function createSSEClient(
     .pipeTo(
       new WritableStream({
         write(chunk) {
-          console.log("[client.write]", chunk);
+          // console.log("[client.response]", chunk);
           if (chunk.startsWith("data: ")) {
             const payload = JSON.parse(chunk.slice("data: ".length));
             handlers.onMessage(payload);
@@ -111,8 +96,17 @@ async function createSSEClient(
     });
 
   return {
-    send: (data: unknown) => {
-      requestController.enqueue(`data: ${JSON.stringify(data)}\n\n`);
+    send: async (payload: unknown) => {
+      const response = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+          "x-client-id": clientId,
+        },
+      });
+      assert(response.ok);
+      const result = await response.json();
+      return result;
     },
   };
 }

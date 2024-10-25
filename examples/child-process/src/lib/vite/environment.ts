@@ -56,7 +56,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     const key = Math.random().toString(36).slice(2);
 
     const listener = webToNodeHandler(async (request) => {
-      const reqKey = request.headers.get("x-key");
+      const reqKey = new URL(request.url).searchParams.get("key");
       if (reqKey !== key) {
         return Response.json({ message: "invalid key" }, { status: 400 });
       }
@@ -155,154 +155,92 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
 // https://github.com/hi-ogawa/js-utils/blob/ee42942580f19abea710595163e55fb522061e99/packages/tiny-rpc/src/message-port/server-sent-event.ts
 
 function createHMRChannelSSEHandler() {
-  const clientSet = new Set<SSEClientProxy>();
-  let listener: (payload: HotPayload, client: SSEClientProxy) => void;
+  interface SSEClient {
+    send(payload: HotPayload): void;
+    close(): void;
+  }
+
+  const clientMap = new Map<string, SSEClient>();
+  const manager = createListenerManager();
 
   async function handler(request: Request): Promise<Response | undefined> {
     const url = new URL(request.url);
-    if (url.pathname === "/connect") {
-      console.log("[/connect]");
-      const client = createSSEClientProxy(request, {
-        onMessage(payload) {
-          listener(payload, client);
+    if (url.pathname === "/sse") {
+      // handle `send`
+      const senderId = request.headers.get("x-client-id");
+      if (senderId) {
+        const client = clientMap.get(senderId);
+        assert(client);
+        const payload = await request.json();
+        manager.handle(payload, client);
+        return Response.json({ ok: true });
+      }
+      // otherwise handle `connect`
+      let controller: ReadableStreamDefaultController<string>;
+      const stream = new ReadableStream<string>({
+        start: (controller_) => {
+          controller = controller_;
+          controller.enqueue(`:ping\n\n`);
+        },
+        cancel() {
+          clientMap.delete(clientId);
         },
       });
-      clientSet.add(client);
-      return client.response;
+      const pingInterval = setInterval(() => {
+        controller.enqueue(`:ping\n\n`);
+      }, 10_000);
+      const clientId = Math.random().toString(36).slice(2);
+      const client: SSEClient = {
+        send(payload) {
+          controller.enqueue(`data: ${JSON.stringify(payload)}\n\n`);
+        },
+        close() {
+          clearInterval(pingInterval);
+          controller.close();
+        },
+      };
+      clientMap.set(clientId, client);
+      return new Response(stream, {
+        headers: {
+          "x-client-id": clientId,
+          "content-type": "text/event-stream",
+          "cache-control": "no-cache",
+          connection: "keep-alive",
+        },
+      });
     }
     return undefined;
   }
 
-  const channel = createGroupedHMRChannel({
-    sendAll(payload) {
-      for (const client of clientSet) {
+  const channel: HotChannel = {
+    listen() {},
+    close() {
+      for (const client of clientMap.values()) {
+        client.close();
+      }
+    },
+    on: manager.on,
+    off: manager.off,
+    send: (payload) => {
+      for (const client of clientMap.values()) {
         client.send(payload);
       }
     },
-    on(listener_) {
-      listener = listener_;
-      return () => {
-        for (const client of clientSet) {
-          client.close();
-        }
-      };
-    },
-  });
+  };
 
   return { channel, handler };
 }
 
-type SSEClientProxy = ReturnType<typeof createSSEClientProxy>;
-
-function createSSEClientProxy(
-  request: Request,
-  handlers: {
-    onMessage: (payload: any) => void;
-  },
-) {
-  assert(request.body);
-  request.body
-    .pipeThrough(new TextDecoderStream())
-    .pipeThrough(splitTransform("\n\n"))
-    .pipeTo(
-      new WritableStream({
-        write(chunk) {
-          console.log("[client-proxy.write]", chunk);
-          if (chunk.startsWith("data: ")) {
-            const payload = JSON.parse(chunk.slice("data: ".length));
-            handlers.onMessage(payload);
-          }
-        },
-        abort(e) {
-          if (0) console.log("[client-proxy.abort]", e);
-        },
-        close() {
-          console.log("[client-proxy.close]");
-        },
-      }),
-    )
-    .catch((e) => {
-      if (0) console.log("[client-proxy.pipeTo.catch]", e);
-    });
-
-  let responseController: ReadableStreamDefaultController<string>;
-  const responseStream = new ReadableStream<string>({
-    start: (controller) => {
-      responseController = controller;
-      responseController.enqueue(`:ping\n\n`);
-    },
-  }).pipeThrough(new TextEncoderStream());
-  const response = new Response(responseStream, {
-    headers: {
-      "content-type": "text/event-stream",
-      "cache-control": "no-cache",
-      connection: "keep-alive",
-    },
-  });
-
-  const intervalId = setInterval(() => {
-    responseController.enqueue(`:ping\n\n`);
-  }, 5_000);
-
-  return {
-    response,
-    send(data: any) {
-      responseController.enqueue(`data: ${JSON.stringify(data)}\n\n`);
-    },
-    close() {
-      clearInterval(intervalId);
-    },
-  };
-}
-
-function splitTransform(sep: string): TransformStream<string, string> {
-  let pending = "";
-  return new TransformStream({
-    transform(chunk, controller) {
-      while (true) {
-        const i = chunk.indexOf(sep);
-        if (i >= 0) {
-          pending += chunk.slice(0, i);
-          controller.enqueue(pending);
-          pending = "";
-          chunk = chunk.slice(i + sep.length);
-          continue;
-        }
-        pending += chunk;
-        break;
-      }
-    },
-  });
-}
-
-// helper to manage listeners by event types
-function createGroupedHMRChannel(options: {
-  sendAll: (payload: HotPayload) => void;
-  on: (
-    listener: (
-      payload: HotPayload,
-      client: { send: (payload: HotPayload) => void },
-    ) => void,
-  ) => () => void;
-}): HotChannel {
+function createListenerManager(): Pick<HotChannel, "on" | "off"> & {
+  handle: (
+    payload: HotPayload,
+    client: { send: (payload: HotPayload) => void },
+  ) => void;
+} {
   const listerMap: Record<string, Set<HotChannelListener>> = {};
   const getListerMap = (e: string) => (listerMap[e] ??= new Set());
-  let dispose: () => void;
 
   return {
-    listen() {
-      dispose = options.on((payload, client) => {
-        if (payload.type === "custom") {
-          for (const lister of getListerMap(payload.event)) {
-            // TODO: type error of `payload.invoke`
-            lister(payload.data, client, payload.invoke as any);
-          }
-        }
-      });
-    },
-    close() {
-      dispose();
-    },
     on(event: string, listener: HotChannelListener) {
       // console.log("[channel.on]", event, listener);
       if (event === "connection") {
@@ -317,6 +255,13 @@ function createGroupedHMRChannel(options: {
       }
       getListerMap(event).delete(listener);
     },
-    send: options.sendAll,
+    handle(payload, client) {
+      if (payload.type === "custom") {
+        for (const lister of getListerMap(payload.event)) {
+          // TODO: type error of `payload.invoke`
+          lister(payload.data, client, payload.invoke as any);
+        }
+      }
+    },
   };
 }
