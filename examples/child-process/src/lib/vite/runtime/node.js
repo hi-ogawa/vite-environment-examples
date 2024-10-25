@@ -3,9 +3,9 @@ import fs from "node:fs";
 import http from "node:http";
 import { Writable } from "node:stream";
 import { webToNodeHandler } from "@hiogawa/utils-node";
-import { createBridgeClient } from "../bridge-client.js";
+import { createBridgeClient } from "../bridge-client.ts";
 
-async function main() {
+function main() {
   // @ts-ignore
   const options = JSON.parse(process.argv[2]);
   const bridgeClient = createBridgeClient(options);

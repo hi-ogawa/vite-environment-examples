@@ -30,7 +30,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   }): NonNullable<DevEnvironmentOptions["createEnvironment"]> {
     return (name, config) => {
       const command = [
-        options.runtime === "node" ? ["node"] : [],
+        options.runtime === "node" ? ["node", "--import", "tsx/esm"] : [],
         options.runtime === "bun" ? ["bun", "run"] : [],
         options.conditions ? ["--conditions", ...options.conditions] : [],
         join(import.meta.dirname, `./runtime/${options.runtime}.js`),
@@ -155,46 +155,34 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
 // https://github.com/hi-ogawa/js-utils/blob/ee42942580f19abea710595163e55fb522061e99/packages/tiny-rpc/src/message-port/server-sent-event.ts
 
 function createHMRChannelSSEHandler() {
-  const clientMap = new Map<string, SSEClientProxy>();
+  const clientSet = new Set<SSEClientProxy>();
   let listener: (payload: HotPayload, client: SSEClientProxy) => void;
 
   async function handler(request: Request): Promise<Response | undefined> {
     const url = new URL(request.url);
-    const clientId = request.headers.get("x-client-id")!;
-    assert(clientId);
-    if (url.pathname === "/send") {
-      const payload = await request.json();
-      // console.log("[/send]", { clientId }, payload);
-      const client = clientMap.get(clientId);
-      assert(client);
-      listener(payload, client);
-      return Response.json({ ok: true });
-    }
     if (url.pathname === "/connect") {
-      // console.log("[/connect]", { clientId });
-      const client = new SSEClientProxy();
-      clientMap.set(clientId, client);
-      return new Response(client.stream, {
-        headers: {
-          "content-type": "text/event-stream",
-          "cache-control": "no-cache",
-          connection: "keep-alive",
+      console.log("[/connect]");
+      const client = createSSEClientProxy(request, {
+        onMessage(payload) {
+          listener(payload, client);
         },
       });
+      clientSet.add(client);
+      return client.response;
     }
     return undefined;
   }
 
   const channel = createGroupedHMRChannel({
     sendAll(payload) {
-      for (const client of clientMap.values()) {
+      for (const client of clientSet) {
         client.send(payload);
       }
     },
     on(listener_) {
       listener = listener_;
       return () => {
-        for (const client of clientMap.values()) {
+        for (const client of clientSet) {
           client.close();
         }
       };
@@ -204,32 +192,87 @@ function createHMRChannelSSEHandler() {
   return { channel, handler };
 }
 
-class SSEClientProxy {
-  stream: ReadableStream<string>;
-  controller!: ReadableStreamDefaultController<string>;
-  intervalId: ReturnType<typeof setInterval>;
+type SSEClientProxy = ReturnType<typeof createSSEClientProxy>;
 
-  constructor() {
-    this.stream = new ReadableStream<string>({
-      start: (controller) => {
-        this.controller = controller;
-        this.controller.enqueue(`:ping\n\n`);
-      },
+function createSSEClientProxy(
+  request: Request,
+  handlers: {
+    onMessage: (payload: any) => void;
+  },
+) {
+  assert(request.body);
+  request.body
+    .pipeThrough(new TextDecoderStream())
+    .pipeThrough(splitTransform("\n\n"))
+    .pipeTo(
+      new WritableStream({
+        write(chunk) {
+          console.log("[client-proxy.write]", chunk);
+          if (chunk.startsWith("data: ")) {
+            const payload = JSON.parse(chunk.slice("data: ".length));
+            handlers.onMessage(payload);
+          }
+        },
+        abort(e) {
+          if (0) console.log("[client-proxy.abort]", e);
+        },
+        close() {
+          console.log("[client-proxy.close]");
+        },
+      }),
+    )
+    .catch((e) => {
+      if (0) console.log("[client-proxy.pipeTo.catch]", e);
     });
 
-    // auto ping from server
-    this.intervalId = setInterval(() => {
-      this.controller.enqueue(`:ping\n\n`);
-    }, 10_000);
-  }
+  let responseController: ReadableStreamDefaultController<string>;
+  const responseStream = new ReadableStream<string>({
+    start: (controller) => {
+      responseController = controller;
+      responseController.enqueue(`:ping\n\n`);
+    },
+  }).pipeThrough(new TextEncoderStream());
+  const response = new Response(responseStream, {
+    headers: {
+      "content-type": "text/event-stream",
+      "cache-control": "no-cache",
+      connection: "keep-alive",
+    },
+  });
 
-  send(data: unknown) {
-    this.controller.enqueue(`data: ${JSON.stringify(data)}\n\n`);
-  }
+  const intervalId = setInterval(() => {
+    responseController.enqueue(`:ping\n\n`);
+  }, 5_000);
 
-  close() {
-    clearInterval(this.intervalId);
-  }
+  return {
+    response,
+    send(data: any) {
+      responseController.enqueue(`data: ${JSON.stringify(data)}\n\n`);
+    },
+    close() {
+      clearInterval(intervalId);
+    },
+  };
+}
+
+function splitTransform(sep: string): TransformStream<string, string> {
+  let pending = "";
+  return new TransformStream({
+    transform(chunk, controller) {
+      while (true) {
+        const i = chunk.indexOf(sep);
+        if (i >= 0) {
+          pending += chunk.slice(0, i);
+          controller.enqueue(pending);
+          pending = "";
+          chunk = chunk.slice(i + sep.length);
+          continue;
+        }
+        pending += chunk;
+        break;
+      }
+    },
+  });
 }
 
 // helper to manage listeners by event types

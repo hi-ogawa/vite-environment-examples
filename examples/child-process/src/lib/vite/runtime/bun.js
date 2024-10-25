@@ -1,4 +1,4 @@
-import { createBridgeClient } from "../bridge-client.js";
+import { createBridgeClient } from "../bridge-client.ts";
 
 async function main() {
   // @ts-ignore
