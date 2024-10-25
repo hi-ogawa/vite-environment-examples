@@ -24,6 +24,8 @@ export function createBridgeClient(options) {
     return result;
   }
 
+  let clientId = Math.random().toString(36).slice(2);
+
   const runner = new ModuleRunner(
     {
       root: options.root,
@@ -35,21 +37,24 @@ export function createBridgeClient(options) {
             body: JSON.stringify(payload),
             headers: {
               "x-key": options.key,
+              "x-client-id": clientId,
             },
           });
           assert(response.ok);
         },
         async connect(handlers) {
+          // TODO
           // https://github.com/joshmossas/event-source-plus
           const source = new EventSourcePlus(options.bridgeUrl + "/connect", {
             maxRetryCount: 0,
             headers: {
               "x-key": options.key,
+              "x-client-id": clientId,
             },
           });
           const controller = source.listen({
             onMessage(message) {
-              console.log("[runner.onMessage]", message);
+              // console.log("[runner.onMessage]", message);
               handlers.onMessage(JSON.parse(message.data));
             },
             onRequestError: (ctx) => console.error("[onRequestError]", ctx),

@@ -155,21 +155,25 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
 // https://github.com/hi-ogawa/js-utils/blob/ee42942580f19abea710595163e55fb522061e99/packages/tiny-rpc/src/message-port/server-sent-event.ts
 
 function createHMRChannelSSEHandler() {
-  const connectClients = new Set<SSEClientProxy>();
-  let listener: (payload: HotPayload) => void;
+  const clientMap = new Map<string, SSEClientProxy>();
+  let listener: (payload: HotPayload, client: SSEClientProxy) => void;
 
   async function handler(request: Request): Promise<Response | undefined> {
     const url = new URL(request.url);
+    const clientId = request.headers.get("x-client-id")!;
+    assert(clientId);
     if (url.pathname === "/send") {
       const payload = await request.json();
-      // console.log("[/send]", payload);
-      listener(payload);
+      console.log("[/send]", { clientId }, payload);
+      const client = clientMap.get(clientId);
+      assert(client);
+      listener(payload, client);
       return Response.json({ ok: true });
     }
     if (url.pathname === "/connect") {
-      // console.log("[/connect]");
+      console.log("[/connect]", { clientId });
       const client = new SSEClientProxy();
-      connectClients.add(client);
+      clientMap.set(clientId, client);
       return new Response(client.stream, {
         headers: {
           "content-type": "text/event-stream",
@@ -182,15 +186,15 @@ function createHMRChannelSSEHandler() {
   }
 
   const channel = createGroupedHMRChannel({
-    send(payload) {
-      for (const client of connectClients) {
-        client.postMessage(JSON.stringify(payload));
+    sendAll(payload) {
+      for (const client of clientMap.values()) {
+        client.send(payload);
       }
     },
     on(listener_) {
       listener = listener_;
       return () => {
-        for (const client of connectClients) {
+        for (const client of clientMap.values()) {
           client.close();
         }
       };
@@ -219,8 +223,8 @@ class SSEClientProxy {
     }, 10_000);
   }
 
-  postMessage(data: string) {
-    this.controller.enqueue(`data: ${data}\n\n`);
+  send(data: unknown) {
+    this.controller.enqueue(`data: ${JSON.stringify(data)}\n\n`);
   }
 
   close() {
@@ -230,8 +234,13 @@ class SSEClientProxy {
 
 // helper to manage listeners by event types
 function createGroupedHMRChannel(options: {
-  send: (data: HotPayload) => void;
-  on: (listener: (data: HotPayload) => void) => () => void;
+  sendAll: (payload: HotPayload) => void;
+  on: (
+    listener: (
+      payload: HotPayload,
+      client: { send: (payload: HotPayload) => void },
+    ) => void,
+  ) => () => void;
 }): HotChannel {
   const listerMap: Record<string, Set<HotChannelListener>> = {};
   const getListerMap = (e: string) => (listerMap[e] ??= new Set());
@@ -239,12 +248,11 @@ function createGroupedHMRChannel(options: {
 
   return {
     listen() {
-      dispose = options.on((payload) => {
+      dispose = options.on((payload, client) => {
         if (payload.type === "custom") {
           for (const lister of getListerMap(payload.event)) {
-            // TODO: do we need to send to all clients?
-            // TODO: type error of `payload.invoke`?
-            lister(payload.data, { send: options.send }, payload.invoke as any);
+            // TODO: type error of `payload.invoke`
+            lister(payload.data, client, payload.invoke as any);
           }
         }
       });
@@ -266,6 +274,6 @@ function createGroupedHMRChannel(options: {
       }
       getListerMap(event).delete(listener);
     },
-    send: options.send,
+    send: options.sendAll,
   };
 }
