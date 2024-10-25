@@ -5,7 +5,13 @@ import { join } from "node:path";
 import readline from "node:readline";
 import { Readable } from "node:stream";
 import { webToNodeHandler } from "@hiogawa/utils-node";
-import { DevEnvironment, type DevEnvironmentOptions } from "vite";
+import {
+  DevEnvironment,
+  type DevEnvironmentOptions,
+  type HotChannel,
+  type HotChannelListener,
+  type HotPayload,
+} from "vite";
 import type { BridgeClientOptions } from "./types";
 
 // TODO
@@ -14,6 +20,7 @@ import type { BridgeClientOptions } from "./types";
 export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   public bridge!: http.Server;
   public bridgeUrl!: string;
+  public bridgeSse: ReturnType<typeof createHMRChannelSSEHandler>;
   public child!: childProcess.ChildProcess;
   public childUrl!: string;
 
@@ -28,18 +35,18 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         options.conditions ? ["--conditions", ...options.conditions] : [],
         join(import.meta.dirname, `./runtime/${options.runtime}.js`),
       ].flat();
-      return new ChildProcessFetchDevEnvironment({ command }, name, config, {
-        // TODO
-        hot: false,
-      });
+      return new ChildProcessFetchDevEnvironment({ command }, name, config);
     };
   }
 
   constructor(
     public extraOptions: { command: string[] },
-    ...args: ConstructorParameters<typeof DevEnvironment>
+    name: ConstructorParameters<typeof DevEnvironment>[0],
+    config: ConstructorParameters<typeof DevEnvironment>[1],
   ) {
-    super(...args);
+    const bridgeSse = createHMRChannelSSEHandler();
+    super(name, config, { hot: false, transport: bridgeSse.channel });
+    this.bridgeSse = bridgeSse;
   }
 
   override init: DevEnvironment["init"] = async (...args) => {
@@ -49,18 +56,11 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     const key = Math.random().toString(36).slice(2);
 
     const listener = webToNodeHandler(async (request) => {
-      const url = new URL(request.url);
-      // TODO: other than json?
-      if (url.pathname === "/rpc") {
-        const { method, args, key: reqKey } = await request.json();
-        if (reqKey !== key) {
-          return Response.json({ message: "invalid key" }, { status: 400 });
-        }
-        assert(method in this);
-        const result = await (this as any)[method]!(...args);
-        return Response.json(result);
+      const reqKey = request.headers.get("x-key");
+      if (reqKey !== key) {
+        return Response.json({ message: "invalid key" }, { status: 400 });
       }
-      return undefined;
+      return this.bridgeSse.handler(request);
     });
 
     const bridge = http.createServer((req, res) => {
@@ -149,4 +149,131 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     url.host = childUrl.host;
     return fetch(new Request(url, { ...request, headers, redirect: "manual" }));
   }
+}
+
+// SSE utility partially from
+// https://github.com/hi-ogawa/js-utils/blob/ee42942580f19abea710595163e55fb522061e99/packages/tiny-rpc/src/message-port/server-sent-event.ts
+
+function createHMRChannelSSEHandler() {
+  const clientMap = new Map<string, SSEClientProxy>();
+  let listener: (payload: HotPayload, client: SSEClientProxy) => void;
+
+  async function handler(request: Request): Promise<Response | undefined> {
+    const url = new URL(request.url);
+    const clientId = request.headers.get("x-client-id")!;
+    assert(clientId);
+    if (url.pathname === "/send") {
+      const payload = await request.json();
+      console.log("[/send]", { clientId }, payload);
+      const client = clientMap.get(clientId);
+      assert(client);
+      listener(payload, client);
+      return Response.json({ ok: true });
+    }
+    if (url.pathname === "/connect") {
+      console.log("[/connect]", { clientId });
+      const client = new SSEClientProxy();
+      clientMap.set(clientId, client);
+      return new Response(client.stream, {
+        headers: {
+          "content-type": "text/event-stream",
+          "cache-control": "no-cache",
+          connection: "keep-alive",
+        },
+      });
+    }
+    return undefined;
+  }
+
+  const channel = createGroupedHMRChannel({
+    sendAll(payload) {
+      for (const client of clientMap.values()) {
+        client.send(payload);
+      }
+    },
+    on(listener_) {
+      listener = listener_;
+      return () => {
+        for (const client of clientMap.values()) {
+          client.close();
+        }
+      };
+    },
+  });
+
+  return { channel, handler };
+}
+
+class SSEClientProxy {
+  stream: ReadableStream<string>;
+  controller!: ReadableStreamDefaultController<string>;
+  intervalId: ReturnType<typeof setInterval>;
+
+  constructor() {
+    this.stream = new ReadableStream<string>({
+      start: (controller) => {
+        this.controller = controller;
+        this.controller.enqueue(`:ping\n\n`);
+      },
+    });
+
+    // auto ping from server
+    this.intervalId = setInterval(() => {
+      this.controller.enqueue(`:ping\n\n`);
+    }, 10_000);
+  }
+
+  send(data: unknown) {
+    this.controller.enqueue(`data: ${JSON.stringify(data)}\n\n`);
+  }
+
+  close() {
+    clearInterval(this.intervalId);
+  }
+}
+
+// helper to manage listeners by event types
+function createGroupedHMRChannel(options: {
+  sendAll: (payload: HotPayload) => void;
+  on: (
+    listener: (
+      payload: HotPayload,
+      client: { send: (payload: HotPayload) => void },
+    ) => void,
+  ) => () => void;
+}): HotChannel {
+  const listerMap: Record<string, Set<HotChannelListener>> = {};
+  const getListerMap = (e: string) => (listerMap[e] ??= new Set());
+  let dispose: () => void;
+
+  return {
+    listen() {
+      dispose = options.on((payload, client) => {
+        if (payload.type === "custom") {
+          for (const lister of getListerMap(payload.event)) {
+            // TODO: type error of `payload.invoke`
+            lister(payload.data, client, payload.invoke as any);
+          }
+        }
+      });
+    },
+    close() {
+      dispose();
+    },
+    on(event: string, listener: HotChannelListener) {
+      // console.log("[channel.on]", event, listener);
+      if (event === "connection") {
+        return;
+      }
+      getListerMap(event).add(listener);
+    },
+    off(event, listener: any) {
+      // console.log("[channel.off]", event, listener);
+      if (event === "connection") {
+        return;
+      }
+      getListerMap(event).delete(listener);
+    },
+    send: options.sendAll,
+  };
 }

@@ -1,6 +1,7 @@
 // @ts-check
 
 import assert from "node:assert";
+import { EventSourcePlus } from "event-source-plus";
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
 
 /**
@@ -11,6 +12,7 @@ export function createBridgeClient(options) {
    * @param {string} method
    * @param  {...any} args
    * @returns {Promise<any>}
+   * TODO: not used
    */
   async function rpc(method, ...args) {
     const response = await fetch(options.bridgeUrl + "/rpc", {
@@ -22,14 +24,50 @@ export function createBridgeClient(options) {
     return result;
   }
 
+  let clientId = Math.random().toString(36).slice(2);
+
   const runner = new ModuleRunner(
     {
       root: options.root,
       sourcemapInterceptor: "prepareStackTrace",
       transport: {
-        fetchModule: (...args) => rpc("fetchModule", ...args),
+        async send(payload) {
+          const response = await fetch(options.bridgeUrl + "/send", {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: {
+              "x-key": options.key,
+              "x-client-id": clientId,
+            },
+          });
+          assert(response.ok);
+        },
+        async connect(handlers) {
+          // TODO
+          // https://github.com/joshmossas/event-source-plus
+          const source = new EventSourcePlus(options.bridgeUrl + "/connect", {
+            maxRetryCount: 0,
+            headers: {
+              "x-key": options.key,
+              "x-client-id": clientId,
+            },
+          });
+          const controller = source.listen({
+            onMessage(message) {
+              // console.log("[runner.onMessage]", message);
+              handlers.onMessage(JSON.parse(message.data));
+            },
+            onRequestError: (ctx) => console.error("[onRequestError]", ctx),
+            onResponseError: (ctx) => console.error("[onResponseError]", ctx),
+          });
+          controller.signal.addEventListener("abort", (e) => {
+            console.log("[runner.abort]", e);
+            handlers.onDisconnection();
+          });
+        },
+        timeout: 2000,
       },
-      hmr: false,
+      // hmr: true,
     },
     new ESModulesEvaluator(),
   );
