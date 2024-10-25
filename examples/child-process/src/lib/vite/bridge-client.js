@@ -1,10 +1,15 @@
+// @ts-check
+
 import assert from "node:assert";
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
-import { createSSEClient } from "./sse-client";
-import type { BridgeClientOptions } from "./types";
+import { createSSEClient } from "./sse-client.ts";
 
-export function createBridgeClient(options: BridgeClientOptions) {
-  let sseClient: Awaited<ReturnType<typeof createSSEClient>>;
+/**
+ * @param {import("./types").BridgeClientOptions} options
+ */
+export function createBridgeClient(options) {
+  /** @type {Awaited<ReturnType<typeof createSSEClient>>} */
+  let sseClient;
 
   const runner = new ModuleRunner(
     {
@@ -30,10 +35,16 @@ export function createBridgeClient(options: BridgeClientOptions) {
     new ESModulesEvaluator(),
   );
 
-  async function handler(request: Request): Promise<Response> {
+  // TODO: move this out
+  /**
+   * @param {Request} request
+   * @returns {Promise<Response>}
+   */
+  async function handler(request) {
     try {
       const headers = request.headers;
-      const meta = JSON.parse(headers.get("x-vite-meta")!);
+      // @ts-ignore
+      const meta = JSON.parse(headers.get("x-vite-meta"));
       headers.delete("x-vite-meta");
       const mod = await runner.import(meta.entry);
       return mod.default(new Request(meta.url, { ...request, headers }));

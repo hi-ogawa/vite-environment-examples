@@ -3,7 +3,7 @@ import fs from "node:fs";
 import http from "node:http";
 import { Writable } from "node:stream";
 import { webToNodeHandler } from "@hiogawa/utils-node";
-import { createBridgeClient } from "../bridge-client.ts";
+import { createBridgeClient } from "../bridge-client.js";
 
 async function main() {
   // @ts-ignore
