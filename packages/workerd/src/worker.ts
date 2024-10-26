@@ -1,5 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 import { objectPickBy, tinyassert } from "@hiogawa/utils";
+import type { HotPayload } from "vite";
 import {
   ModuleRunner,
   ssrImportMetaKey,
@@ -15,6 +16,7 @@ import {
 export class RunnerObject extends DurableObject {
   #env: RunnerEnv;
   #runner?: ModuleRunner;
+  #viteServerSend!: (payload: HotPayload) => void;
 
   constructor(...args: ConstructorParameters<typeof DurableObject>) {
     super(...args);
@@ -34,14 +36,65 @@ export class RunnerObject extends DurableObject {
     }
   }
 
-  async __vite_init() {
-    console.log("!!vite init!!");
-    return "foo";
+  async __viteInit() {
+    const env = this.#env;
+    this.#runner = new ModuleRunner(
+      {
+        root: env.__viteRoot,
+        sourcemapInterceptor: "prepareStackTrace",
+        transport: {
+          fetchModule: async (...args) => {
+            const response = await env.__viteFetchModule.fetch(
+              new Request(ANY_URL, {
+                method: "POST",
+                body: JSON.stringify(args),
+              }),
+            );
+            tinyassert(response.ok);
+            const result = response.json();
+            return result as any;
+          },
+        },
+        hmr: {
+          connection: {
+            isReady: () => true,
+            onUpdate: (callback) => {
+              this.#viteServerSend = callback;
+            },
+            send: (payload) => {
+              env.__viteRunnerSend.fetch(
+                new Request(ANY_URL, {
+                  method: "POST",
+                  body: JSON.stringify(payload),
+                }),
+              );
+            },
+          },
+        },
+      },
+      {
+        runInlinedModule: async (context, transformed) => {
+          const codeDefinition = `'use strict';async (${Object.keys(
+            context,
+          ).join(",")})=>{{`;
+          const code = `${codeDefinition}${transformed}\n}}`;
+          const fn = env.__viteUnsafeEval.eval(
+            code,
+            context[ssrImportMetaKey].filename,
+          );
+          await fn(...Object.values(context));
+          Object.freeze(context[ssrModuleExportsKey]);
+        },
+        async runExternalModule(filepath) {
+          return import(filepath);
+        },
+      },
+    );
+    return { ok: true };
   }
 
-  // TODO
   async __viteServerSend(payload: string) {
-    payload;
+    this.#viteServerSend(JSON.parse(payload));
   }
 
   async #fetch(request: Request) {

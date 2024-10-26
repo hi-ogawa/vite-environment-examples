@@ -166,22 +166,26 @@ export async function createWorkerdDevEnvironment(
   const ns = await miniflare.getDurableObjectNamespace("__viteRunner");
   const runnerObject = ns.get(ns.idFromName(""));
 
+  // init via rpc
+  await (runnerObject as any).__viteInit();
   // initial request to setup websocket
-  const initResponse = await runnerObject.fetch(ANY_URL + RUNNER_INIT_PATH, {
-    headers: {
-      Upgrade: "websocket",
-    },
-  });
-  tinyassert(initResponse.webSocket);
-  const { webSocket } = initResponse;
-  webSocket.accept();
+  if (0) {
+    const initResponse = await runnerObject.fetch(ANY_URL + RUNNER_INIT_PATH, {
+      headers: {
+        Upgrade: "websocket",
+      },
+    });
+    tinyassert(initResponse.webSocket);
+    const { webSocket } = initResponse;
+    webSocket.accept();
+  }
 
   // websocket hmr channgel
   let hotListener: (data: unknown) => void;
   const hot = createSimpleHMRChannel({
     post: (data) => {
       (runnerObject as any).__viteServerSend(data);
-      webSocket.send(data);
+      // webSocket.send(data);
     },
     on: (listener) => {
       hotListener = listener;
