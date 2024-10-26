@@ -30,9 +30,11 @@ export type EvalApi = <In = any, Out = any>(request: {
   entry: string;
   data?: In;
   fn: EvalFn<In, Out>;
+  stream?: boolean;
 }) => Promise<Awaited<Out>>;
 
 export type EvalMetadata = {
   entry: string;
   fnString: string;
+  stream?: boolean;
 };
