@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "include": ["src", "e2e", "*.ts"],
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": false,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "types": ["vite/client", "react/experimental", "@types/bun"],
+    "jsx": "react-jsx"
+  }
+}

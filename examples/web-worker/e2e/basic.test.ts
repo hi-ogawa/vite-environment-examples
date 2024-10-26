@@ -3,7 +3,7 @@ import { createEditor } from "./helper";
 
 test("basic", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByTestId("worker-message")).toContainText(
+  await expect(page.getByTestId("worker")).toContainText(
     "Rendered in web worker",
   );
 });
@@ -20,15 +20,25 @@ test("erorr stack", async ({ page }) => {
 
 test("worker in worker", async ({ page }) => {
   await page.goto("/?worker-in-worker");
-  await expect(page.getByTestId("worker-message")).toContainText(
+  await expect(page.getByTestId("worker")).toContainText(
     "Rendered in web worker in web worker",
   );
 });
 
 test("reload worker change @dev", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByTestId("worker-message")).toContainText("dep-ok");
+  await expect(page.getByTestId("worker")).toContainText("dep-ok");
   using file = createEditor("./src/worker/dep.tsx");
-  file.edit((s) => s.replace(`"dep-ok"`, `"dep-edit-ok"`));
-  await expect(page.getByTestId("worker-message")).toContainText("dep-edit-ok");
+  file.edit((s) => s.replace(`"user-dep-ok"`, `"user-dep-edit-ok"`));
+  await expect(page.getByTestId("worker")).toContainText("dep-edit-ok");
+});
+
+test("condition", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("client")).toContainText(
+    "test-dep-conditions: index.browser.js",
+  );
+  await expect(page.getByTestId("worker")).toContainText(
+    "test-dep-conditions: index.worker.js",
+  );
 });
