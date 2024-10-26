@@ -1,3 +1,4 @@
+import { DurableObject } from "cloudflare:workers";
 import { objectPickBy, tinyassert } from "@hiogawa/utils";
 import {
   ModuleRunner,
@@ -11,15 +12,16 @@ import {
   type RunnerEnv,
 } from "./shared";
 
-export class RunnerObject implements DurableObject {
+export class RunnerObject extends DurableObject {
   #env: RunnerEnv;
   #runner?: ModuleRunner;
 
-  constructor(_state: DurableObjectState, env: RunnerEnv) {
-    this.#env = env;
+  constructor(...args: ConstructorParameters<typeof DurableObject>) {
+    super(...args);
+    this.#env = args[1] as RunnerEnv;
   }
 
-  async fetch(request: Request) {
+  override async fetch(request: Request) {
     try {
       return await this.#fetch(request);
     } catch (e) {
@@ -30,6 +32,11 @@ export class RunnerObject implements DurableObject {
       }
       return new Response(body, { status: 500 });
     }
+  }
+
+  async __vite_init() {
+    console.log("!!vite init!!");
+    return "foo";
   }
 
   async #fetch(request: Request) {
