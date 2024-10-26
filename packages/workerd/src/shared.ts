@@ -9,6 +9,9 @@ export type RunnerEnv = {
   __viteFetchModule: {
     fetch: (request: Request) => Promise<Response>;
   };
+  __viteRunnerSend: {
+    fetch: (request: Request) => Promise<Response>;
+  };
   __viteRunner: DurableObject;
 };
 

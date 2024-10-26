@@ -125,6 +125,11 @@ export async function createWorkerdDevEnvironment(
           throw error;
         }
       },
+      __viteRunnerSend: async (request) => {
+        const payload = await request.json();
+        hotListener(payload);
+        return MiniflareResponse.json({ ok: true });
+      },
     },
     bindings: {
       __viteRoot: config.root,
@@ -172,13 +177,15 @@ export async function createWorkerdDevEnvironment(
   webSocket.accept();
 
   // websocket hmr channgel
+  let hotListener: (data: unknown) => void;
   const hot = createSimpleHMRChannel({
-    post: (data) => webSocket.send(data),
+    post: (data) => {
+      (runnerObject as any).__viteServerSend(data);
+      webSocket.send(data);
+    },
     on: (listener) => {
-      webSocket.addEventListener("message", listener);
-      return () => {
-        webSocket.removeEventListener("message", listener);
-      };
+      hotListener = listener;
+      return () => {};
     },
     serialize: (v) => JSON.stringify(v),
     deserialize: (v) => JSON.parse(v.data),

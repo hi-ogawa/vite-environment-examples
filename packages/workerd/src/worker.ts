@@ -39,6 +39,11 @@ export class RunnerObject extends DurableObject {
     return "foo";
   }
 
+  // TODO
+  async __viteServerSend(payload: string) {
+    payload;
+  }
+
   async #fetch(request: Request) {
     const url = new URL(request.url);
 
@@ -89,12 +94,18 @@ function createRunner(env: RunnerEnv, webSocket: WebSocket) {
         connection: {
           isReady: () => true,
           onUpdate(callback) {
+            // TODO
             webSocket.addEventListener("message", (event) => {
               callback(JSON.parse(event.data));
             });
           },
           send(payload) {
-            webSocket.send(JSON.stringify(payload));
+            env.__viteRunnerSend.fetch(
+              new Request(ANY_URL, {
+                method: "POST",
+                body: JSON.stringify(payload),
+              }),
+            );
           },
         },
       },
