@@ -8,6 +8,7 @@ import { webToNodeHandler } from "@hiogawa/utils-node";
 import {
   DevEnvironment,
   type DevEnvironmentOptions,
+  type HotChannelInvokeHandler,
   type HotPayload,
 } from "vite";
 import type { BridgeClientOptions } from "./types";
@@ -20,6 +21,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   public bridgeUrl!: string;
   public child!: childProcess.ChildProcess;
   public childUrl!: string;
+  public invokeHandler!: HotChannelInvokeHandler;
 
   static createFactory(options: {
     runtime: "node" | "bun";
@@ -32,18 +34,27 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         options.conditions ? ["--conditions", ...options.conditions] : [],
         join(import.meta.dirname, `./runtime/${options.runtime}.js`),
       ].flat();
-      return new ChildProcessFetchDevEnvironment({ command }, name, config, {
-        // TODO
-        hot: false,
-      });
+      return new ChildProcessFetchDevEnvironment({ command }, name, config);
     };
   }
 
   constructor(
     public extraOptions: { command: string[] },
-    ...args: ConstructorParameters<typeof DevEnvironment>
+    arg0: ConstructorParameters<typeof DevEnvironment>[0],
+    arg1: ConstructorParameters<typeof DevEnvironment>[1],
   ) {
-    super(...args);
+    let invokeHandler!: HotChannelInvokeHandler;
+    super(arg0, arg1, {
+      hot: false,
+      transport: {
+        setInvokeHandler: (invokeHandler_) => {
+          if (invokeHandler_) {
+            invokeHandler = invokeHandler_;
+          }
+        },
+      },
+    });
+    this.invokeHandler = invokeHandler;
   }
 
   override init: DevEnvironment["init"] = async (...args) => {
@@ -51,8 +62,6 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
 
     // protect bridge rpc
     const key = Math.random().toString(36).slice(2);
-
-    const invokeHandlers = this.getInvokeHandlers();
 
     const listener = webToNodeHandler(async (request) => {
       const url = new URL(request.url);
@@ -65,10 +74,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         if (reqKey !== key) {
           return Response.json({ message: "invalid key" }, { status: 400 });
         }
-        assert(payload.type === "custom");
-        const handler = invokeHandlers[payload.event];
-        assert(handler);
-        const result = await handler(payload.data);
+        const result = await this.invokeHandler(payload);
         return Response.json(result);
       }
       return undefined;
