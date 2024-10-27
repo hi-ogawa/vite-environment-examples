@@ -239,7 +239,7 @@ function createHotListenerManager(): Pick<HotChannel, "on" | "off"> & {
     dispatch(payload, client) {
       if (payload.type === "custom") {
         for (const lister of getListerMap(payload.event)) {
-          lister(payload.data, client, payload.invoke);
+          lister(payload.data, client);
         }
       }
     },
