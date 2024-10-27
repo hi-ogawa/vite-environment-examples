@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import type { Fetcher } from "@cloudflare/workers-types/experimental";
 import { DefaultMap } from "@hiogawa/utils";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import {
@@ -18,6 +19,7 @@ import {
 } from "vite";
 import type { SourcelessWorkerOptions } from "wrangler";
 import { type FetchMetadata } from "./shared";
+import type { RunnerObject } from "./worker";
 
 interface WorkerdPluginOptions extends WorkerdEnvironmentOptions {
   entry?: string;
@@ -164,16 +166,17 @@ export async function createWorkerdDevEnvironment(
 
   // get durable object singleton
   const ns = await miniflare.getDurableObjectNamespace("__viteRunner");
-  const runnerObject = ns.get(ns.idFromName(""));
+  const runnerObject = ns.get(ns.idFromName("")) as any as Fetcher &
+    Pick<RunnerObject, "__viteInit" | "__viteServerSend">;
 
   // init via rpc
-  await (runnerObject as any).__viteInit();
+  await runnerObject.__viteInit();
 
   // hmr channgel
   let hotListener: (data: unknown) => void;
   const hot = createSimpleHMRChannel({
     post: (data) => {
-      (runnerObject as any).__viteServerSend(data);
+      runnerObject.__viteServerSend(data);
     },
     on: (listener) => {
       hotListener = listener;
