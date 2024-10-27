@@ -247,7 +247,7 @@ function createHotListenerManager(): Pick<HotChannel, "on" | "off"> & {
 }
 
 function normalizeServerSendPayload(...args: any[]) {
-  let payload: any;
+  let payload: HotPayload;
   if (typeof args[0] === "string") {
     payload = {
       type: "custom",

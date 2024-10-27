@@ -1,6 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
 import { objectPickBy, tinyassert } from "@hiogawa/utils";
-import type { HotPayload } from "vite";
 import {
   ModuleRunner,
   ssrImportMetaKey,
@@ -16,7 +15,6 @@ import {
 export class RunnerObject extends DurableObject implements RunnerRpc {
   #env: RunnerEnv;
   #runner?: ModuleRunner;
-  #viteServerSend!: (payload: HotPayload) => void;
 
   constructor(...args: ConstructorParameters<typeof DurableObject>) {
     super(...args);
@@ -72,7 +70,7 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
           connection: {
             isReady: () => true,
             onUpdate: (callback) => {
-              this.#viteServerSend = callback;
+              this.#viteServerSendHandler = callback;
             },
             send: async (payload) => {
               const response = await env.__viteRunnerSend.fetch(
@@ -103,7 +101,8 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
     );
   }
 
+  #viteServerSendHandler!: (payload: any) => void;
   async __viteServerSend(payload: any) {
-    this.#viteServerSend(payload);
+    this.#viteServerSendHandler(payload);
   }
 }

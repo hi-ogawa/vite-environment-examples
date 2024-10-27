@@ -1,3 +1,5 @@
+import type { HotPayload } from "vite";
+
 export const ANY_URL = "https://any.local";
 
 export type RunnerEnv = {
@@ -16,7 +18,7 @@ export type RunnerEnv = {
 
 export type RunnerRpc = {
   __viteInit: () => Promise<void>;
-  __viteServerSend: (payload: unknown) => Promise<void>;
+  __viteServerSend: (payload: HotPayload) => Promise<void>;
 };
 
 export type FetchMetadata = {
