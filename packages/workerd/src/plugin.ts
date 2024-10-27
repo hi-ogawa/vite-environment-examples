@@ -180,7 +180,7 @@ export async function createWorkerdDevEnvironment(
     webSocket.accept();
   }
 
-  // websocket hmr channgel
+  // hmr channgel
   let hotListener: (data: unknown) => void;
   const hot = createSimpleHMRChannel({
     post: (data) => {
@@ -192,7 +192,7 @@ export async function createWorkerdDevEnvironment(
       return () => {};
     },
     serialize: (v) => JSON.stringify(v),
-    deserialize: (v) => JSON.parse(v.data),
+    deserialize: (v) => v,
   });
 
   // TODO: move initialization code to `init`?
