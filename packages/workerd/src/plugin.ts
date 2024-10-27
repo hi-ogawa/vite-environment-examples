@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { DefaultMap, tinyassert } from "@hiogawa/utils";
 import { webToNodeHandler } from "@hiogawa/utils-node";
@@ -84,13 +85,28 @@ export async function createWorkerdDevEnvironment(
   config: ResolvedConfig,
   pluginOptions: WorkerdEnvironmentOptions,
 ) {
+  const workerPath = fileURLToPath(new URL("./worker.js", import.meta.url));
+  const workerContent = readFileSync(workerPath, "utf-8");
+  const viteModuleRunnerPath = fileURLToPath(
+    import.meta.resolve("vite/module-runner"),
+  );
+  const viteModuleRunnerContent = readFileSync(
+    viteModuleRunnerPath,
+    "utf-8",
+  ).replace(`new AsyncFunction("a", "b", body).toString()`, `""`);
+
   // setup miniflare with a durable object script to run vite module runner
   let runnerWorkerOptions: WorkerOptions = {
-    modulesRoot: "/",
     modules: [
       {
         type: "ESModule",
-        path: fileURLToPath(new URL("./worker.js", import.meta.url)),
+        path: "__vite_worker__",
+        contents: workerContent,
+      },
+      {
+        type: "ESModule",
+        path: "vite/module-runner",
+        contents: viteModuleRunnerContent,
       },
     ],
     durableObjects: {
