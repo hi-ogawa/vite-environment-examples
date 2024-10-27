@@ -19,7 +19,7 @@ export function createHMRChannelSSEHandler() {
         const client = clientMap.get(senderId);
         assert(client);
         const payload = await request.json();
-        listenerManager.handle(payload, client);
+        listenerManager.dispatch(payload, client);
         return Response.json({ ok: true });
       }
       // otherwise handle `connect`
@@ -80,7 +80,7 @@ export function createHMRChannelSSEHandler() {
 
 // wrapper to simplify listener management
 function createListenerManager(): Pick<HotChannel, "on" | "off"> & {
-  handle: (
+  dispatch: (
     payload: HotPayload,
     client: { send: (payload: HotPayload) => void },
   ) => void;
@@ -103,7 +103,7 @@ function createListenerManager(): Pick<HotChannel, "on" | "off"> & {
       }
       getListerMap(event).delete(listener);
     },
-    handle(payload, client) {
+    dispatch(payload, client) {
       if (payload.type === "custom") {
         for (const lister of getListerMap(payload.event)) {
           lister(payload.data, client);
