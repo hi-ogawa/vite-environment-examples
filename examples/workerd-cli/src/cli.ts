@@ -53,18 +53,21 @@ async function main() {
     if (!cmd.includes("return")) {
       cmd = `return ${cmd}`;
     }
-    // TODO: we can invalidate virtual entry after eval
-    const entrySource = `export default async function (env) { ${cmd} }`;
-    const entry = "virtual:eval/" + encodeURI(entrySource);
-    await devEnv.api.eval({
-      entry,
-      fn: async ({ mod, env }) => {
-        const result = await mod.default(env);
-        if (typeof result !== "undefined") {
-          console.log(result);
+    const entrySource = `
+      async function run(env) { ${cmd} };
+
+      export default {
+        async fetch(request, env) {
+          const result = await run(env);
+          if (typeof result !== "undefined") {
+            console.log(result);
+          }
+          return new Response(null);
         }
-      },
-    });
+      }
+    `;
+    const entry = "virtual:eval/" + encodeURI(entrySource);
+    await devEnv.api.dispatchFetch(entry, new Request("http://localhost"));
   }
 
   const replServer = repl.start({
