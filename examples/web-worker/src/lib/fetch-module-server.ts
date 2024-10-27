@@ -1,4 +1,4 @@
-import { DevEnvironment, type DevEnvironmentOptions, type Plugin } from "vite";
+import { type HotChannel, type Plugin } from "vite";
 
 export function vitePluginFetchModuleServer(): Plugin {
   return {
@@ -9,7 +9,7 @@ export function vitePluginFetchModuleServer(): Plugin {
         if (url.pathname === "/@vite/invoke") {
           const [name, ...args] = JSON.parse(url.searchParams.get("payload")!);
           const devEnv = server.environments[name]!;
-          const result = await (devEnv as any).__invoke(...args);
+          const result = devEnv.hot.api.invoke(...args);
           res.end(JSON.stringify(result));
           return;
         }
@@ -19,21 +19,17 @@ export function vitePluginFetchModuleServer(): Plugin {
   };
 }
 
-// expose `DevEnvironment.__invoke`
-export const createEnvironmentWithInvoke: NonNullable<
-  DevEnvironmentOptions["createEnvironment"]
-> = (name, config) => {
+// expose `hot.api.invoke`
+export function createTransportWithInvoke(): HotChannel {
   let invokeHandler!: Function;
-  const devEnv = new DevEnvironment(name, config, {
-    hot: false,
-    transport: {
-      setInvokeHandler(invokeHandler_) {
-        if (invokeHandler_) {
-          invokeHandler = invokeHandler_;
-        }
-      },
+  return {
+    setInvokeHandler(invokeHandler_) {
+      if (invokeHandler_) {
+        invokeHandler = invokeHandler_;
+      }
     },
-  });
-  Object.assign(devEnv, { __invoke: invokeHandler });
-  return devEnv;
-};
+    api: {
+      invoke: (...args: any[]) => invokeHandler(...args),
+    },
+  };
+}

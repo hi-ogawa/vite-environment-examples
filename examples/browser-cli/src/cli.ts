@@ -2,6 +2,7 @@ import repl from "node:repl";
 import { createManualPromise, tinyassert } from "@hiogawa/utils";
 import { chromium } from "@playwright/test";
 import {
+  DevEnvironment,
   type Plugin,
   type PluginOption,
   createServer,
