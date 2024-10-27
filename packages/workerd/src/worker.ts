@@ -67,6 +67,14 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
             );
             tinyassert(response.ok);
           },
+          invoke: async (payload) => {
+            // we still need to implement fetchModule on top of service binding
+            // since websocket and rpc have tighter payload size limit
+            // (for example, rpc 1MB is not enough for large pre-bundled deps with source map)
+            const response = await env.__viteInvoke.fetch(requestJson(payload));
+            tinyassert(response.ok);
+            return response.json();
+          },
         },
         hmr: true,
       },
