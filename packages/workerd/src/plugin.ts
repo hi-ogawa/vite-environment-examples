@@ -93,6 +93,7 @@ export async function createWorkerdDevEnvironment(
   const viteModuleRunnerContent = readFileSync(
     viteModuleRunnerPath,
     "utf-8",
+    // avoid new AsyncFunction during import side effect
   ).replace(`new AsyncFunction("a", "b", body).toString()`, `""`);
 
   // setup miniflare with a durable object script to run vite module runner
