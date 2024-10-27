@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { DefaultMap, tinyassert } from "@hiogawa/utils";
+import { DefaultMap } from "@hiogawa/utils";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import {
   Miniflare,
@@ -17,7 +17,7 @@ import {
   type ResolvedConfig,
 } from "vite";
 import type { SourcelessWorkerOptions } from "wrangler";
-import { ANY_URL, type FetchMetadata, RUNNER_INIT_PATH } from "./shared";
+import { type FetchMetadata } from "./shared";
 
 interface WorkerdPluginOptions extends WorkerdEnvironmentOptions {
   entry?: string;
@@ -168,30 +168,18 @@ export async function createWorkerdDevEnvironment(
 
   // init via rpc
   await (runnerObject as any).__viteInit();
-  // initial request to setup websocket
-  if (0) {
-    const initResponse = await runnerObject.fetch(ANY_URL + RUNNER_INIT_PATH, {
-      headers: {
-        Upgrade: "websocket",
-      },
-    });
-    tinyassert(initResponse.webSocket);
-    const { webSocket } = initResponse;
-    webSocket.accept();
-  }
 
   // hmr channgel
   let hotListener: (data: unknown) => void;
   const hot = createSimpleHMRChannel({
     post: (data) => {
       (runnerObject as any).__viteServerSend(data);
-      // webSocket.send(data);
     },
     on: (listener) => {
       hotListener = listener;
       return () => {};
     },
-    serialize: (v) => JSON.stringify(v),
+    serialize: (v) => v,
     deserialize: (v) => v,
   });
 

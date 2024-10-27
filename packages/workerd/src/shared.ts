@@ -1,4 +1,3 @@
-export const RUNNER_INIT_PATH = "/__viteInit";
 export const ANY_URL = "https://any.local";
 
 export type RunnerEnv = {
