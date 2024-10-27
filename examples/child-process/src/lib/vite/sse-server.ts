@@ -2,12 +2,12 @@ import assert from "node:assert";
 import type { HotChannel, HotChannelListener, HotPayload } from "vite";
 
 export function createSSEServerTransport(): HotChannel {
-  interface SSEClient {
+  interface SSEClientProxy {
     send(payload: HotPayload): void;
     close(): void;
   }
 
-  const clientMap = new Map<string, SSEClient>();
+  const clientMap = new Map<string, SSEClientProxy>();
   const listenerManager = createListenerManager();
 
   async function handler(request: Request): Promise<Response | undefined> {
@@ -37,7 +37,7 @@ export function createSSEServerTransport(): HotChannel {
         controller.enqueue(`:ping\n\n`);
       }, 10_000);
       const clientId = Math.random().toString(36).slice(2);
-      const client: SSEClient = {
+      const client: SSEClientProxy = {
         send(payload) {
           controller.enqueue(`data: ${JSON.stringify(payload)}\n\n`);
         },
