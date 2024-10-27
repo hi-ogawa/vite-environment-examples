@@ -1,7 +1,7 @@
 import { rmSync } from "node:fs";
 import react from "@vitejs/plugin-react";
 import MagicString from "magic-string";
-import { type Plugin, defineConfig } from "vite";
+import { DevEnvironment, type Plugin, defineConfig } from "vite";
 import { vitePluginFetchModuleServer } from "./src/lib/fetch-module-server";
 
 export default defineConfig((_env) => ({
