@@ -22,3 +22,10 @@ export type RunnerRpc = {
 export type FetchMetadata = {
   entry: string;
 };
+
+export function requestJson(data: unknown) {
+  return new Request(ANY_URL, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}

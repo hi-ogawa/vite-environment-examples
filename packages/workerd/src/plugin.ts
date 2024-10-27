@@ -120,7 +120,7 @@ export async function createWorkerdDevEnvironment(
         const args = await request.json();
         try {
           const result = await devEnv.fetchModule(...(args as [any, any]));
-          return new MiniflareResponse(JSON.stringify(result));
+          return MiniflareResponse.json(result);
         } catch (error) {
           console.error("[fetchModule]", args, error);
           throw error;
@@ -129,7 +129,7 @@ export async function createWorkerdDevEnvironment(
       __viteRunnerSend: async (request) => {
         const payload = await request.json();
         hotListener(payload);
-        return MiniflareResponse.json({ ok: true });
+        return MiniflareResponse.json(null);
       },
     },
     bindings: {

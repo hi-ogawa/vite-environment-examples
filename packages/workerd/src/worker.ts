@@ -7,10 +7,10 @@ import {
   ssrModuleExportsKey,
 } from "vite/module-runner";
 import {
-  ANY_URL,
   type FetchMetadata,
   type RunnerEnv,
   type RunnerRpc,
+  requestJson,
 } from "./shared";
 
 export class RunnerObject extends DurableObject implements RunnerRpc {
@@ -62,13 +62,10 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
         transport: {
           fetchModule: async (...args) => {
             const response = await env.__viteFetchModule.fetch(
-              new Request(ANY_URL, {
-                method: "POST",
-                body: JSON.stringify(args),
-              }),
+              requestJson(args),
             );
             tinyassert(response.ok);
-            const result = response.json();
+            const result = await response.json();
             return result as any;
           },
         },
@@ -79,12 +76,7 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
               this.#viteServerSend = callback;
             },
             send: (payload) => {
-              env.__viteRunnerSend.fetch(
-                new Request(ANY_URL, {
-                  method: "POST",
-                  body: JSON.stringify(payload),
-                }),
-              );
+              env.__viteRunnerSend.fetch(requestJson(payload));
             },
           },
         },
