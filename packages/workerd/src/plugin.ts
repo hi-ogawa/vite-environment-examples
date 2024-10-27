@@ -230,17 +230,9 @@ function createHotListenerManager(): Pick<HotChannel, "on" | "off"> & {
 
   return {
     on(event: string, listener: Function) {
-      // console.log("[channel.on]", event, listener);
-      if (event === "connection") {
-        return;
-      }
       getListerMap(event).add(listener);
     },
     off(event, listener: any) {
-      // console.log("[channel.off]", event, listener);
-      if (event === "connection") {
-        return;
-      }
       getListerMap(event).delete(listener);
     },
     dispatch(payload) {
