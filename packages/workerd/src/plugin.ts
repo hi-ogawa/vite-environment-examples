@@ -123,19 +123,9 @@ export async function createWorkerdDevEnvironment(
     },
     unsafeEvalBinding: "__viteUnsafeEval",
     serviceBindings: {
-      __viteFetchModule: async (request) => {
-        const args = await request.json();
-        try {
-          const result = await devEnv.fetchModule(...(args as [any, any]));
-          return MiniflareResponse.json(result);
-        } catch (error) {
-          console.error("[fetchModule]", args, error);
-          throw error;
-        }
-      },
       __viteRunnerSend: async (request) => {
         const payload = (await request.json()) as HotPayload;
-        hotListener.dispatch(payload);
+        hotListener.dispatch(payload, { send: runnerObject.__viteServerSend });
         return MiniflareResponse.json(null);
       },
     },
@@ -184,10 +174,7 @@ export async function createWorkerdDevEnvironment(
     close: () => {},
     on: hotListener.on,
     off: hotListener.off,
-    send(...args: any[]) {
-      const payload = normalizeServerSendPayload(...args);
-      runnerObject.__viteServerSend(payload);
-    },
+    send: runnerObject.__viteServerSend,
   };
 
   // TODO: move initialization code to `init`?
@@ -199,7 +186,10 @@ export async function createWorkerdDevEnvironment(
     }
   }
 
-  const devEnv = new WorkerdDevEnvironmentImpl(name, config, { hot });
+  const devEnv = new WorkerdDevEnvironmentImpl(name, config, {
+    transport: hot,
+    hot: true,
+  });
 
   // custom environment api
   const api: WorkerdDevApi = {
@@ -231,7 +221,10 @@ export async function createWorkerdDevEnvironment(
 
 // wrapper to simplify listener management
 function createHotListenerManager(): Pick<HotChannel, "on" | "off"> & {
-  dispatch: (payload: HotPayload) => void;
+  dispatch: (
+    payload: HotPayload,
+    client: { send: (payload: HotPayload) => void },
+  ) => void;
 } {
   const listerMap: Record<string, Set<Function>> = {};
   const getListerMap = (e: string) => (listerMap[e] ??= new Set());
@@ -243,26 +236,12 @@ function createHotListenerManager(): Pick<HotChannel, "on" | "off"> & {
     off(event, listener: any) {
       getListerMap(event).delete(listener);
     },
-    dispatch(payload) {
+    dispatch(payload, client) {
       if (payload.type === "custom") {
         for (const lister of getListerMap(payload.event)) {
-          lister(payload.data);
+          lister(payload.data, client, payload.invoke);
         }
       }
     },
   };
-}
-
-function normalizeServerSendPayload(...args: any[]) {
-  let payload: HotPayload;
-  if (typeof args[0] === "string") {
-    payload = {
-      type: "custom",
-      event: args[0],
-      data: args[1],
-    };
-  } else {
-    payload = args[0];
-  }
-  return payload;
 }

@@ -58,28 +58,17 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
         root: env.__viteRoot,
         sourcemapInterceptor: "prepareStackTrace",
         transport: {
-          fetchModule: async (...args) => {
-            const response = await env.__viteFetchModule.fetch(
-              requestJson(args),
+          connect: async (handlers) => {
+            this.#viteServerSendHandler = handlers.onMessage;
+          },
+          send: async (payload) => {
+            const response = await env.__viteRunnerSend.fetch(
+              requestJson(payload),
             );
             tinyassert(response.ok);
-            return response.json();
           },
         },
-        hmr: {
-          connection: {
-            isReady: () => true,
-            onUpdate: (callback) => {
-              this.#viteServerSendHandler = callback;
-            },
-            send: async (payload) => {
-              const response = await env.__viteRunnerSend.fetch(
-                requestJson(payload),
-              );
-              tinyassert(response.ok);
-            },
-          },
-        },
+        hmr: true,
       },
       {
         runInlinedModule: async (context, transformed) => {
