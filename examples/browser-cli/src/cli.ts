@@ -8,10 +8,7 @@ import {
   parseAstAsync,
 } from "vite";
 import type { ModuleRunner } from "vite/module-runner";
-import {
-  createEnvironmentWithInvoke,
-  vitePluginFetchModuleServer,
-} from "../../web-worker/src/lib/fetch-module-server";
+import { vitePluginFetchModuleServer } from "../../web-worker/src/lib/fetch-module-server";
 
 const headless = !process.env["CLI_HEADED"];
 const extension = process.env["CLI_EXTENSION"] ?? "tsx";
@@ -33,15 +30,6 @@ async function main() {
         resolve: {
           noExternal: true,
         },
-<<<<<<< HEAD
-=======
-        dev: {
-          createEnvironment: createEnvironmentWithInvoke,
-          optimizeDeps: {
-            exclude: ["vite/module-runner"],
-          },
-        },
->>>>>>> 45db83b (refactor: createEnvironmentWithInvoke)
       },
     },
     server: {
