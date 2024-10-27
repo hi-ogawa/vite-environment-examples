@@ -14,6 +14,11 @@ export type RunnerEnv = {
   __viteRunner: DurableObject;
 };
 
+export type RunnerRpc = {
+  __viteInit: () => Promise<void>;
+  __viteServerSend: (payload: unknown) => Promise<void>;
+};
+
 export type FetchMetadata = {
   entry: string;
 };

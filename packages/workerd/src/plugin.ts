@@ -18,8 +18,7 @@ import {
   type ResolvedConfig,
 } from "vite";
 import type { SourcelessWorkerOptions } from "wrangler";
-import { type FetchMetadata } from "./shared";
-import type { RunnerObject } from "./worker";
+import { type FetchMetadata, type RunnerRpc } from "./shared";
 
 interface WorkerdPluginOptions extends WorkerdEnvironmentOptions {
   entry?: string;
@@ -166,8 +165,7 @@ export async function createWorkerdDevEnvironment(
 
   // get durable object singleton
   const ns = await miniflare.getDurableObjectNamespace("__viteRunner");
-  const runnerObject = ns.get(ns.idFromName("")) as any as Fetcher &
-    Pick<RunnerObject, "__viteInit" | "__viteServerSend">;
+  const runnerObject = ns.get(ns.idFromName("")) as any as Fetcher & RunnerRpc;
 
   // init via rpc
   await runnerObject.__viteInit();

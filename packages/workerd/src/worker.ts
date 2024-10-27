@@ -6,9 +6,14 @@ import {
   ssrImportMetaKey,
   ssrModuleExportsKey,
 } from "vite/module-runner";
-import { ANY_URL, type FetchMetadata, type RunnerEnv } from "./shared";
+import {
+  ANY_URL,
+  type FetchMetadata,
+  type RunnerEnv,
+  type RunnerRpc,
+} from "./shared";
 
-export class RunnerObject extends DurableObject {
+export class RunnerObject extends DurableObject implements RunnerRpc {
   #env: RunnerEnv;
   #runner?: ModuleRunner;
   #viteServerSend!: (payload: HotPayload) => void;
@@ -85,7 +90,6 @@ export class RunnerObject extends DurableObject {
         },
       },
     );
-    return { ok: true };
   }
 
   async __viteServerSend(payload: any) {
