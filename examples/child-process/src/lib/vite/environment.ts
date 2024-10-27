@@ -6,7 +6,7 @@ import readline from "node:readline";
 import { Readable } from "node:stream";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import { DevEnvironment, type DevEnvironmentOptions } from "vite";
-import { createHMRChannelSSEHandler } from "./sse-server";
+import { createSSEServerTransport } from "./sse-server";
 import type { BridgeClientOptions } from "./types";
 
 // TODO
@@ -15,7 +15,6 @@ import type { BridgeClientOptions } from "./types";
 export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   public bridge!: http.Server;
   public bridgeUrl!: string;
-  public bridgeSse: ReturnType<typeof createHMRChannelSSEHandler>;
   public child!: childProcess.ChildProcess;
   public childUrl!: string;
 
@@ -39,9 +38,10 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     name: ConstructorParameters<typeof DevEnvironment>[0],
     config: ConstructorParameters<typeof DevEnvironment>[1],
   ) {
-    const bridgeSse = createHMRChannelSSEHandler();
-    super(name, config, { hot: false, transport: bridgeSse.channel });
-    this.bridgeSse = bridgeSse;
+    super(name, config, {
+      hot: false,
+      transport: createSSEServerTransport(),
+    });
   }
 
   override init: DevEnvironment["init"] = async (...args) => {
@@ -55,7 +55,7 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
       if (reqKey !== key) {
         return Response.json({ message: "invalid key" }, { status: 400 });
       }
-      return this.bridgeSse.handler(request);
+      return this.hot.api.handler(request);
     });
 
     const bridge = http.createServer((req, res) => {

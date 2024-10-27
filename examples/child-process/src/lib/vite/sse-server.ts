@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import type { HotChannel, HotChannelListener, HotPayload } from "vite";
 
-export function createHMRChannelSSEHandler() {
+export function createSSEServerTransport(): HotChannel {
   interface SSEClient {
     send(payload: HotPayload): void;
     close(): void;
@@ -73,9 +73,14 @@ export function createHMRChannelSSEHandler() {
         client.send(payload);
       }
     },
+    // expose SSE handler via hot.api
+    api: {
+      type: "sse",
+      handler,
+    },
   };
 
-  return { channel, handler };
+  return channel;
 }
 
 // wrapper to simplify listener management
