@@ -7,7 +7,11 @@ import {
   createServer,
   parseAstAsync,
 } from "vite";
-import type { FetchFunction, ModuleRunner } from "vite/module-runner";
+import type { ModuleRunner } from "vite/module-runner";
+import {
+  createEnvironmentWithInvoke,
+  vitePluginFetchModuleServer,
+} from "../../web-worker/src/lib/fetch-module-server";
 
 const headless = !process.env["CLI_HEADED"];
 const extension = process.env["CLI_EXTENSION"] ?? "tsx";
@@ -29,6 +33,15 @@ async function main() {
         resolve: {
           noExternal: true,
         },
+<<<<<<< HEAD
+=======
+        dev: {
+          createEnvironment: createEnvironmentWithInvoke,
+          optimizeDeps: {
+            exclude: ["vite/module-runner"],
+          },
+        },
+>>>>>>> 45db83b (refactor: createEnvironmentWithInvoke)
       },
     },
     server: {
@@ -181,27 +194,6 @@ function vitePluginBrowserRunner(): Plugin {
           next();
         });
       };
-    },
-  };
-}
-
-// https://github.com/vitejs/vite/discussions/18191
-function vitePluginFetchModuleServer(): Plugin {
-  return {
-    name: vitePluginFetchModuleServer.name,
-    configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        const url = new URL(req.url ?? "/", "https://any.local");
-        if (url.pathname === "/@vite/fetchModule") {
-          const [name, ...args] = JSON.parse(url.searchParams.get("payload")!);
-          const result = await server.environments[name]!.fetchModule(
-            ...(args as Parameters<FetchFunction>),
-          );
-          res.end(JSON.stringify(result));
-          return;
-        }
-        next();
-      });
     },
   };
 }

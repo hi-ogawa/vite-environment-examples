@@ -1,4 +1,4 @@
-import type { Plugin } from "vite";
+import { DevEnvironment, type DevEnvironmentOptions, type Plugin } from "vite";
 
 export function vitePluginFetchModuleServer(): Plugin {
   return {
@@ -18,3 +18,22 @@ export function vitePluginFetchModuleServer(): Plugin {
     },
   };
 }
+
+// expose `DevEnvironment.__invoke`
+export const createEnvironmentWithInvoke: NonNullable<
+  DevEnvironmentOptions["createEnvironment"]
+> = (name, config) => {
+  let invokeHandler!: Function;
+  const devEnv = new DevEnvironment(name, config, {
+    hot: false,
+    transport: {
+      setInvokeHandler(invokeHandler_) {
+        if (invokeHandler_) {
+          invokeHandler = invokeHandler_;
+        }
+      },
+    },
+  });
+  Object.assign(devEnv, { __invoke: invokeHandler });
+  return devEnv;
+};
