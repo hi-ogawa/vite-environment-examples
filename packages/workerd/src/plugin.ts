@@ -256,17 +256,22 @@ function createSimpleHMRChannel(options: {
       listerMap.get(event).delete(listener);
     },
     send(...args: any[]) {
-      let payload: any;
-      if (typeof args[0] === "string") {
-        payload = {
-          type: "custom",
-          event: args[0],
-          data: args[1],
-        };
-      } else {
-        payload = args[0];
-      }
+      const payload = normalizeServerSendPayload(...args);
       options.post(options.serialize(payload));
     },
   };
+}
+
+function normalizeServerSendPayload(...args: any[]) {
+  let payload: any;
+  if (typeof args[0] === "string") {
+    payload = {
+      type: "custom",
+      event: args[0],
+      data: args[1],
+    };
+  } else {
+    payload = args[0];
+  }
+  return payload;
 }
