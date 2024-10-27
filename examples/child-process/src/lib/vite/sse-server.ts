@@ -106,8 +106,7 @@ function createListenerManager(): Pick<HotChannel, "on" | "off"> & {
     handle(payload, client) {
       if (payload.type === "custom") {
         for (const lister of getListerMap(payload.event)) {
-          // TODO: type error of `payload.invoke`
-          lister(payload.data, client, payload.invoke as any);
+          lister(payload.data, client);
         }
       }
     },
