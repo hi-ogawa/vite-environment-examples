@@ -12,6 +12,7 @@ import {
 import {
   DevEnvironment,
   type HotChannel,
+  type HotPayload,
   type Plugin,
   type ResolvedConfig,
 } from "vite";
@@ -125,7 +126,7 @@ export async function createWorkerdDevEnvironment(
         }
       },
       __viteRunnerSend: async (request) => {
-        const payload = await request.json();
+        const payload = (await request.json()) as HotPayload;
         hotListener.dispatch(payload);
         return MiniflareResponse.json(null);
       },
@@ -223,7 +224,7 @@ export async function createWorkerdDevEnvironment(
 
 // wrapper to simplify listener management
 function createHotListenerManager(): Pick<HotChannel, "on" | "off"> & {
-  dispatch: (payload: any) => void;
+  dispatch: (payload: HotPayload) => void;
 } {
   const listerMap: Record<string, Set<Function>> = {};
   const getListerMap = (e: string) => (listerMap[e] ??= new Set());
