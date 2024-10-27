@@ -1,5 +1,5 @@
-import { readFileSync } from "fs";
-import { fileURLToPath } from "url";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { DefaultMap, tinyassert } from "@hiogawa/utils";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import {
