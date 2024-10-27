@@ -36,6 +36,23 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
     }
   }
 
+  async #fetch(request: Request) {
+    tinyassert(this.#runner);
+    const options = JSON.parse(
+      request.headers.get("x-vite-fetch")!,
+    ) as FetchMetadata;
+    const mod = await this.#runner.import(options.entry);
+    const handler = mod.default as ExportedHandler;
+    tinyassert(handler.fetch);
+
+    const env = objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite"));
+    return handler.fetch(request, env, {
+      waitUntil(_promise: Promise<any>) {},
+      passThroughOnException() {},
+      abort(_reason?: any) {},
+    });
+  }
+
   async __viteInit() {
     const env = this.#env;
     this.#runner = new ModuleRunner(
@@ -94,22 +111,5 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
 
   async __viteServerSend(payload: any) {
     this.#viteServerSend(payload);
-  }
-
-  async #fetch(request: Request) {
-    tinyassert(this.#runner);
-    const options = JSON.parse(
-      request.headers.get("x-vite-fetch")!,
-    ) as FetchMetadata;
-    const mod = await this.#runner.import(options.entry);
-    const handler = mod.default as ExportedHandler;
-    tinyassert(handler.fetch);
-
-    const env = objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite"));
-    return handler.fetch(request, env, {
-      waitUntil(_promise: Promise<any>) {},
-      passThroughOnException() {},
-      abort(_reason?: any) {},
-    });
   }
 }
