@@ -70,7 +70,8 @@ export class RunnerObject implements DurableObject {
     const handler = mod.default as ExportedHandler;
     tinyassert(handler.fetch);
 
-    return handler.fetch(request, this.#env, {
+    const env = objectPickBy(this.#env, (_v, k) => !k.startsWith("__vite"));
+    return handler.fetch(request, env, {
       waitUntil(_promise: Promise<any>) {},
       passThroughOnException() {},
       abort(_reason?: any) {},
