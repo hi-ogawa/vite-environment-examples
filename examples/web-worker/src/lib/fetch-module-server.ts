@@ -9,7 +9,7 @@ export function vitePluginFetchModuleServer(): Plugin {
         if (url.pathname === "/@vite/invoke") {
           const [name, ...args] = JSON.parse(url.searchParams.get("payload")!);
           const devEnv = server.environments[name]!;
-          const result = devEnv.hot.api.invoke(...args);
+          const result = await devEnv.hot.api.invoke(...args);
           res.end(JSON.stringify(result));
           return;
         }
