@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { DefaultMap, tinyassert } from "@hiogawa/utils";
+import type { Fetcher } from "@cloudflare/workers-types/experimental";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import {
   Miniflare,
@@ -10,14 +10,14 @@ import {
   mergeWorkerOptions,
 } from "miniflare";
 import {
-  type CustomPayload,
   DevEnvironment,
   type HotChannel,
+  type HotPayload,
   type Plugin,
   type ResolvedConfig,
 } from "vite";
 import type { SourcelessWorkerOptions } from "wrangler";
-import { ANY_URL, type FetchMetadata, RUNNER_INIT_PATH } from "./shared";
+import { type FetchMetadata, type RunnerRpc } from "./shared";
 
 interface WorkerdPluginOptions extends WorkerdEnvironmentOptions {
   entry?: string;
@@ -119,11 +119,16 @@ export async function createWorkerdDevEnvironment(
         const args = await request.json();
         try {
           const result = await devEnv.fetchModule(...(args as [any, any]));
-          return new MiniflareResponse(JSON.stringify(result));
+          return MiniflareResponse.json(result);
         } catch (error) {
           console.error("[fetchModule]", args, error);
           throw error;
         }
+      },
+      __viteRunnerSend: async (request) => {
+        const payload = (await request.json()) as HotPayload;
+        hotListener.dispatch(payload);
+        return MiniflareResponse.json(null);
       },
     },
     bindings: {
@@ -159,30 +164,23 @@ export async function createWorkerdDevEnvironment(
 
   // get durable object singleton
   const ns = await miniflare.getDurableObjectNamespace("__viteRunner");
-  const runnerObject = ns.get(ns.idFromName(""));
+  const runnerObject = ns.get(ns.idFromName("")) as any as Fetcher & RunnerRpc;
 
-  // initial request to setup websocket
-  const initResponse = await runnerObject.fetch(ANY_URL + RUNNER_INIT_PATH, {
-    headers: {
-      Upgrade: "websocket",
-    },
-  });
-  tinyassert(initResponse.webSocket);
-  const { webSocket } = initResponse;
-  webSocket.accept();
+  // init via rpc
+  await runnerObject.__viteInit();
 
-  // websocket hmr channgel
-  const hot = createSimpleHMRChannel({
-    post: (data) => webSocket.send(data),
-    on: (listener) => {
-      webSocket.addEventListener("message", listener);
-      return () => {
-        webSocket.removeEventListener("message", listener);
-      };
+  // hmr channel
+  const hotListener = createHotListenerManager();
+  const hot: HotChannel = {
+    listen: () => {},
+    close: () => {},
+    on: hotListener.on,
+    off: hotListener.off,
+    send(...args: any[]) {
+      const payload = normalizeServerSendPayload(...args);
+      runnerObject.__viteServerSend(payload);
     },
-    serialize: (v) => JSON.stringify(v),
-    deserialize: (v) => JSON.parse(v.data),
-  });
+  };
 
   // TODO: move initialization code to `init`?
   // inheritance to extend dispose
@@ -204,8 +202,7 @@ export async function createWorkerdDevEnvironment(
         "x-vite-fetch",
         JSON.stringify({ entry } satisfies FetchMetadata),
       );
-      const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
-      const res = await fetch_(request.url, {
+      const res = await runnerObject.fetch(request.url, {
         method: request.method,
         headers,
         body: request.body as any,
@@ -213,10 +210,10 @@ export async function createWorkerdDevEnvironment(
         // @ts-ignore undici
         duplex: "half",
       });
-      return new Response(res.body, {
+      return new Response(res.body as any, {
         status: res.status,
         statusText: res.statusText,
-        headers: res.headers,
+        headers: res.headers as any,
       });
     },
   };
@@ -224,49 +221,40 @@ export async function createWorkerdDevEnvironment(
   return Object.assign(devEnv, { api }) as WorkerdDevEnvironment;
 }
 
-// cf.
-// https://github.com/vitejs/vite/blob/feat/environment-api/packages/vite/src/node/server/hmr.ts/#L909-L910
-// https://github.com/vitejs/vite/blob/feat/environment-api/packages/vite/src/node/ssr/runtime/serverHmrConnector.ts/#L33-L34
-function createSimpleHMRChannel(options: {
-  post: (data: any) => any;
-  on: (listener: (data: any) => void) => () => void;
-  serialize: (v: any) => any;
-  deserialize: (v: any) => any;
-}): HotChannel {
-  const listerMap = new DefaultMap<string, Set<Function>>(() => new Set());
-  let dispose: (() => void) | undefined;
+// wrapper to simplify listener management
+function createHotListenerManager(): Pick<HotChannel, "on" | "off"> & {
+  dispatch: (payload: HotPayload) => void;
+} {
+  const listerMap: Record<string, Set<Function>> = {};
+  const getListerMap = (e: string) => (listerMap[e] ??= new Set());
 
   return {
-    listen() {
-      dispose = options.on((data) => {
-        const payload = options.deserialize(data) as CustomPayload;
-        for (const f of listerMap.get(payload.event)) {
-          f(payload.data);
+    on(event: string, listener: Function) {
+      getListerMap(event).add(listener);
+    },
+    off(event, listener: any) {
+      getListerMap(event).delete(listener);
+    },
+    dispatch(payload) {
+      if (payload.type === "custom") {
+        for (const lister of getListerMap(payload.event)) {
+          lister(payload.data);
         }
-      });
-    },
-    close() {
-      dispose?.();
-      dispose = undefined;
-    },
-    on(event: string, listener: (...args: any[]) => any) {
-      listerMap.get(event).add(listener);
-    },
-    off(event: string, listener: (...args: any[]) => any) {
-      listerMap.get(event).delete(listener);
-    },
-    send(...args: any[]) {
-      let payload: any;
-      if (typeof args[0] === "string") {
-        payload = {
-          type: "custom",
-          event: args[0],
-          data: args[1],
-        };
-      } else {
-        payload = args[0];
       }
-      options.post(options.serialize(payload));
     },
   };
+}
+
+function normalizeServerSendPayload(...args: any[]) {
+  let payload: HotPayload;
+  if (typeof args[0] === "string") {
+    payload = {
+      type: "custom",
+      event: args[0],
+      data: args[1],
+    };
+  } else {
+    payload = args[0];
+  }
+  return payload;
 }
