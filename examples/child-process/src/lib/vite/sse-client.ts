@@ -1,6 +1,24 @@
 import assert from "node:assert";
+import type { ModuleRunnerTransport } from "vite/module-runner";
 
-export async function createSSEClient(
+export function createSSEClientTransport(url: string): ModuleRunnerTransport {
+  let sseClient: SSEClient;
+
+  return {
+    async connect(handlers) {
+      sseClient = await createSSEClient(url, handlers);
+    },
+    async send(payload) {
+      assert(sseClient);
+      sseClient.send(payload);
+    },
+    timeout: 2000,
+  };
+}
+
+type SSEClient = Awaited<ReturnType<typeof createSSEClient>>;
+
+async function createSSEClient(
   url: string,
   handlers: {
     onMessage: (payload: any) => void;

@@ -1,35 +1,19 @@
 // @ts-check
 
-import assert from "node:assert";
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
-import { createSSEClient } from "./sse-client.ts";
+import { createSSEClientTransport } from "./sse-client.ts";
 
 /**
  * @param {import("./types").BridgeClientOptions} options
  */
 export function createBridgeClient(options) {
-  /** @type {Awaited<ReturnType<typeof createSSEClient>>} */
-  let sseClient;
-
   const runner = new ModuleRunner(
     {
       root: options.root,
       sourcemapInterceptor: "prepareStackTrace",
-      transport: {
-        async send(payload) {
-          assert(sseClient);
-          sseClient.send(payload);
-        },
-        async connect(handlers) {
-          sseClient = await createSSEClient(
-            options.bridgeUrl +
-              "/sse?" +
-              new URLSearchParams({ key: options.key }),
-            handlers,
-          );
-        },
-        timeout: 2000,
-      },
+      transport: createSSEClientTransport(
+        options.bridgeUrl + "/sse?" + new URLSearchParams({ key: options.key }),
+      ),
       hmr: false,
     },
     new ESModulesEvaluator(),
