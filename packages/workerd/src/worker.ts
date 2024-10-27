@@ -65,8 +65,7 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
               requestJson(args),
             );
             tinyassert(response.ok);
-            const result = await response.json();
-            return result as any;
+            return response.json();
           },
         },
         hmr: {
@@ -75,8 +74,11 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
             onUpdate: (callback) => {
               this.#viteServerSend = callback;
             },
-            send: (payload) => {
-              env.__viteRunnerSend.fetch(requestJson(payload));
+            send: async (payload) => {
+              const response = await env.__viteRunnerSend.fetch(
+                requestJson(payload),
+              );
+              tinyassert(response.ok);
             },
           },
         },
