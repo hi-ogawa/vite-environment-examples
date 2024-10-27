@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { Fetcher } from "@cloudflare/workers-types/experimental";
-import { DefaultMap } from "@hiogawa/utils";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import {
   Miniflare,
@@ -11,7 +10,6 @@ import {
   mergeWorkerOptions,
 } from "miniflare";
 import {
-  type CustomPayload,
   DevEnvironment,
   type HotChannel,
   type Plugin,
@@ -128,7 +126,7 @@ export async function createWorkerdDevEnvironment(
       },
       __viteRunnerSend: async (request) => {
         const payload = await request.json();
-        hotListener(payload);
+        hotListener.dispatch(payload);
         return MiniflareResponse.json(null);
       },
     },
@@ -170,19 +168,18 @@ export async function createWorkerdDevEnvironment(
   // init via rpc
   await runnerObject.__viteInit();
 
-  // hmr channgel
-  let hotListener: (data: unknown) => void;
-  const hot = createSimpleHMRChannel({
-    post: (data) => {
-      runnerObject.__viteServerSend(data);
+  // hmr channel
+  const hotListener = createHotListenerManager();
+  const hot: HotChannel = {
+    listen: () => {},
+    close: () => {},
+    on: hotListener.on,
+    off: hotListener.off,
+    send(...args: any[]) {
+      const payload = normalizeServerSendPayload(...args);
+      runnerObject.__viteServerSend(payload);
     },
-    on: (listener) => {
-      hotListener = listener;
-      return () => {};
-    },
-    serialize: (v) => v,
-    deserialize: (v) => v,
-  });
+  };
 
   // TODO: move initialization code to `init`?
   // inheritance to extend dispose
@@ -224,40 +221,34 @@ export async function createWorkerdDevEnvironment(
   return Object.assign(devEnv, { api }) as WorkerdDevEnvironment;
 }
 
-// cf.
-// https://github.com/vitejs/vite/blob/feat/environment-api/packages/vite/src/node/server/hmr.ts/#L909-L910
-// https://github.com/vitejs/vite/blob/feat/environment-api/packages/vite/src/node/ssr/runtime/serverHmrConnector.ts/#L33-L34
-function createSimpleHMRChannel(options: {
-  post: (data: any) => any;
-  on: (listener: (data: any) => void) => () => void;
-  serialize: (v: any) => any;
-  deserialize: (v: any) => any;
-}): HotChannel {
-  const listerMap = new DefaultMap<string, Set<Function>>(() => new Set());
-  let dispose: (() => void) | undefined;
+// wrapper to simplify listener management
+function createHotListenerManager(): Pick<HotChannel, "on" | "off"> & {
+  dispatch: (payload: any) => void;
+} {
+  const listerMap: Record<string, Set<Function>> = {};
+  const getListerMap = (e: string) => (listerMap[e] ??= new Set());
 
   return {
-    listen() {
-      dispose = options.on((data) => {
-        const payload = options.deserialize(data) as CustomPayload;
-        for (const f of listerMap.get(payload.event)) {
-          f(payload.data);
+    on(event: string, listener: Function) {
+      // console.log("[channel.on]", event, listener);
+      if (event === "connection") {
+        return;
+      }
+      getListerMap(event).add(listener);
+    },
+    off(event, listener: any) {
+      // console.log("[channel.off]", event, listener);
+      if (event === "connection") {
+        return;
+      }
+      getListerMap(event).delete(listener);
+    },
+    dispatch(payload) {
+      if (payload.type === "custom") {
+        for (const lister of getListerMap(payload.event)) {
+          lister(payload.data);
         }
-      });
-    },
-    close() {
-      dispose?.();
-      dispose = undefined;
-    },
-    on(event: string, listener: (...args: any[]) => any) {
-      listerMap.get(event).add(listener);
-    },
-    off(event: string, listener: (...args: any[]) => any) {
-      listerMap.get(event).delete(listener);
-    },
-    send(...args: any[]) {
-      const payload = normalizeServerSendPayload(...args);
-      options.post(options.serialize(payload));
+      }
     },
   };
 }
