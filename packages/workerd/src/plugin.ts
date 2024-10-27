@@ -202,8 +202,7 @@ export async function createWorkerdDevEnvironment(
         "x-vite-fetch",
         JSON.stringify({ entry } satisfies FetchMetadata),
       );
-      const fetch_ = runnerObject.fetch as any as typeof fetch; // fix web/undici types
-      const res = await fetch_(request.url, {
+      const res = await runnerObject.fetch(request.url, {
         method: request.method,
         headers,
         body: request.body as any,
@@ -211,10 +210,10 @@ export async function createWorkerdDevEnvironment(
         // @ts-ignore undici
         duplex: "half",
       });
-      return new Response(res.body, {
+      return new Response(res.body as any, {
         status: res.status,
         statusText: res.statusText,
-        headers: res.headers,
+        headers: res.headers as any,
       });
     },
   };
