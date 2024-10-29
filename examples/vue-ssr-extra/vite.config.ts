@@ -41,12 +41,10 @@ export default defineConfig((_env) => ({
       resolve: {
         noExternal: true,
       },
-      dev: {
-        optimizeDeps: {
-          // prevent flaky outdated deps error
-          noDiscovery: true,
-          include: [],
-        },
+      optimizeDeps: {
+        // prevent flaky outdated deps error
+        noDiscovery: true,
+        include: [],
       },
       build: {
         outDir: "dist/server",

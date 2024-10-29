@@ -12,10 +12,8 @@ export default defineConfig((_env) => ({
   ],
   environments: {
     client: {
-      dev: {
-        optimizeDeps: {
-          exclude: ["vite/module-runner"],
-        },
+      optimizeDeps: {
+        exclude: ["vite/module-runner"],
       },
     },
     worker: {
@@ -24,15 +22,13 @@ export default defineConfig((_env) => ({
         conditions: ["react-server"],
         noExternal: true,
       },
-      dev: {
-        optimizeDeps: {
-          include: [
-            "react",
-            "react/jsx-runtime",
-            "react/jsx-dev-runtime",
-            "react-server-dom-webpack/server",
-          ],
-        },
+      optimizeDeps: {
+        include: [
+          "react",
+          "react/jsx-runtime",
+          "react/jsx-dev-runtime",
+          "react-server-dom-webpack/server",
+        ],
       },
     },
   },
