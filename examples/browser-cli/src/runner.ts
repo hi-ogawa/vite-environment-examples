@@ -4,7 +4,7 @@ import {
   ModuleRunner,
 } from "vite/module-runner";
 
-export async function start(options: { root: string }) {
+export async function start() {
   const runner = new ModuleRunner(
     {
       sourcemapInterceptor: false,
