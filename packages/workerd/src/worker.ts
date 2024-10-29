@@ -55,7 +55,6 @@ export class RunnerObject extends DurableObject implements RunnerRpc {
     const env = this.#env;
     this.#runner = new ModuleRunner(
       {
-        root: env.__viteRoot,
         sourcemapInterceptor: "prepareStackTrace",
         transport: {
           fetchModule: async (...args) => {

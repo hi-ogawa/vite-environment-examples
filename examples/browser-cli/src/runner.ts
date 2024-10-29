@@ -7,7 +7,6 @@ import {
 export async function start(options: { root: string }) {
   const runner = new ModuleRunner(
     {
-      root: options.root,
       sourcemapInterceptor: false,
       transport: {
         fetchModule: fetchModuleFetchClient("custom"),

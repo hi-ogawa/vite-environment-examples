@@ -7,7 +7,6 @@ export function createFetchRunner(options: {
 }) {
   const runner = new ModuleRunner(
     {
-      root: options.root,
       sourcemapInterceptor: false,
       transport: {
         fetchModule: fetchClientFetchModule(options.environmentName),
