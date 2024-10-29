@@ -295,10 +295,13 @@ test("css hmr client @dev", async ({ page }) => {
   await expect(
     page.getByTestId("client-component").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(255, 220, 220)");
+
   editor.edit((s) => s.replace("rgb(255, 220, 220)", "rgb(255, 199, 199)"));
   await expect(
     page.getByTestId("client-component").getByRole("button", { name: "+" }),
   ).toHaveCSS("background-color", "rgb(255, 199, 199)");
+
+  await page.waitForTimeout(100);
   editor.edit((s) => s.replace("rgb(255, 199, 199)", "rgb(255, 123, 123)"));
   await expect(
     page.getByTestId("client-component").getByRole("button", { name: "+" }),

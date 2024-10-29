@@ -30,10 +30,8 @@ async function main() {
         resolve: {
           noExternal: true,
         },
-        dev: {
-          optimizeDeps: {
-            exclude: ["vite/module-runner"],
-          },
+        optimizeDeps: {
+          exclude: ["vite/module-runner"],
         },
       },
     },

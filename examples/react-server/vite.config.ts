@@ -49,20 +49,18 @@ export default defineConfig((_env) => ({
 
   environments: {
     client: {
-      dev: {
-        optimizeDeps: {
-          // [feedback] no optimizeDeps.entries for initial scan?
-          // entries: []
-          include: [
-            "react",
-            "react/jsx-runtime",
-            "react/jsx-dev-runtime",
-            "react-dom",
-            "react-dom/client",
-            "react-server-dom-webpack/client.browser",
-            "@hiogawa/utils",
-          ],
-        },
+      optimizeDeps: {
+        // [feedback] no optimizeDeps.entries for initial scan?
+        // entries: []
+        include: [
+          "react",
+          "react/jsx-runtime",
+          "react/jsx-dev-runtime",
+          "react-dom",
+          "react-dom/client",
+          "react-server-dom-webpack/client.browser",
+          "@hiogawa/utils",
+        ],
       },
       build: {
         outDir: "dist/client",
@@ -132,15 +130,13 @@ function vitePluginReactServer(): PluginOption {
           conditions: ["react-server"],
           noExternal: true,
         },
-        dev: {
-          optimizeDeps: {
-            include: [
-              "react",
-              "react/jsx-runtime",
-              "react/jsx-dev-runtime",
-              "react-server-dom-webpack/server.edge",
-            ],
-          },
+        optimizeDeps: {
+          include: [
+            "react",
+            "react/jsx-runtime",
+            "react/jsx-dev-runtime",
+            "react-server-dom-webpack/server.edge",
+          ],
         },
         build: {
           outDir: "dist/react-server",

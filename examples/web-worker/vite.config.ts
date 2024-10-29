@@ -13,10 +13,8 @@ export default defineConfig((_env) => ({
   ],
   environments: {
     client: {
-      dev: {
-        optimizeDeps: {
-          exclude: ["vite/module-runner"],
-        },
+      optimizeDeps: {
+        exclude: ["vite/module-runner"],
       },
       build: {
         emptyOutDir: false, // preserve worker build
@@ -25,22 +23,18 @@ export default defineConfig((_env) => ({
       },
     },
     worker: {
-      // consumer: "client", // TODO: is this desired? this would require explicitly setting `moduleRunnerTransform: true` etc...
       webCompatible: true,
       resolve: {
         conditions: ["worker"],
         noExternal: true,
       },
-      dev: {
-        // moduleRunnerTransform: true,
-        optimizeDeps: {
-          include: [
-            "react",
-            "react/jsx-runtime",
-            "react/jsx-dev-runtime",
-            "react-dom/server",
-          ],
-        },
+      optimizeDeps: {
+        include: [
+          "react",
+          "react/jsx-runtime",
+          "react/jsx-dev-runtime",
+          "react-dom/server",
+        ],
       },
       build: {
         assetsDir: "_worker",

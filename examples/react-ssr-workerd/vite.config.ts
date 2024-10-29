@@ -45,15 +45,13 @@ export default defineConfig((_env) => ({
       resolve: {
         noExternal: true,
       },
-      dev: {
-        optimizeDeps: {
-          include: [
-            "react",
-            "react/jsx-runtime",
-            "react/jsx-dev-runtime",
-            "react-dom/server.edge",
-          ],
-        },
+      optimizeDeps: {
+        include: [
+          "react",
+          "react/jsx-runtime",
+          "react/jsx-dev-runtime",
+          "react-dom/server.edge",
+        ],
       },
       build: {
         ssr: true,
