@@ -131,9 +131,6 @@ export async function createWorkerdDevEnvironment(
         return MiniflareResponse.json(null);
       },
     },
-    bindings: {
-      __viteRoot: config.root,
-    },
   };
 
   // https://github.com/cloudflare/workers-sdk/blob/2789f26a87c769fc6177b0bdc79a839a15f4ced1/packages/vitest-pool-workers/src/pool/config.ts#L174-L195

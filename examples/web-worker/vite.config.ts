@@ -126,7 +126,6 @@ export function vitePluginWorkerEnvironment(): Plugin[] {
         console.assert(this.environment.name === "client");
         console.assert(this.environment.mode === "dev");
         const options = {
-          root: this.environment.config.root,
           environmentName: "worker",
         };
         const entryId = id.replace("?worker-env-file", "");
