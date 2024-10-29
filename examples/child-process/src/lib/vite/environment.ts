@@ -92,7 +92,6 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
         ...command.slice(1),
         JSON.stringify({
           bridgeUrl: this.bridgeUrl,
-          root: this.config.root,
           key,
         } satisfies BridgeClientOptions),
       ],

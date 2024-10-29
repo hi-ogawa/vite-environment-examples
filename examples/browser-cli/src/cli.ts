@@ -172,9 +172,7 @@ function vitePluginBrowserRunner(): Plugin {
             res.end(/* html */ `
               <script type="module">
                 const { start } = await import("/src/runner");
-                const runner = await start({
-                  root: ${JSON.stringify(server.config.root)}
-                });
+                const runner = await start();
                 globalThis.__runner = runner;
                 globalThis.__viteRunnerReady();
               </script>

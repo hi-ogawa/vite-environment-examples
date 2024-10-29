@@ -33,7 +33,7 @@ export default "/path-to/worker.ts?worker-env-file";
 ```ts
 //// transform of /path-to/worker.ts?worker-env-file
 import { createFetchRunner } from "/src/lib/runner";
-const runner = createFetchRunner({ root: "...", environmentName: "worker" });
+const runner = createFetchRunner({ environmentName: "worker" });
 runner.import("/path-to/worker.ts");
 ```
 

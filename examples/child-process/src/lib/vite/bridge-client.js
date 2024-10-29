@@ -24,7 +24,6 @@ export function createBridgeClient(options) {
 
   const runner = new ModuleRunner(
     {
-      root: options.root,
       sourcemapInterceptor: "prepareStackTrace",
       transport: {
         fetchModule: (...args) => rpc("fetchModule", ...args),
