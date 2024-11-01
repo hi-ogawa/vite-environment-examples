@@ -12,6 +12,10 @@ export default defineConfig((_env) => ({
           "react-dom",
           "react-dom/client",
         ],
+        esbuildOptions: {
+          platform: "browser",
+          banner: undefined,
+        },
       },
     },
   },
