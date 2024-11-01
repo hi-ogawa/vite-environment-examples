@@ -34,6 +34,10 @@ export default defineConfig((_env) => ({
           "react/jsx-dev-runtime",
           "react-dom/server",
         ],
+        esbuildOptions: {
+          platform: "browser",
+          banner: undefined,
+        },
       },
       build: {
         assetsDir: "_worker",

@@ -28,6 +28,10 @@ export default defineConfig((_env) => ({
           "react/jsx-dev-runtime",
           "react-server-dom-webpack/server",
         ],
+        esbuildOptions: {
+          platform: "browser",
+          banner: undefined,
+        },
       },
     },
   },
