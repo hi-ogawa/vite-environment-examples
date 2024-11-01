@@ -26,12 +26,8 @@ async function main() {
     },
     environments: {
       custom: {
-        webCompatible: true,
         resolve: {
           noExternal: true,
-        },
-        optimizeDeps: {
-          exclude: ["vite/module-runner"],
         },
       },
     },
