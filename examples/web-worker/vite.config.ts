@@ -23,6 +23,7 @@ export default defineConfig((_env) => ({
       },
     },
     worker: {
+      keepProcessEnv: false,
       resolve: {
         conditions: ["module", "worker"],
         noExternal: true,

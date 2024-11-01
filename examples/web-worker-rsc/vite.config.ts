@@ -17,6 +17,7 @@ export default defineConfig((_env) => ({
       },
     },
     worker: {
+      keepProcessEnv: false,
       resolve: {
         conditions: ["module", "react-server"],
         noExternal: true,
