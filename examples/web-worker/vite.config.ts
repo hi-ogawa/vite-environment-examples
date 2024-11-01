@@ -23,9 +23,9 @@ export default defineConfig((_env) => ({
       },
     },
     worker: {
-      webCompatible: true,
+      keepProcessEnv: false,
       resolve: {
-        conditions: ["worker"],
+        conditions: ["module", "worker"],
         noExternal: true,
       },
       optimizeDeps: {
@@ -35,6 +35,10 @@ export default defineConfig((_env) => ({
           "react/jsx-dev-runtime",
           "react-dom/server",
         ],
+        esbuildOptions: {
+          platform: "browser",
+          banner: undefined,
+        },
       },
       build: {
         assetsDir: "_worker",
@@ -45,11 +49,6 @@ export default defineConfig((_env) => ({
           input: {
             // emit actual worker entries during `buildStart`
             _noop: "data:text/javascript,console.log()",
-          },
-          output: {
-            // force false since vite enables it when `consumer: "server"` and `webCompatible: true`
-            // https://github.com/vitejs/vite/blob/95020ab49e12d143262859e095025cf02423c1d9/packages/vite/src/node/build.ts#L761-L766
-            inlineDynamicImports: false,
           },
         },
       },

@@ -37,17 +37,18 @@ export default defineConfig((_env) => ({
       },
     },
     workerd: {
-      webCompatible: true,
       resolve: {
         noExternal: true,
-      },
-      optimizeDeps: {
-        // prevent flaky outdated deps error
-        noDiscovery: true,
-        include: [],
+        conditions: ["module", "browser", "production/development"],
       },
       build: {
         outDir: "dist/server",
+        rollupOptions: {
+          output: {
+            // TODO: broken without this. probably my app setup issue.
+            inlineDynamicImports: true,
+          },
+        },
       },
     },
   },

@@ -17,9 +17,10 @@ export default defineConfig((_env) => ({
       },
     },
     worker: {
-      webCompatible: true,
+      keepProcessEnv: false,
       resolve: {
-        conditions: ["react-server"],
+        // need "browser" condition for "react-server-dom-webpack/server"
+        conditions: ["module", "worker", "browser", "react-server"],
         noExternal: true,
       },
       optimizeDeps: {
@@ -29,6 +30,10 @@ export default defineConfig((_env) => ({
           "react/jsx-dev-runtime",
           "react-server-dom-webpack/server",
         ],
+        esbuildOptions: {
+          platform: "browser",
+          banner: undefined,
+        },
       },
     },
   },

@@ -20,8 +20,8 @@ export default defineConfig((_env) => ({
   ],
   environments: {
     workerd: {
-      webCompatible: true,
       resolve: {
+        conditions: ["module"],
         noExternal: true,
       },
     },
