@@ -37,6 +37,13 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
       return {
         environments: {
           workerd: {
+            optimizeDeps: {
+              // prevent `import { createRequire } from "node:module"`
+              esbuildOptions: {
+                platform: "browser",
+                banner: undefined,
+              },
+            },
             dev: {
               createEnvironment: (name, config) =>
                 createWorkerdDevEnvironment(name, config, pluginOptions),
