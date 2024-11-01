@@ -24,7 +24,7 @@ export default defineConfig((_env) => ({
     },
     worker: {
       resolve: {
-        conditions: ["worker"],
+        conditions: ["module", "worker"],
         noExternal: true,
       },
       optimizeDeps: {

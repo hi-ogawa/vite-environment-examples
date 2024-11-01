@@ -18,7 +18,7 @@ export default defineConfig((_env) => ({
     },
     worker: {
       resolve: {
-        conditions: ["react-server"],
+        conditions: ["module", "react-server"],
         noExternal: true,
       },
       optimizeDeps: {

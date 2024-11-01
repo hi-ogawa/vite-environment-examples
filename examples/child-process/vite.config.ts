@@ -32,6 +32,7 @@ export default defineConfig((_env) => ({
   environments: {
     rsc: {
       resolve: {
+        conditions: ["module", "react-server"],
         externalConditions: ["react-server"],
       },
       dev: {
