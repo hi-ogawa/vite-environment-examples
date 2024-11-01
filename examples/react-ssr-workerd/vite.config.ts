@@ -41,7 +41,6 @@ export default defineConfig((_env) => ({
       },
     },
     workerd: {
-      webCompatible: true,
       resolve: {
         noExternal: true,
       },

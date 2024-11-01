@@ -37,14 +37,8 @@ export default defineConfig((_env) => ({
       },
     },
     workerd: {
-      webCompatible: true,
       resolve: {
         noExternal: true,
-      },
-      optimizeDeps: {
-        // prevent flaky outdated deps error
-        noDiscovery: true,
-        include: [],
       },
       build: {
         outDir: "dist/server",
