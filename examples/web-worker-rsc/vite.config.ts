@@ -19,7 +19,8 @@ export default defineConfig((_env) => ({
     worker: {
       keepProcessEnv: false,
       resolve: {
-        conditions: ["module", "react-server"],
+        // need "browser" condition for "react-server-dom-webpack/server"
+        conditions: ["module", "worker", "browser", "react-server"],
         noExternal: true,
       },
       optimizeDeps: {
