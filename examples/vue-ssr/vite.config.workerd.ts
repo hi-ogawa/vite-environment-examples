@@ -21,6 +21,7 @@ export default defineConfig((_env) => ({
   environments: {
     workerd: {
       resolve: {
+        conditions: ["module"],
         noExternal: true,
       },
     },

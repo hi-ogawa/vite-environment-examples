@@ -39,6 +39,7 @@ export default defineConfig((_env) => ({
     workerd: {
       resolve: {
         noExternal: true,
+        conditions: ["module"],
       },
       build: {
         outDir: "dist/server",
