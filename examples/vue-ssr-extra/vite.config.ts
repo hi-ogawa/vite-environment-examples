@@ -39,10 +39,16 @@ export default defineConfig((_env) => ({
     workerd: {
       resolve: {
         noExternal: true,
-        conditions: ["module"],
+        conditions: ["module", "browser", "production/development"],
       },
       build: {
         outDir: "dist/server",
+        rollupOptions: {
+          output: {
+            // TODO: broken without this. probably my app setup issue.
+            inlineDynamicImports: true,
+          },
+        },
       },
     },
   },
