@@ -12,7 +12,6 @@ import {
 import {
   DevEnvironment,
   type HotChannel,
-  type HotChannelInvokeHandler,
   type HotPayload,
   type Plugin,
   type ResolvedConfig,
@@ -125,8 +124,8 @@ export async function createWorkerdDevEnvironment(
     unsafeEvalBinding: "__viteUnsafeEval",
     serviceBindings: {
       __viteInvoke: async (request) => {
-        const paylod = (await request.json()) as HotPayload;
-        const result = await invokeHandler(paylod);
+        const payload = (await request.json()) as HotPayload;
+        const result = await devEnv.hot.handleInvoke(payload);
         return MiniflareResponse.json(result);
       },
       __viteRunnerSend: async (request) => {
@@ -175,18 +174,12 @@ export async function createWorkerdDevEnvironment(
 
   // hmr channel
   const hotListener = createHotListenerManager();
-  let invokeHandler: HotChannelInvokeHandler;
-  const hot: HotChannel = {
+  const transport: HotChannel = {
     listen: () => {},
     close: () => {},
     on: hotListener.on,
     off: hotListener.off,
     send: runnerObject.__viteServerSend,
-    setInvokeHandler: (invokeHandler_) => {
-      if (invokeHandler_) {
-        invokeHandler = invokeHandler_;
-      }
-    },
   };
 
   // TODO: move initialization code to `init`?
@@ -199,7 +192,7 @@ export async function createWorkerdDevEnvironment(
   }
 
   const devEnv = new WorkerdDevEnvironmentImpl(name, config, {
-    transport: hot,
+    transport,
     hot: true,
   });
 
