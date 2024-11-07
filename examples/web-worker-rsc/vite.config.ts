@@ -1,7 +1,7 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { vitePluginFetchModuleServer } from "../web-worker/src/lib/fetch-module-server";
 import { vitePluginWorkerEnvironment } from "../web-worker/vite.config";
-import { vitePluginFetchModuleServer } from "./src/lib/fetch-module-server";
 
 export default defineConfig((_env) => ({
   clearScreen: false,
