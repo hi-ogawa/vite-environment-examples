@@ -1,5 +1,5 @@
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
-import { fetchClientFetchModule } from "./fetch-module-client";
+import { fetchClientFetchModule } from "../../../web-worker/src/lib/fetch-module-client";
 
 export function createFetchRunner(options: {
   root: string;
@@ -10,7 +10,7 @@ export function createFetchRunner(options: {
       root: options.root,
       sourcemapInterceptor: false,
       transport: {
-        fetchModule: fetchClientFetchModule(options.environmentName),
+        invoke: fetchClientFetchModule(options.environmentName),
       },
       hmr: false,
     },

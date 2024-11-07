@@ -1,8 +1,5 @@
-import {
-  ESModulesEvaluator,
-  type FetchFunction,
-  ModuleRunner,
-} from "vite/module-runner";
+import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
+import { fetchClientFetchModule } from "../../web-worker/src/lib/fetch-module-client";
 
 export async function start(options: { root: string }) {
   const runner = new ModuleRunner(
@@ -10,7 +7,7 @@ export async function start(options: { root: string }) {
       root: options.root,
       sourcemapInterceptor: false,
       transport: {
-        fetchModule: fetchModuleFetchClient("custom"),
+        invoke: fetchClientFetchModule("custom"),
       },
       hmr: false,
     },
@@ -18,16 +15,4 @@ export async function start(options: { root: string }) {
   );
 
   return runner;
-}
-
-// https://github.com/vitejs/vite/discussions/18191
-function fetchModuleFetchClient(environmentName: string): FetchFunction {
-  return async (...args) => {
-    const payload = JSON.stringify([environmentName, ...args]);
-    const response = await fetch(
-      "/@vite/fetchModule?" + new URLSearchParams({ payload }),
-    );
-    const result = response.json();
-    return result as any;
-  };
 }
