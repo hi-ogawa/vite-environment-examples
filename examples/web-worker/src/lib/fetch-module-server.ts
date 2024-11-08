@@ -1,4 +1,4 @@
-import type { FetchFunction, Plugin } from "vite";
+import { type Plugin } from "vite";
 
 export function vitePluginFetchModuleServer(): Plugin {
   return {
@@ -6,11 +6,10 @@ export function vitePluginFetchModuleServer(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = new URL(req.url ?? "/", "https://any.local");
-        if (url.pathname === "/@vite/fetchModule") {
-          const [name, ...args] = JSON.parse(url.searchParams.get("payload")!);
-          const result = await server.environments[name]!.fetchModule(
-            ...(args as Parameters<FetchFunction>),
-          );
+        if (url.pathname === "/@vite/invoke") {
+          const [name, payload] = JSON.parse(url.searchParams.get("data")!);
+          const devEnv = server.environments[name]!;
+          const result = await devEnv.hot.handleInvoke(payload);
           res.end(JSON.stringify(result));
           return;
         }

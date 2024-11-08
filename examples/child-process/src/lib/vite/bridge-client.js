@@ -1,34 +1,19 @@
 // @ts-check
 
-import assert from "node:assert";
 import { ESModulesEvaluator, ModuleRunner } from "vite/module-runner";
+import { createSSEClientTransport } from "./sse-client.ts";
 
 /**
  * @param {import("./types").BridgeClientOptions} options
  */
 export function createBridgeClient(options) {
-  /**
-   * @param {string} method
-   * @param  {...any} args
-   * @returns {Promise<any>}
-   */
-  async function rpc(method, ...args) {
-    const response = await fetch(options.bridgeUrl + "/rpc", {
-      method: "POST",
-      body: JSON.stringify({ method, args, key: options.key }),
-    });
-    assert(response.ok);
-    const result = response.json();
-    return result;
-  }
-
   const runner = new ModuleRunner(
     {
       root: options.root,
       sourcemapInterceptor: "prepareStackTrace",
-      transport: {
-        fetchModule: (...args) => rpc("fetchModule", ...args),
-      },
+      transport: createSSEClientTransport(
+        options.bridgeUrl + "/sse?" + new URLSearchParams({ key: options.key }),
+      ),
       hmr: false,
     },
     new ESModulesEvaluator(),
@@ -56,5 +41,5 @@ export function createBridgeClient(options) {
     }
   }
 
-  return { runner, rpc, handler };
+  return { runner, handler };
 }

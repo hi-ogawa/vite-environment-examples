@@ -2,6 +2,7 @@
   "extends": "@tsconfig/strictest/tsconfig.json",
   "include": ["src", "e2e", "*.ts"],
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "exactOptionalPropertyTypes": false,
     "verbatimModuleSyntax": true,
     "noEmit": true,

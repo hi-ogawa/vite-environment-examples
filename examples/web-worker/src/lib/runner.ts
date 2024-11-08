@@ -10,7 +10,7 @@ export function createFetchRunner(options: {
       root: options.root,
       sourcemapInterceptor: false,
       transport: {
-        fetchModule: fetchClientFetchModule(options.environmentName),
+        invoke: fetchClientFetchModule(options.environmentName),
       },
       hmr: false,
     },

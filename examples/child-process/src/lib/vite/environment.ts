@@ -6,6 +6,7 @@ import readline from "node:readline";
 import { Readable } from "node:stream";
 import { webToNodeHandler } from "@hiogawa/utils-node";
 import { DevEnvironment, type DevEnvironmentOptions } from "vite";
+import { createSSEServerTransport } from "./sse-server";
 import type { BridgeClientOptions } from "./types";
 
 // TODO
@@ -23,23 +24,24 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   }): NonNullable<DevEnvironmentOptions["createEnvironment"]> {
     return (name, config) => {
       const command = [
-        options.runtime === "node" ? ["node"] : [],
+        options.runtime === "node" ? ["node", "--import", "tsx/esm"] : [],
         options.runtime === "bun" ? ["bun", "run"] : [],
         options.conditions ? ["--conditions", ...options.conditions] : [],
         join(import.meta.dirname, `./runtime/${options.runtime}.js`),
       ].flat();
-      return new ChildProcessFetchDevEnvironment({ command }, name, config, {
-        // TODO
-        hot: false,
-      });
+      return new ChildProcessFetchDevEnvironment({ command }, name, config);
     };
   }
 
   constructor(
     public extraOptions: { command: string[] },
-    ...args: ConstructorParameters<typeof DevEnvironment>
+    name: ConstructorParameters<typeof DevEnvironment>[0],
+    config: ConstructorParameters<typeof DevEnvironment>[1],
   ) {
-    super(...args);
+    super(name, config, {
+      hot: false,
+      transport: createSSEServerTransport(),
+    });
   }
 
   override init: DevEnvironment["init"] = async (...args) => {
@@ -49,18 +51,11 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
     const key = Math.random().toString(36).slice(2);
 
     const listener = webToNodeHandler(async (request) => {
-      const url = new URL(request.url);
-      // TODO: other than json?
-      if (url.pathname === "/rpc") {
-        const { method, args, key: reqKey } = await request.json();
-        if (reqKey !== key) {
-          return Response.json({ message: "invalid key" }, { status: 400 });
-        }
-        assert(method in this);
-        const result = await (this as any)[method]!(...args);
-        return Response.json(result);
+      const reqKey = new URL(request.url).searchParams.get("key");
+      if (reqKey !== key) {
+        return Response.json({ message: "invalid key" }, { status: 400 });
       }
-      return undefined;
+      return this.hot.api.handler(request);
     });
 
     const bridge = http.createServer((req, res) => {
