@@ -21,9 +21,8 @@ export type ModuleMap = {
 };
 
 export interface SsrManifest {
-  moduleMap: ModuleMap;
-  // TODO
-  moduleLoading: null;
+  moduleMap?: ModuleMap;
+  moduleLoading?: null;
 }
 
 export type WebpackRequire = (id: string) => Promise<unknown>;

@@ -1,6 +1,6 @@
-import { memoize, tinyassert } from "@hiogawa/utils";
+import { tinyassert } from "@hiogawa/utils";
 import ReactServer from "react-server-dom-webpack/server.edge";
-import type { BundlerConfig, ImportManifestEntry } from "../../types";
+import { createBundlerConfig } from "../client-component/server";
 
 export function registerServerReference(
   action: Function,
@@ -15,9 +15,6 @@ export function registerServerReference(
 
 export async function serverActionHandler({ request }: { request: Request }) {
   initializeReactServer();
-  if (import.meta.env.DEV) {
-    serverReferenceImportPromiseCache.clear();
-  }
 
   const url = new URL(request.url);
   let boundAction: Function;
@@ -37,7 +34,7 @@ export async function serverActionHandler({ request }: { request: Request }) {
     const formData = await request.formData();
     const decodedAction = await ReactServer.decodeAction(
       formData,
-      createActionBundlerConfig(),
+      createBundlerConfig(),
     );
     boundAction = async () => {
       const result = await decodedAction();
@@ -65,38 +62,22 @@ async function importServerAction(id: string): Promise<Function> {
   return mod[name];
 }
 
-function createActionBundlerConfig(): BundlerConfig {
-  return new Proxy(
-    {},
-    {
-      get(_target, $$id, _receiver) {
-        tinyassert(typeof $$id === "string");
-        let [id, name] = $$id.split("#");
-        tinyassert(id);
-        tinyassert(name);
-        return {
-          id,
-          name,
-          chunks: [],
-        } satisfies ImportManifestEntry;
-      },
-    },
-  );
-}
+const cache = new Map<string, unknown>();
 
-// maybe this is also not necessary anymore
-// (see examples/react-server/src/features/client-component/server.ts)
-const serverReferenceImportPromiseCache = new Map<string, Promise<unknown>>();
-
-const serverReferenceWebpackRequire = memoize(importServerReference, {
-  cache: serverReferenceImportPromiseCache,
-});
-
-function initializeReactServer() {
+export function initializeReactServer() {
   Object.assign(globalThis, {
-    __vite_react_server_webpack_require__: serverReferenceWebpackRequire,
-    __vite_react_server_webpack_chunk_load__: () => {
-      throw new Error("todo: __webpack_chunk_load__");
+    __vite_react_server_webpack_require__: (id: string) => {
+      const mod = cache.get(id);
+      tinyassert(mod, `invalid server reference '${id}'`);
+      return cache.get(id);
+    },
+    __vite_react_server_webpack_chunk_load__: (id: string) => {
+      if (import.meta.env.DEV) {
+        id = id.split("*")[0];
+      }
+      const promise = importServerReference(id);
+      promise.then((v) => cache.set(id, v));
+      return promise;
     },
   });
 }
