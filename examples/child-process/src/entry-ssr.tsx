@@ -26,7 +26,7 @@ export default async function handler(request: Request): Promise<Response> {
   const rscPromise = ReactClient.createFromReadableStream<StreamData>(
     rscStream1,
     {
-      ssrManifest: {},
+      serverConsumerManifest: {},
     },
   );
 

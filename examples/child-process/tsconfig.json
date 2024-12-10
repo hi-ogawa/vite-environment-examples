@@ -10,7 +10,7 @@
     "module": "ESNext",
     "target": "ESNext",
     "lib": ["ESNext", "DOM"],
-    "types": ["vite/client", "react/experimental", "@types/bun"],
+    "types": ["vite/client", "@types/bun"],
     "jsx": "react-jsx"
   }
 }

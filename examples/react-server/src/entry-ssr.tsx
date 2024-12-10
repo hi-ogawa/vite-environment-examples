@@ -31,9 +31,8 @@ async function renderHtml(request: Request, result: ReactServerHandlerResult) {
   const rscPromise = ReactClient.createFromReadableStream<StreamData>(
     rscStream1,
     {
-      ssrManifest: {
+      serverConsumerManifest: {
         moduleMap: createModuleMap(),
-        moduleLoading: null,
       },
     },
   );

@@ -20,10 +20,11 @@ export type ModuleMap = {
   };
 };
 
-export interface SsrManifest {
+export interface ServerConsumerManifest {
   moduleMap: ModuleMap;
   // TODO
-  moduleLoading: null;
+  serverModuleMap?: unknown;
+  moduleLoading?: unknown;
 }
 
 export type WebpackRequire = (id: string) => Promise<unknown>;
