@@ -6,9 +6,9 @@ export function Link({
   activeProps,
   pendingProps,
   ...props
-}: JSX.IntrinsicElements["a"] & {
-  activeProps?: JSX.IntrinsicElements["a"];
-  pendingProps?: JSX.IntrinsicElements["a"];
+}: React.JSX.IntrinsicElements["a"] & {
+  activeProps?: React.JSX.IntrinsicElements["a"];
+  pendingProps?: React.JSX.IntrinsicElements["a"];
 }) {
   const { isPending, pathname } = useRouter();
 

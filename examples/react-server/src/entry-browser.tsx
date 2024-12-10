@@ -85,7 +85,7 @@ async function main() {
     ReactDOMClient.createRoot(document).render(reactRootEl);
   } else {
     // TODO: can we avoid await? (separate script stream?)
-    const formState = (await initialStreamData).actionResult;
+    const formState = (await initialStreamData).actionResult as any;
     React.startTransition(() => {
       ReactDOMClient.hydrateRoot(document, reactRootEl, {
         formState,
