@@ -20,7 +20,7 @@ export type ModuleMap = {
   };
 };
 
-export interface SsrManifest {
+export interface ServerConsumerManifest {
   moduleMap: ModuleMap;
   // TODO
   serverModuleMap?: unknown;
