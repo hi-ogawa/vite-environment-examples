@@ -13,15 +13,15 @@
     "test-e2e-preview": "E2E_PREVIEW=1 playwright test"
   },
   "dependencies": {
-    "pinia": "^2.1.7",
-    "vue": "^3.4.32",
-    "vue-router": "^4.4.0"
+    "pinia": "^2.3.1",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240925.0",
+    "@cloudflare/workers-types": "^4.20250121.0",
     "@hiogawa/vite-plugin-workerd": "workspace:*",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "vue-tsc": "^2.0.26"
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vue-tsc": "^2.2.0"
   },
   "volta": {
     "extends": "../../package.json"

@@ -8,18 +8,14 @@
   border: none;
   border-radius: 8px;
   padding: 0.5rem 0.75rem;
-  box-shadow:
-    0 0px 1px hsla(0, 0%, 0%, 0.2),
-    0 1px 2px hsla(0, 0%, 0%, 0.2);
+  box-shadow: 0 0px 1px hsla(0, 0%, 0%, 0.2), 0 1px 2px hsla(0, 0%, 0%, 0.2);
   line-height: 1.5;
   margin: 0.4rem;
   font-weight: 500;
 }
 
 .client-btn:hover {
-  box-shadow:
-    0 0px 1px hsla(0, 0%, 0%, 0.6),
-    0 1px 2px hsla(0, 0%, 0%, 0.2);
+  box-shadow: 0 0px 1px hsla(0, 0%, 0%, 0.6), 0 1px 2px hsla(0, 0%, 0%, 0.2);
 }
 
 .client-btn:active {
@@ -34,16 +30,12 @@
   border: none;
   border-radius: 8px;
   padding: 0.5rem 0.75rem;
-  box-shadow:
-    0 0px 1px hsla(0, 0%, 0%, 0.2),
-    0 1px 2px hsla(0, 0%, 0%, 0.2);
+  box-shadow: 0 0px 1px hsla(0, 0%, 0%, 0.2), 0 1px 2px hsla(0, 0%, 0%, 0.2);
   line-height: 1.5;
   margin: 0.4rem;
   font-weight: 500;
 }
 
 .client-input:hover {
-  box-shadow:
-    0 0px 1px hsla(0, 0%, 0%, 0.6),
-    0 1px 2px hsla(0, 0%, 0%, 0.2);
+  box-shadow: 0 0px 1px hsla(0, 0%, 0%, 0.6), 0 1px 2px hsla(0, 0%, 0%, 0.2);
 }
