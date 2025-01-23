@@ -1,3 +1,4 @@
+import { mkdirSync } from "node:fs";
 import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginWorkerd } from "@hiogawa/vite-plugin-workerd";
 import vue from "@vitejs/plugin-vue";
@@ -27,6 +28,14 @@ export default defineConfig((_env) => ({
       },
     }),
     vitePluginVirtualIndexHtml(),
+    {
+      // ensure wrangler.toml assets.directory exists
+      name: "ensure-wrangler-assets-directory",
+      enforce: "pre",
+      config() {
+        mkdirSync("dist/client", { recursive: true });
+      },
+    },
   ],
   environments: {
     client: {

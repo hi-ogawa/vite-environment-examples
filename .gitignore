@@ -4,3 +4,4 @@ dist
 .wrangler
 .mf
 test-results
+*.tsbuildinfo

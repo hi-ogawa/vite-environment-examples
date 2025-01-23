@@ -1,3 +1,4 @@
+import { mkdirSync } from "node:fs";
 import { tinyassert } from "@hiogawa/utils";
 import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginWorkerd } from "@hiogawa/vite-plugin-workerd";
@@ -31,6 +32,14 @@ export default defineConfig((_env) => ({
         devEnv.hot.on("send-to-server", (e) => {
           devEnv.hot.send("send-to-runner", { server: e });
         });
+      },
+    },
+    {
+      // ensure wrangler.toml assets.directory exists
+      name: "ensure-wrangler-assets-directory",
+      enforce: "pre",
+      config() {
+        mkdirSync("dist/client", { recursive: true });
       },
     },
   ],

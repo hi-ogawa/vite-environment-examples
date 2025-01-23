@@ -39,10 +39,8 @@ export function vitePluginWorkerd(pluginOptions: WorkerdPluginOptions): Plugin {
           workerd: {
             keepProcessEnv: false,
             optimizeDeps: {
-              // prevent `import { createRequire } from "node:module"`
               esbuildOptions: {
                 platform: "browser",
-                banner: undefined,
               },
             },
             dev: {

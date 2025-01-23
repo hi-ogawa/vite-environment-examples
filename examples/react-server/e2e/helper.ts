@@ -3,6 +3,7 @@ import { sleep } from "@hiogawa/utils";
 import { type Page, type Request, expect, test } from "@playwright/test";
 
 export const testNoJs = test.extend({
+  // @ts-ignore
   javaScriptEnabled: ({}, use) => use(false),
 });
 

@@ -10,7 +10,7 @@
     "test-e2e-preview": "E2E_PREVIEW=1 playwright test"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.10"
+    "@types/bun": "^1.2.0"
   },
   "volta": {
     "extends": "../../package.json"
