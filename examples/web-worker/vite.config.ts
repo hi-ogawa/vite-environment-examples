@@ -37,7 +37,6 @@ export default defineConfig((_env) => ({
         ],
         esbuildOptions: {
           platform: "browser",
-          banner: undefined,
         },
       },
       build: {

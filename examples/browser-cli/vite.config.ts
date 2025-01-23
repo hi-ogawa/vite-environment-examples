@@ -14,9 +14,9 @@ export default defineConfig((_env) => ({
         ],
         esbuildOptions: {
           platform: "browser",
-          banner: undefined,
         },
       },
+      keepProcessEnv: false,
     },
   },
 }));
