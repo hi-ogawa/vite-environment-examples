@@ -37,6 +37,7 @@ export default defineConfig((_env) => ({
     {
       // ensure wrangler.toml assets.directory exists
       name: "ensure-wrangler-assets-directory",
+      enforce: "pre",
       config() {
         mkdirSync("dist/client", { recursive: true });
       },
