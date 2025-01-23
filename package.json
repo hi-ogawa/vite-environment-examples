@@ -13,7 +13,7 @@
     "vite-ecosystem-ci:test": "bash misc/vite-ecosystem-ci.sh"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "1.9.5-nightly.81fdedb",
     "@hiogawa/utils": "1.7.0",
     "@hiogawa/utils-node": "^0.0.2",
     "@hiogawa/vite-plugin-ssr-middleware": "^0.0.3",
