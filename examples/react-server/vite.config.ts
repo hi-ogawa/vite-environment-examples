@@ -217,7 +217,8 @@ function vitePluginUseClient(): PluginOption {
       manager.clientReferenceMap.delete(id);
       if (code.includes("use client")) {
         const runtimeId = await normalizeReferenceId(id, "client");
-        const ast = await parseAstAsync(code);
+        const ast = this.parse(code)
+        // const ast = await parseAstAsync(code);
         let output = await transformDirectiveProxyExport(ast, {
           directive: "use client",
           id: runtimeId,
@@ -291,7 +292,8 @@ function vitePluginServerAction(): PluginOption {
       if (!code.includes("use server") || id.includes("/.vite/deps/")) {
         return;
       }
-      const ast = await parseAstAsync(code);
+      const ast = this.parse(code)
+      // const ast = await parseAstAsync(code);
       tinyassert(this.environment);
       const runtimeId = await normalizeReferenceId(id, "rsc");
       if (this.environment.name === "rsc") {
