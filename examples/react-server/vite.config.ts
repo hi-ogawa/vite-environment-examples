@@ -8,13 +8,14 @@ import { createDebug, tinyassert, typedBoolean } from "@hiogawa/utils";
 import { vitePluginLogger } from "@hiogawa/vite-plugin-ssr-middleware";
 import { vitePluginSsrMiddleware } from "@hiogawa/vite-plugin-ssr-middleware-alpha";
 import react from "@vitejs/plugin-react";
+import { parseAstAsync } from "rollup/parseAst";
 import {
   type Plugin,
   type PluginOption,
   type ResolvedConfig,
   createServerModuleRunner,
   defineConfig,
-  parseAstAsync,
+  // parseAstAsync,
 } from "vite";
 import {
   ENTRY_BROWSER_BOOTSTRAP,
@@ -217,8 +218,7 @@ function vitePluginUseClient(): PluginOption {
       manager.clientReferenceMap.delete(id);
       if (code.includes("use client")) {
         const runtimeId = await normalizeReferenceId(id, "client");
-        const ast = this.parse(code)
-        // const ast = await parseAstAsync(code);
+        const ast = await parseAstAsync(code);
         let output = await transformDirectiveProxyExport(ast, {
           directive: "use client",
           id: runtimeId,
@@ -292,8 +292,7 @@ function vitePluginServerAction(): PluginOption {
       if (!code.includes("use server") || id.includes("/.vite/deps/")) {
         return;
       }
-      const ast = this.parse(code)
-      // const ast = await parseAstAsync(code);
+      const ast = await parseAstAsync(code);
       tinyassert(this.environment);
       const runtimeId = await normalizeReferenceId(id, "rsc");
       if (this.environment.name === "rsc") {
