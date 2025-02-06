@@ -46,3 +46,20 @@ jobs:
       - run: pnpm -C examples/vue-ssr-extra build
       - run: pnpm -C examples/vue-ssr-extra test-e2e-preview
       - run: pnpm -C examples/vue-ssr-extra tsc
+
+  ecosystem-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.1.29
+      - run: npm i -g corepack@latest
+      - run: corepack enable
+      - run: pnpm i
+      - run: pnpm run vite-ecosystem-ci:build
+      - run: pnpm run vite-ecosystem-ci:before-test
+      - run: pnpm run vite-ecosystem-ci:test
