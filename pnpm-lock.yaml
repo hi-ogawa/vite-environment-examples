@@ -7,6 +7,11 @@ settings:
 overrides:
   vite: https://pkg.pr.new/rolldown/vite@e2990b1
 
+patchedDependencies:
+  vite:
+    hash: vc4gknttnqqcdorhiaarckmzz4
+    path: patches/vite.patch
+
 importers:
 
   .:
@@ -22,7 +27,7 @@ importers:
         version: 0.0.2
       '@hiogawa/vite-plugin-ssr-middleware':
         specifier: ^0.0.3
-        version: 0.0.3(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))
+        version: 0.0.3(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))
       '@playwright/test':
         specifier: ^1.49.1
         version: 1.49.1
@@ -40,7 +45,7 @@ importers:
         version: 19.0.3(@types/react@19.0.7)
       '@vitejs/plugin-react':
         specifier: ^4.3.4
-        version: 4.3.4(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))
+        version: 4.3.4(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))
       esbuild:
         specifier: ^0.24.2
         version: 0.24.2
@@ -73,7 +78,7 @@ importers:
         version: 5.7.3
       vite:
         specifier: https://pkg.pr.new/rolldown/vite@e2990b1
-        version: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+        version: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
       vitest:
         specifier: ^3.0.3
         version: 3.0.3(@types/node@22.10.8)(esbuild@0.24.2)(happy-dom@16.7.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
@@ -108,7 +113,7 @@ importers:
         version: 0.30.17
       unocss:
         specifier: 65.4.3
-        version: 65.4.3(postcss@8.5.1)(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
+        version: 65.4.3(postcss@8.5.1)(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
 
   examples/react-ssr:
     devDependencies:
@@ -142,7 +147,7 @@ importers:
         version: link:../../packages/workerd
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
-        version: 5.2.1(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
+        version: 5.2.1(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
       vue-tsc:
         specifier: ^2.2.0
         version: 2.2.0(typescript@5.7.3)
@@ -167,7 +172,7 @@ importers:
         version: link:../../packages/workerd
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
-        version: 5.2.1(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
+        version: 5.2.1(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
       vue-tsc:
         specifier: ^2.2.0
         version: 2.2.0(typescript@5.7.3)
@@ -190,7 +195,7 @@ importers:
     dependencies:
       vite:
         specifier: https://pkg.pr.new/rolldown/vite@e2990b1
-        version: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+        version: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
 
   packages/workerd:
     devDependencies:
@@ -202,7 +207,7 @@ importers:
         version: 3.20241230.2
       vite:
         specifier: https://pkg.pr.new/rolldown/vite@e2990b1
-        version: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+        version: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
       wrangler:
         specifier: ^3.105.0
         version: 3.105.0(@cloudflare/workers-types@4.20250121.0)
@@ -3047,9 +3052,9 @@ snapshots:
 
   '@hiogawa/utils@1.7.0': {}
 
-  '@hiogawa/vite-plugin-ssr-middleware@0.0.3(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))':
+  '@hiogawa/vite-plugin-ssr-middleware@0.0.3(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))':
     dependencies:
-      vite: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+      vite: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
 
   '@iconify/types@2.0.0': {}
 
@@ -3285,13 +3290,13 @@ snapshots:
     dependencies:
       '@types/node': 22.10.8
 
-  '@unocss/astro@65.4.3(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))':
+  '@unocss/astro@65.4.3(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@unocss/core': 65.4.3
       '@unocss/reset': 65.4.3
-      '@unocss/vite': 65.4.3(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
+      '@unocss/vite': 65.4.3(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
     optionalDependencies:
-      vite: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+      vite: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -3421,7 +3426,7 @@ snapshots:
     dependencies:
       '@unocss/core': 65.4.3
 
-  '@unocss/vite@65.4.3(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))':
+  '@unocss/vite@65.4.3(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@rollup/pluginutils': 5.1.4(rollup@4.34.2)
@@ -3431,7 +3436,7 @@ snapshots:
       chokidar: 3.6.0
       magic-string: 0.30.17
       tinyglobby: 0.2.10
-      vite: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+      vite: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -3441,20 +3446,20 @@ snapshots:
     dependencies:
       valibot: 1.0.0-beta.14(typescript@5.7.3)
 
-  '@vitejs/plugin-react@4.3.4(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))':
+  '@vitejs/plugin-react@4.3.4(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/plugin-transform-react-jsx-self': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-react-jsx-source': 7.25.9(@babel/core@7.26.0)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+      vite: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@5.2.1(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))':
+  '@vitejs/plugin-vue@5.2.1(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))':
     dependencies:
-      vite: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+      vite: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
       vue: 3.5.13(typescript@5.7.3)
 
   '@vitest/expect@3.0.3':
@@ -3464,13 +3469,13 @@ snapshots:
       chai: 5.1.2
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.0.3(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))':
+  '@vitest/mocker@3.0.3(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))':
     dependencies:
       '@vitest/spy': 3.0.3
       estree-walker: 3.0.3
       magic-string: 0.30.17
     optionalDependencies:
-      vite: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+      vite: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
 
   '@vitest/pretty-format@3.0.3':
     dependencies:
@@ -4657,9 +4662,9 @@ snapshots:
       pathe: 1.1.2
       ufo: 1.5.4
 
-  unocss@65.4.3(postcss@8.5.1)(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3)):
+  unocss@65.4.3(postcss@8.5.1)(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3)):
     dependencies:
-      '@unocss/astro': 65.4.3(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
+      '@unocss/astro': 65.4.3(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
       '@unocss/cli': 65.4.3(rollup@4.34.2)
       '@unocss/core': 65.4.3
       '@unocss/postcss': 65.4.3(postcss@8.5.1)
@@ -4675,9 +4680,9 @@ snapshots:
       '@unocss/transformer-compile-class': 65.4.3
       '@unocss/transformer-directives': 65.4.3
       '@unocss/transformer-variant-group': 65.4.3
-      '@unocss/vite': 65.4.3(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
+      '@unocss/vite': 65.4.3(rollup@4.34.2)(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
     optionalDependencies:
-      vite: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+      vite: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
     transitivePeerDependencies:
       - postcss
       - rollup
@@ -4704,7 +4709,7 @@ snapshots:
       debug: 4.4.0
       es-module-lexer: 1.6.0
       pathe: 2.0.2
-      vite: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+      vite: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
     transitivePeerDependencies:
       - '@types/node'
       - esbuild
@@ -4720,7 +4725,7 @@ snapshots:
       - typescript
       - yaml
 
-  vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3):
+  vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3):
     dependencies:
       '@babel/runtime': 7.26.7
       lightningcss: 1.29.1
@@ -4739,7 +4744,7 @@ snapshots:
   vitest@3.0.3(@types/node@22.10.8)(esbuild@0.24.2)(happy-dom@16.7.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3):
     dependencies:
       '@vitest/expect': 3.0.3
-      '@vitest/mocker': 3.0.3(vite@https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))
+      '@vitest/mocker': 3.0.3(vite@https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3))
       '@vitest/pretty-format': 3.0.3
       '@vitest/runner': 3.0.3
       '@vitest/snapshot': 3.0.3
@@ -4755,7 +4760,7 @@ snapshots:
       tinyexec: 0.3.2
       tinypool: 1.0.2
       tinyrainbow: 2.0.0
-      vite: https://pkg.pr.new/rolldown/vite@e2990b1(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
+      vite: https://pkg.pr.new/rolldown/vite@e2990b1(patch_hash=vc4gknttnqqcdorhiaarckmzz4)(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
       vite-node: 3.0.3(@types/node@22.10.8)(esbuild@0.24.2)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
