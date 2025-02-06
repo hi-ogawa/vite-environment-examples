@@ -10,6 +10,7 @@ export default defineConfig((_env) => ({
     react(),
     vitePluginWorkerEnvironment(),
     vitePluginFetchModuleServer(),
+    rolldownPluginRollupFileUrl(),
   ],
   environments: {
     client: {
@@ -217,4 +218,42 @@ function PromiseWithReoslvers<T>(): PromiseWithResolvers<T> {
     reject = reject_;
   });
   return { promise, resolve, reject };
+}
+
+// workaround until https://github.com/rolldown/rolldown/pull/3488
+import path from "node:path";
+function rolldownPluginRollupFileUrl(): Plugin {
+  return {
+    name: rolldownPluginRollupFileUrl.name,
+    renderChunk: {
+      order: "pre",
+      handler(code, chunk) {
+        if (!code.includes("import.meta.ROLLUP_FILE_URL_")) {
+          return;
+        }
+        const matches = code.matchAll(/import.meta.ROLLUP_FILE_URL_(\w+)/dg);
+        const output = new MagicString(code);
+        for (const match of matches) {
+          const referenceId = match[1]!;
+          const assetFileName = this.getFileName(referenceId);
+          const relativePath =
+            "./" +
+            path.relative(
+              path.resolve(chunk.fileName, ".."),
+              path.resolve(assetFileName),
+            );
+          const replacement = `new URL(${JSON.stringify(relativePath)}, import.meta.url)`;
+          const [start, end] = match.indices![0]!;
+          output.update(start, end, replacement);
+        }
+        if (output.hasChanged()) {
+          return {
+            code: output.toString(),
+            map: output.generateMap({ hires: "boundary" }),
+          };
+        }
+        return;
+      },
+    },
+  };
 }
