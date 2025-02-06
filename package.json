@@ -44,9 +44,6 @@
   "pnpm": {
     "overrides": {
       "vite": "$vite"
-    },
-    "patchedDependencies": {
-      "vite": "patches/vite.patch"
     }
   },
   "stackblitz": {
