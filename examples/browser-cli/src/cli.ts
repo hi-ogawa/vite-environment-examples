@@ -1,11 +1,12 @@
 import repl from "node:repl";
 import { createManualPromise, tinyassert } from "@hiogawa/utils";
 import { chromium } from "@playwright/test";
+import { parseAstAsync } from "rollup/parseAst";
 import {
   type Plugin,
   type PluginOption,
   createServer,
-  parseAstAsync,
+  // parseAstAsync,
 } from "vite";
 import type { ModuleRunner } from "vite/module-runner";
 import { vitePluginFetchModuleServer } from "../../web-worker/src/lib/fetch-module-server";
