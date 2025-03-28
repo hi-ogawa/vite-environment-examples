@@ -10,15 +10,7 @@ import type { BundlerConfig, ImportManifestEntry } from "../../types";
 // name: Counter
 
 export function registerClientReference(id: string, name: string) {
-  // reuse everything but $$async: true for simplicity
-  const reference = ReactServer.registerClientReference({}, id, name);
-  return Object.defineProperties(
-    {},
-    {
-      ...Object.getOwnPropertyDescriptors(reference),
-      $$async: { value: true },
-    },
-  );
+  return ReactServer.registerClientReference({}, id, name);
 }
 
 export function createBundlerConfig(): BundlerConfig {
@@ -30,7 +22,12 @@ export function createBundlerConfig(): BundlerConfig {
         let [id, name] = $$id.split("#");
         tinyassert(id);
         tinyassert(name);
-        return { id, name, chunks: [] } satisfies ImportManifestEntry;
+        return {
+          id,
+          name,
+          chunks: [],
+          async: true,
+        } satisfies ImportManifestEntry;
       },
     },
   );
