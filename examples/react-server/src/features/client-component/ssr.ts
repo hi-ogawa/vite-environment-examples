@@ -45,6 +45,7 @@ export function createModuleMap(): ModuleMap {
                 id,
                 name,
                 chunks: [],
+                async: true,
               } satisfies ImportManifestEntry;
             },
           },
