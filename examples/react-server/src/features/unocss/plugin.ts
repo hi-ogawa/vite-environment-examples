@@ -93,8 +93,13 @@ export function vitePluginSharedUnocss(): PluginOption {
           await ctx.flushTasks();
           let { css } = await ctx.uno.generate(ctx.tokens);
           for (const plugin of cssPlugins) {
-            tinyassert(typeof plugin.transform === "function");
-            const result = await plugin.transform.apply(this as any, [
+            tinyassert(plugin.transform);
+            const handler =
+              "handler" in plugin.transform
+                ? plugin.transform.handler
+                : plugin.transform;
+            tinyassert(typeof handler === "function");
+            const result = await handler.apply(this as any, [
               css,
               "\0virtual:unocss.css",
             ]);
