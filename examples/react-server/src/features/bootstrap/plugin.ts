@@ -19,7 +19,7 @@ export function vitePluginEntryBootstrap(): PluginOption {
         // wrapper entry to ensure client entry runs after vite/react inititialization
         return `
           import "${VIRTUAL_COPY_SERVER_CSS}";
-          for (let i = 0; !window.__vite_plugin_react_preamble_installed__; i++) {
+          for (let i = 0; !window.$RefreshReg$; i++) {
             await new Promise(resolve => setTimeout(resolve, 10 * (2 ** i)));
           }
           import("/src/entry-browser");

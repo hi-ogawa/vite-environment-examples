@@ -39,8 +39,8 @@ importers:
         specifier: ^19.0.3
         version: 19.0.3(@types/react@19.0.7)
       '@vitejs/plugin-react':
-        specifier: ^4.3.4
-        version: 4.3.4(vite@6.2.6(@types/node@22.10.8)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2))
+        specifier: 4.4.0-beta.1
+        version: 4.4.0-beta.1(vite@6.2.6(@types/node@22.10.8)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2))
       esbuild:
         specifier: ^0.24.2
         version: 0.24.2
@@ -1270,8 +1270,8 @@ packages:
     peerDependencies:
       vite: ^6.2.6
 
-  '@vitejs/plugin-react@4.3.4':
-    resolution: {integrity: sha512-SCCPBJtYLdE8PX/7ZQAs1QAZ8Jqwih+0VBLum1EGqmCCQal+MIUqLCzj3ZUy8ufbC0cAM4LRlSTm7IQJwWT4ug==}
+  '@vitejs/plugin-react@4.4.0-beta.1':
+    resolution: {integrity: sha512-hji9QKz1xheqJ7vO6pmDFxtBXo7atK9zfnYqmtpQqJVjY0RIWFv0dSwK02HcsWiYSC41vjsmfqyF8UQ/sip/jg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^6.2.6
@@ -3412,7 +3412,7 @@ snapshots:
       - supports-color
       - vue
 
-  '@vitejs/plugin-react@4.3.4(vite@6.2.6(@types/node@22.10.8)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2))':
+  '@vitejs/plugin-react@4.4.0-beta.1(vite@6.2.6(@types/node@22.10.8)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2))':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/plugin-transform-react-jsx-self': 7.25.9(@babel/core@7.26.0)
