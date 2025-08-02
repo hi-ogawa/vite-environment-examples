@@ -19,13 +19,14 @@ export class ChildProcessFetchDevEnvironment extends DevEnvironment {
   public childUrl!: string;
 
   static createFactory(options: {
-    runtime: "node" | "bun";
+    runtime: "node" | "bun" | "deno";
     conditions?: string[];
   }): NonNullable<DevEnvironmentOptions["createEnvironment"]> {
     return (name, config) => {
       const command = [
         options.runtime === "node" ? ["node", "--import", "tsx/esm"] : [],
         options.runtime === "bun" ? ["bun", "run"] : [],
+        options.runtime === "deno" ? ["deno", "run"] : [],
         options.conditions ? ["--conditions", ...options.conditions] : [],
         join(import.meta.dirname, `./runtime/${options.runtime}.js`),
       ].flat();
