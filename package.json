@@ -17,7 +17,7 @@
     "@hiogawa/utils": "1.7.0",
     "@hiogawa/utils-node": "^0.0.2",
     "@hiogawa/vite-plugin-ssr-middleware": "^0.0.3",
-    "@playwright/test": "^1.49.1",
+    "@playwright/test": "^1.55.0",
     "@tsconfig/strictest": "^2.0.5",
     "@types/node": "^22.10.8",
     "@types/react": "^19.0.7",
@@ -37,9 +37,6 @@
     "wrangler": "^3.105.0"
   },
   "packageManager": "pnpm@10.2.0+sha512.0d27364e0139c6aadeed65ada153135e0ca96c8da42123bd50047f961339dc7a758fc2e944b428f52be570d1bd3372455c1c65fa2e7aa0bfbf931190f9552001",
-  "volta": {
-    "node": "22.14.0"
-  },
   "pnpm": {
     "overrides": {
       "vite": "$vite"
