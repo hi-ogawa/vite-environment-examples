@@ -10,6 +10,7 @@ export function vitePluginFetchModuleServer(): Plugin {
           const [name, payload] = JSON.parse(url.searchParams.get("data")!);
           const devEnv = server.environments[name]!;
           const result = await devEnv.hot.handleInvoke(payload);
+          res.setHeader("Content-Type", "application/json");
           res.end(JSON.stringify(result));
           return;
         }
