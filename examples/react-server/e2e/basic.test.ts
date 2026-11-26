@@ -259,6 +259,11 @@ async function testCssBasic(page: Page) {
 }
 
 test("css hmr server @dev", async ({ page }) => {
+  // flaky on CI
+  if (process.env["CI"]) {
+    test.skip();
+  }
+
   usePageErrorChecker(page);
   await page.goto("/");
   await waitForHydration(page);

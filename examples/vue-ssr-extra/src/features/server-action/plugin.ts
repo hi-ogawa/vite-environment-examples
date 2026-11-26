@@ -71,7 +71,9 @@ async function collectFiles(baseDir: string) {
     withFileTypes: true,
     recursive: true,
   });
-  return files.filter((f) => f.isFile()).map((f) => path.join(f.path, f.name));
+  return files
+    .filter((f) => f.isFile())
+    .map((f) => path.join(f.parentPath, f.name));
 }
 
 function createVirtualPlugin(name: string, load: Plugin["load"]) {
