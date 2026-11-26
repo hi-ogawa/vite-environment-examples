@@ -17,7 +17,7 @@
     "@hiogawa/utils": "1.7.0",
     "@hiogawa/utils-node": "^0.0.2",
     "@hiogawa/vite-plugin-ssr-middleware": "^0.0.3",
-    "@playwright/test": "^1.55.0",
+    "@playwright/test": "^1.65.1",
     "@tsconfig/strictest": "^2.0.5",
     "@types/node": "^22.10.8",
     "@types/react": "^19.0.7",
